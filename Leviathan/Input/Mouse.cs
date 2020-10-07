@@ -13,6 +13,7 @@ namespace Leviathan.Input
     {
         private InterfaceHandler<IMouseListener> mouse_listeners;
         private Vector2 position;
+        public CursorMode cursor_mode { get; private set; }
 
         public Mouse(in GameWindow window)
         {
@@ -21,9 +22,13 @@ namespace Leviathan.Input
             window.MouseUp += Window_MouseUp;
             window.MouseMove += Window_MouseMove;
             window.MouseWheel += Window_MouseWheel;
+            this.cursor_mode = CursorMode.VISIBLE;
             position = window.MousePosition;
         }
 
+        
+
+        
         public void AddListener(IMouseListener sub)
         {
             this.mouse_listeners.AddSubscriber(sub);
@@ -32,6 +37,25 @@ namespace Leviathan.Input
         public void RemoveListener(IMouseListener sub)
         {
             this.mouse_listeners.RemoveSubscriber(sub);
+        }
+
+        public void SetCursorMode(in GameWindow window, CursorMode mode)
+        {
+            switch(mode)
+            {
+                case CursorMode.VISIBLE:
+                    window.CursorVisible = true;
+                    window.CursorGrabbed = false;
+                    break;
+                case CursorMode.INVISIBLE:
+                    window.CursorVisible = false;
+                    window.CursorGrabbed = false;
+                    break;
+                case CursorMode.FPS:
+                    window.CursorVisible = true;
+                    window.CursorGrabbed = true;
+                    break;
+            }
         }
 
         private void Window_MouseWheel(OpenTK.Windowing.Common.MouseWheelEventArgs obj)
@@ -66,5 +90,12 @@ namespace Leviathan.Input
                 item?.OnMouseRelease(this.position, (int)obj.Button);
             }));
         }
+    }
+
+    public enum CursorMode
+    {
+        VISIBLE,
+        INVISIBLE,
+        FPS
     }
 }

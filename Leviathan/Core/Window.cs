@@ -16,6 +16,7 @@ namespace Leviathan.Core
     {
         public GameWindow w_handle { get; private set; }
         public Mouse mouse { get; private set; }
+        public Keyboard keyboard { get; private set; }
         private InterfaceHandler<IWindowListener>   window_listeners;
 
         public Window(string title, int width, int height, bool fullscreen, bool resizable = false) {
@@ -30,6 +31,7 @@ namespace Leviathan.Core
 #endif
             this.w_handle = new GameWindow(gw, nw);
             this.mouse = new Mouse(this.w_handle);
+            this.keyboard = new Keyboard(this.w_handle);
             RegisterEventFunctions();
             
             window_listeners = new InterfaceHandler<IWindowListener>();
@@ -43,6 +45,11 @@ namespace Leviathan.Core
             w_handle.Resize += Window_Resize;
             w_handle.FocusedChanged += Window_FocusedChanged;
             w_handle.RenderFrame += Window_RenderFrame;
+        }
+
+        public void SetCursorMode(CursorMode mode)
+        {
+            this.mouse.SetCursorMode(this.w_handle, mode);
         }
 
         public void Run()

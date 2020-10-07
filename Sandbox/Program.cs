@@ -3,6 +3,7 @@ using Leviathan;
 using Leviathan.Input.Listeners;
 using Leviathan.Core;
 using OpenTK.Mathematics;
+using System.Collections.Generic;
 
 namespace Sandbox
 {
@@ -15,11 +16,15 @@ namespace Sandbox
             return;
         }
 
+        private Queue<int> keys;
+        private Window window;
         public Program()
         {
-            Window window = new Window("Test", 1080, 720, false, true);
+            window = new Window("Test", 1080, 720, false, true);
             window.mouse.AddListener(this);
             window.AddListener(this);
+            //window.SetCursorMode(Leviathan.Input.CursorMode.FPS);
+            keys = new Queue<int>();
             window.Run();
         }
 
@@ -35,6 +40,12 @@ namespace Sandbox
 
         public void OnWindowRender(double frametime)
         {
+            window.keyboard.GetPressedKeys(keys);
+            while(keys.Count != 0)
+            {
+                int key = keys.Dequeue();
+                Console.WriteLine($"Pressed key : {key}");
+            }
             return;
         }
 
@@ -45,7 +56,7 @@ namespace Sandbox
 
         public void OnMouseMove(Vector2 pos, Vector2 delta)
         {
-            Console.WriteLine($"Mouse move: pos[{pos.X},{pos.Y}] delta[{delta.X},{delta.Y}]");
+            //Console.WriteLine($"Mouse move: pos[{pos.X},{pos.Y}] delta[{delta.X},{delta.Y}]");
         }
 
         public void OnMouseWheel(Vector2 pos, Vector2 scroll)

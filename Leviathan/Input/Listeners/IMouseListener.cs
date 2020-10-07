@@ -13,6 +13,5 @@ namespace Leviathan.Input.Listeners
         void OnMouseWheel(Vector2 pos, Vector2 scroll);
         void OnMousePress(Vector2 pos, int btn);
         void OnMouseRelease(Vector2 pos, int btn);
-        void OnMouseDrag(Vector2 pos, Vector2 delta);
     }
 }

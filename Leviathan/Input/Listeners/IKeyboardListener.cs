@@ -6,8 +6,7 @@ namespace Leviathan.Input.Listeners
 {
     public interface IKeyboardListener
     {
-        void OnKeyPress(int btn);
-        void OnKeyRelease(int btn);
-        void OnKeyTyped(int unicode_char);
+        void OnKeyPress(int scancode, bool repeat, bool shift, bool alt, bool control);
+        void OnKeyRelease(int scancode);
     }
 }
