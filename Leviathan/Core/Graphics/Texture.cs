@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Leviathan.Core.Data;
 using Leviathan.Util;
 using OpenTK.Graphics.OpenGL;
 

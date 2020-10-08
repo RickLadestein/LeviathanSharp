@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Leviathan.Util;
 using OpenTK.Compute.OpenCL;
 using OpenTK.Graphics.ES11;
 using SixLabors.ImageSharp;
@@ -8,7 +9,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Leviathan.Util
+namespace Leviathan.Core.Data
 {
     class Image
     {
@@ -25,7 +26,7 @@ namespace Leviathan.Util
         public static Image Load(string path)
         {
             List<byte> pixels = new List<byte>();
-            Leviathan.Util.Image image = null;
+            Leviathan.Core.Data.Image image = null;
 
             try
             {
