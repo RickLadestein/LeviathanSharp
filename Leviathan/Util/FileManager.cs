@@ -68,11 +68,47 @@ namespace Leviathan.Util
         {
             try
             {
-                return File.Exists(path);
+                if(ValidatePath(path))
+                {
+                    return File.Exists(path);
+                }
+            } catch(Exception) {}
+            return false;
+        }
+
+        public bool ValidatePath(string path)
+        {
+            try
+            {
+                FileInfo info = new FileInfo(path);
+                bool possiblePath = path.IndexOfAny(Path.GetInvalidPathChars()) == -1;
+                return possiblePath;
+            }
+            catch (Exception)
+            {
+
+            }
+            return false;
+        }
+
+        public FileStream OpenFile(string folder_identifier, string file)
+        {
+            string path = CombineFilepath(folder_identifier, file);
+            if(CheckIfFileExists(path))
+            {
+                return null;
+            }
+
+            FileStream fs = null;
+            try
+            {
+                fs = File.Open(path, FileMode.Open);
             } catch(Exception)
             {
-                return false;
+                fs?.Flush();
+                fs?.Close();
             }
+            return fs;
         }
 
         public string ReadTextFile(string folder_identifier, string file_name)

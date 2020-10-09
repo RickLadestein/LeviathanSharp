@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Leviathan.Core
 {
-    class Camera
+    public class Camera
     {
         public Vector3 position;
         public ViewSettings Settings { get; private set; }
@@ -32,35 +32,76 @@ namespace Leviathan.Core
             this.Roll = 0;
             this.Pitch = 0;
             this.Yaw = 0;
+            this.ConstructViewMatrix();
         }
 
         public float Roll
         {
-            get => MathHelper.RadiansToDegrees(Roll);
-            set {
-                    _roll = MathHelper.DegreesToRadians(value);
-                    ConstructViewMatrix();
-                }
+            get; set;
         }
 
         public float Pitch
         {
-            get => MathHelper.RadiansToDegrees(Pitch);
-            set
-            {
-                var angle = MathHelper.Clamp(Pitch, -89.9f, 89.9f);
-                _pitch = MathHelper.DegreesToRadians(angle);
-                ConstructViewMatrix();
-            }
+            get; set;
         }
 
         public float Yaw
         {
-            get => MathHelper.RadiansToDegrees(Yaw);
-            set
+            get; set;
+        }
+
+        public void MoveForeward(float frametime, float step)
+        {
+            this.position += (this.Cam_target - this.position) * (frametime * step);
+        }
+
+        public void MoveBackward(float frametime, float step)
+        {
+            this.position -= (this.Cam_target - this.position) * (frametime * step);
+        }
+
+        public void MoveRight(float frametime, float step)
+        {
+            this.position += this.Cam_right * (frametime * step);
+        }
+
+        public void MoveLeft(float frametime, float step)
+        {
+            this.position -= this.Cam_right * (frametime * step);
+        }
+
+        public void MoveUp(float frametime, float step)
+        {
+            this.position += this.Cam_up * (frametime * step);
+        }
+
+        public void MoveDown(float frametime, float step)
+        {
+            this.position -= this.Cam_up * (frametime * step);
+        }
+
+        public void Rotate(float roll, float pitch, float yaw)
+        {
+            this.Roll += (roll % 360.0f);
+            if(this.Roll >= 360.0f)
             {
-                _yaw = MathHelper.DegreesToRadians(value);
-                ConstructViewMatrix();
+                this.Roll = this.Roll % 360;
+            } else if(this.Roll < 0.0f)
+            {
+                this.Roll = 360 +(this.Roll % 360.0f);
+            }
+
+            this.Pitch += pitch;
+            this.Pitch = MathHelper.Clamp(Pitch, -89.9f, 89.9f);
+
+            this.Yaw += (yaw % 360.0f);
+            if (this.Yaw >= 360.0f)
+            {
+                this.Yaw = this.Yaw % 360;
+            }
+            else if (this.Yaw < 0.0f)
+            {
+                this.Yaw = 360 + (this.Yaw % 360.0f);
             }
         }
 
@@ -88,7 +129,7 @@ namespace Leviathan.Core
         }
     }
 
-    struct ViewSettings {
+    public struct ViewSettings {
         public int width;
         public int height;
         public float z_near;

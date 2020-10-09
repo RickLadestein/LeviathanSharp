@@ -56,6 +56,7 @@ namespace Leviathan.Input
                     window.CursorGrabbed = true;
                     break;
             }
+            this.cursor_mode = mode;
         }
 
         private void Window_MouseWheel(OpenTK.Windowing.Common.MouseWheelEventArgs obj)

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Leviathan.Util
 {
-    class Logger
+    public class Logger
     {
 
         private static Logger instance;

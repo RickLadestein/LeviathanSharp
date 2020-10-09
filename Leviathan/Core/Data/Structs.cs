@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Leviathan.Core.Data
 {
-    struct VertexData
+    public struct VertexData
     {
         public Vector3 position;
         public Vector3 normal;
@@ -25,7 +25,7 @@ namespace Leviathan.Core.Data
         }
     }
 
-    struct Primitive
+    public struct Primitive
     {
         public VertexData v1;
         public VertexData v2;
