@@ -1,14 +1,16 @@
-﻿using OpenTK.Mathematics;
+﻿using Leviathan.Core.ECS;
+using Leviathan.Core.ECS.Components;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Runtime;
 using System.Text;
+using System.Windows.Markup;
 
 namespace Leviathan.Core
 {
-    public class Camera
+    public class Camera : Entity
     {
-        public Vector3 position;
         public ViewSettings Settings { get; private set; }
         public Matrix4 Projection { get; private set; }
         public Matrix4 View { get; private set; }
@@ -18,8 +20,47 @@ namespace Leviathan.Core
         public Vector3 Cam_right { get; private set; }
 
         private float _roll, _pitch, _yaw;
+
+        public Vector3 Rotation_d { 
+            get { 
+                return new Vector3(MathHelper.RadiansToDegrees(_pitch), MathHelper.RadiansToDegrees(_yaw), MathHelper.RadiansToDegrees(_roll)); 
+            } 
+            set { 
+                this._roll += MathHelper.DegreesToRadians(value.Z);
+                this._pitch += MathHelper.DegreesToRadians(value.X);
+                this._yaw += MathHelper.DegreesToRadians(value.Y);
+            } 
+        }
+
+        public Vector3 Rotation_r
+        {
+            get
+            {
+                return new Vector3(_pitch, _yaw, _roll);
+            }
+            set
+            {
+                this._roll  += value.Z;
+                this._pitch += value.X;
+                this._yaw   += value.Y;
+            }
+        }
+
+        public Vector3 Position
+        {
+            get {
+                return ((Position3DComponent)this.GetComponent<Position3DComponent>()).Location;
+            }
+            set
+            {
+                ((Position3DComponent)this.GetComponent<Position3DComponent>()).Location = Position;
+            }
+        }
         public Camera()
         {
+            this.AddComponent<Position3DComponent>(new Position3DComponent());
+            this.AddComponent<Rotation3DComponent>(new Rotation3DComponent());
+
             this.Settings = new ViewSettings
             {
                 width = 100,
@@ -33,21 +74,6 @@ namespace Leviathan.Core
             this.Pitch = 0;
             this.Yaw = 0;
             this.ConstructViewMatrix();
-        }
-
-        public float Roll
-        {
-            get; set;
-        }
-
-        public float Pitch
-        {
-            get; set;
-        }
-
-        public float Yaw
-        {
-            get; set;
         }
 
         public void MoveForeward(float frametime, float step)

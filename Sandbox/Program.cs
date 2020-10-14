@@ -7,7 +7,9 @@ using OpenTK.Mathematics;
 using System.Collections.Generic;
 using Leviathan.Core.Graphics;
 using Leviathan.Core;
+using Leviathan.Core.ECS;
 using System.Threading;
+using Leviathan.Core.ECS.Components;
 
 namespace Sandbox
 {
@@ -31,6 +33,7 @@ namespace Sandbox
             keys = new Queue<int>();
             FileManager.GetInstance().AddDirectoryPath(@"C:\Users\rladestein\source\repos\Leviathan\Sandbox\resources\models\", "default");
             Mesh[] m = Mesh.Load("default", "cube.obj");
+
             c = new Camera();
             window.Run();
         }
