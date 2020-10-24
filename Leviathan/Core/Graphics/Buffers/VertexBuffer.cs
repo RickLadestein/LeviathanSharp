@@ -9,7 +9,7 @@ using Leviathan.Util;
 
 namespace Leviathan.Core.Graphics.Buffers
 {
-    class VertexBuffer
+    public class VertexBuffer
     {
         public Vao vao;
         private List<Vbo> v_buffers;
@@ -124,14 +124,14 @@ namespace Leviathan.Core.Graphics.Buffers
         }
     }
 
-    struct Vbo
+    public struct Vbo
     {
         public int handle;
         public int segments;
         public int segment_size;
     }
 
-    struct Vao
+    public struct Vao
     {
         public int handle;
         public int segments;

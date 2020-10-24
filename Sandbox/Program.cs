@@ -31,10 +31,9 @@ namespace Sandbox
             window.mouse.AddListener(this);
             window.AddListener(this);
             keys = new Queue<int>();
-            FileManager.GetInstance().AddDirectoryPath(@"C:\Users\rladestein\source\repos\Leviathan\Sandbox\resources\models\", "default");
-            Mesh[] m = Mesh.Load("default", "cube.obj");
-
-            c = new Camera();
+            FileManager.GetInstance().AddDirectoryPath(@"C:\Users\dazle\source\repos\Leviathan\Sandbox\resources\models\", "default");
+            Mesh.LoadFromFile("default", "cube.obj");
+            c = Camera.Main;
             window.Run();
         }
 
@@ -84,7 +83,7 @@ namespace Sandbox
                         Thread.Sleep(100);
                         break;
                 }
-                Logger.GetInstance().LogDebug($"Camera pos {c.position}");
+                //Logger.GetInstance().LogDebug($"Camera pos {c.position}");
             }
             return;
         }
@@ -98,7 +97,7 @@ namespace Sandbox
             if(window.mouse.cursor_mode == Leviathan.Input.CursorMode.FPS)
             {
                 c.Rotate(0, delta.Y, delta.X);
-                Logger.GetInstance().LogDebug($"Camera rot [roll:{c.Roll} pitch{c.Pitch} yaw:{c.Yaw}]");
+                //Logger.GetInstance().LogDebug($"Camera rot [roll:{c.Roll} pitch{c.Pitch} yaw:{c.Yaw}]");
             }
         }
 

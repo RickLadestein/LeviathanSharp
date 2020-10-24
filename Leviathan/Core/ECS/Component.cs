@@ -47,7 +47,7 @@ namespace Leviathan.Core.ECS
             {
                 return false;
             }
-            int next_id = 0x01 << this.components.Count;
+            int next_id = 1 << this.components.Count;
             this.components.Add(type, (uint)next_id);
             return true;
         }
