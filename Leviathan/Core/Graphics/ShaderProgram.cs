@@ -107,6 +107,22 @@ namespace Leviathan.Core.Graphics
             }
             return;
         }
+
+        public void Use()
+        {
+            if(this.Handle != Shader.INVALID_HANDLE)
+            {
+                GL.UseProgram(this.Handle);
+            } else
+            {
+                Logger.GetInstance().LogWarning("Trying to bind invalid shaderprogram");
+            } 
+        }
+
+        public void Unbind()
+        {
+            GL.UseProgram(0);
+        }
         #region Uniforms
         /// <summary>
         /// Sets the signed integer uniform in the shaderprogram

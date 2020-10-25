@@ -36,7 +36,7 @@ namespace Leviathan.Core
             
             window_listeners = new InterfaceHandler<IWindowListener>();
             w_handle.MakeCurrent();
-            GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+            GL.ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         }
 
         private void RegisterEventFunctions()

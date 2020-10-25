@@ -38,4 +38,16 @@ namespace Leviathan.Core.Data
             this.v3 = v3;
         }
     }
+
+    public struct LinePrimitive
+    {
+        public VertexData v1;
+        public VertexData v2;
+
+        public LinePrimitive(VertexData v1, VertexData v2)
+        {
+            this.v1 = v1;
+            this.v2 = v2;
+        }
+    }
 }

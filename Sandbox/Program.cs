@@ -7,9 +7,8 @@ using OpenTK.Mathematics;
 using System.Collections.Generic;
 using Leviathan.Core.Graphics;
 using Leviathan.Core;
-using Leviathan.Core.ECS;
 using System.Threading;
-using Leviathan.Core.ECS.Components;
+using OpenTK.Graphics.OpenGL;
 
 namespace Sandbox
 {
@@ -25,15 +24,34 @@ namespace Sandbox
         private Queue<int> keys;
         private Window window;
         private Camera c;
+        private Block b;
         public Program()
         {
             window = new Window("Test", 1080, 720, false, true);
             window.mouse.AddListener(this);
             window.AddListener(this);
             keys = new Queue<int>();
-            FileManager.GetInstance().AddDirectoryPath(@"C:\Users\dazle\source\repos\Leviathan\Sandbox\resources\models\", "default");
-            Mesh.LoadFromFile("default", "cube.obj");
+            FileManager.GetInstance().AddDirectoryPath(@"C:\Users\dazle\source\repos\LeviathanSharp\Sandbox\resources\models\", "models");
+            FileManager.GetInstance().AddDirectoryPath(@"C:\Users\dazle\source\repos\LeviathanSharp\Sandbox\resources\textures\", "textures");
+            FileManager.GetInstance().AddDirectoryPath(@"C:\Users\dazle\source\repos\LeviathanSharp\Sandbox\resources\shaders\", "shaders");
+            
             c = Camera.Main;
+            Camera.Main.Viewsettings = new ViewSettings()
+            {
+                width = 1080,
+                height = 720,
+                fov_deg = 45,
+                z_near = 0.01f,
+                z_far = 100.0f
+            };
+            Texture.AddTextureToStorage("textures", "Skybox.png", false, TextureType.TEXTURE_2D, "block_tex");
+            ShaderProgram.AddShaderProgramToStorage("shaders", "block.frag", "block.vert", "block_sh");
+            Mesh.LoadFromFile("models", "cube.obj");
+
+            b = new Block();
+            b.SetMesh("Cube");
+            b.SetShader("block_sh");
+            b.Texture.SetTexture(Texture.GetTextureFromStorage("block_tex"), TextureUnit.Texture0);
             window.Run();
         }
 
@@ -54,22 +72,22 @@ namespace Sandbox
                 switch(key)
                 {
                     case 87: //W
-                        c.MoveForeward((float)frametime, 0.10f);
+                        c.MoveForeward((float)frametime, 1f);
                         break;
                     case 65: //A
-                        c.MoveLeft((float)frametime, 0.10f);
+                        c.MoveLeft((float)frametime, 1f);
                         break;
                     case 83: //S
-                        c.MoveBackward((float)frametime, 0.10f);
+                        c.MoveBackward((float)frametime, 1f);
                         break;
                     case 68: //D
-                        c.MoveRight((float)frametime, 0.10f);
+                        c.MoveRight((float)frametime, 1f);
                         break;
                     case 32: //space
-                        c.MoveUp((float)frametime, 0.10f);
+                        c.MoveUp((float)frametime, 1f);
                         break;
                     case 340: //lshift
-                        c.MoveDown((float)frametime, 0.10f);
+                        c.MoveDown((float)frametime, 1f);
                         break;
                     case 69:
                         var current_mode = window.mouse.cursor_mode;
@@ -83,7 +101,12 @@ namespace Sandbox
                         Thread.Sleep(100);
                         break;
                 }
-                //Logger.GetInstance().LogDebug($"Camera pos {c.position}");
+                //Logger.GetInstance().LogDebug($"Camera pos {c.Position}");
+            }
+
+            if(b != null)
+            {
+                b.Draw(Camera.Main);
             }
             return;
         }
@@ -96,8 +119,7 @@ namespace Sandbox
         {
             if(window.mouse.cursor_mode == Leviathan.Input.CursorMode.FPS)
             {
-                c.Rotate(0, delta.Y, delta.X);
-                //Logger.GetInstance().LogDebug($"Camera rot [roll:{c.Roll} pitch{c.Pitch} yaw:{c.Yaw}]");
+                c.Rotate(0, delta.Y, -delta.X);
             }
         }
 

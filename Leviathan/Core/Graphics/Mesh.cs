@@ -103,6 +103,7 @@ namespace Leviathan.Core.Graphics
                 } else
                 {
                     Mesh md = new Mesh(mesh.Vertices, mesh.Normals, mesh.TextureCoordinateChannels[0], mesh.Faces);
+                    md.Valid = true;
                     Mesh.AddMeshToLoadedMeshes(md, mesh.Name);
                 }
             }

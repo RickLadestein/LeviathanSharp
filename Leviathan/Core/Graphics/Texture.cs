@@ -16,7 +16,7 @@ namespace Leviathan.Core.Graphics
         public int Handle { get; protected set; }
         public bool Bound { get; protected set; }
 
-        public static int INVALID_TEXTURE_ID { get; private set; } = 1;
+        public static int INVALID_TEXTURE_ID { get; private set; } = -1;
         public Texture(TextureTarget target)
         {
             this.Tex_Type = target;
@@ -191,14 +191,17 @@ namespace Leviathan.Core.Graphics
         /// </summary>
         public void Bind()
         {
-            tex_mutex.WaitOne();
-            foreach(KeyValuePair<TextureUnit, Texture> t in textures)
+            if (!this.Bound)
             {
-                t.Value.Tex_unit = t.Key;
-                t.Value.Bind();
+                tex_mutex.WaitOne();
+                foreach (KeyValuePair<TextureUnit, Texture> t in textures)
+                {
+                    t.Value.Tex_unit = t.Key;
+                    t.Value.Bind();
+                }
+                this.Bound = true;
+                tex_mutex.ReleaseMutex();
             }
-            this.Bound = true;
-            tex_mutex.ReleaseMutex();
         }
 
         /// <summary>
@@ -206,13 +209,19 @@ namespace Leviathan.Core.Graphics
         /// </summary>
         public void Unbind()
         {
-            tex_mutex.WaitOne();
-            foreach (KeyValuePair<TextureUnit, Texture> t in textures)
+            if (this.Bound)
             {
-                t.Value.Unbind();
+                tex_mutex.WaitOne();
+                foreach (KeyValuePair<TextureUnit, Texture> t in textures)
+                {
+                    t.Value.Unbind();
+                }
+                this.Bound = false;
+                tex_mutex.ReleaseMutex();
+            } else
+            {
+                Logger.GetInstance().LogWarning("Tried to unbind not bound texture");
             }
-            this.Bound = false;
-            tex_mutex.ReleaseMutex();
         }
     }
 
@@ -221,7 +230,7 @@ namespace Leviathan.Core.Graphics
         public Texture2D(string folder_id, string file, bool mipmap) : base(TextureTarget.Texture2D)
         {
             FileManager fm = FileManager.GetInstance();
-            string path = fm.CombineFilepath(fm.GetDirectoryPath(folder_id), file);
+            string path = fm.CombineFilepath(folder_id, file);
             Image image = Image.Load(path);
             
             if(image == null)

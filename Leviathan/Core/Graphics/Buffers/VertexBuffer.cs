@@ -31,6 +31,15 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public void BufferData(in List<Primitive> primitives)
         {
+            if(this.vao.handle == -1)
+            {
+                this.vao = new Vao()
+                {
+                    handle = GL.GenVertexArray(),
+                    segments = 0,
+                    current_attrib = 0
+                };
+            }
             if(this.vao.segments != 0 && this.vao.segments != (primitives.Count * 3))
             {
                 Logger.GetInstance().LogError("Could not buffer primitives: component size does not match with loaded components");
@@ -43,48 +52,24 @@ namespace Leviathan.Core.Graphics.Buffers
                 segments = primitives.Count * 3,
                 segment_size = Marshal.SizeOf<Primitive>()
             };
+
+            this.vao.segments = primitives.Count * 3;
             GL.BindVertexArray(this.vao.handle);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.handle);
 
             GL.BufferData(BufferTarget.ArrayBuffer, vbo.segment_size * primitives.Count, primitives.ToArray(), BufferUsageHint.StaticDraw);
 
+            GL.EnableVertexArrayAttrib(this.vao.handle, this.vao.current_attrib);
             GL.VertexAttribPointer(this.vao.current_attrib, 3, VertexAttribPointerType.Float, false, VertexData.GetSize(), 0);
             this.vao.current_attrib += 1;
 
+            GL.EnableVertexArrayAttrib(this.vao.handle, this.vao.current_attrib);
             GL.VertexAttribPointer(this.vao.current_attrib, 3, VertexAttribPointerType.Float, false, VertexData.GetSize(), 3 * sizeof(float));
             this.vao.current_attrib += 1;
-            
+
+            GL.EnableVertexArrayAttrib(this.vao.handle, this.vao.current_attrib);
             GL.VertexAttribPointer(this.vao.current_attrib, 3, VertexAttribPointerType.Float, false, VertexData.GetSize(), 6 * sizeof(float));
             this.vao.current_attrib += 1;
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
-
-            this.v_buffers.Add(vbo);
-        }
-
-        public void BufferData(in List<float> data, int segments = 1)
-        {
-            if (this.vao.segments != 0 && this.vao.segments != (data.Count / segments))
-            {
-                Logger.GetInstance().LogError("Could not buffer data: component size does not match with loaded components");
-                return;
-            }
-
-            Vbo vbo = new Vbo()
-            {
-                handle = GL.GenBuffer(),
-                segments = data.Count,
-                segment_size = sizeof(float) * segments
-            };
-            GL.BindVertexArray(this.vao.handle);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.handle);
-
-            GL.BufferData(BufferTarget.ArrayBuffer, vbo.segment_size * (data.Count / segments), data.ToArray(), BufferUsageHint.StaticDraw);
-
-            GL.VertexAttribPointer(vao.current_attrib, segments, VertexAttribPointerType.Float, false, (segments * sizeof(float)), 0);
-            this.vao.current_attrib += 1;
-            
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
