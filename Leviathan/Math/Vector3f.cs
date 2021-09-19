@@ -7,17 +7,18 @@ using System.Diagnostics.Contracts;
 
 namespace Leviathan.Math
 {
-
     [StructLayout(LayoutKind.Sequential)]
-    public struct Vector2f
+    public struct Vector3f
     {
         public float X;
         public float Y;
+        public float Z;
 
-        public Vector2f(float _x, float _y)
+        public Vector3f(float _x, float _y, float _z)
         {
             X = _x;
             Y = _y;
+            Z = _z;
         }
 
         public float this[int index]
@@ -34,6 +35,11 @@ namespace Leviathan.Math
                     return Y;
                 }
 
+                if (index == 2)
+                {
+                    return Z;
+                }
+
                 throw new IndexOutOfRangeException("Vector index out of range: " + index);
             }
 
@@ -47,6 +53,10 @@ namespace Leviathan.Math
                 {
                     Y = value;
                 }
+                else if (index == 2)
+                {
+                    Z = value;
+                }
                 else
                 {
                     throw new IndexOutOfRangeException("Vector index out of range: " + index);
@@ -54,19 +64,21 @@ namespace Leviathan.Math
             }
         }
 
-        public static readonly Vector2f UnitX = new Vector2f(1.0f, 0.0f);
-        public static readonly Vector2f UnitY = new Vector2f(0.0f, 1.0f);
-        public static readonly Vector2f One =   new Vector2f(1.0f, 1.0f);
-        public static readonly Vector2f Zero =  new Vector2f(0.0f, 0.0f);
+        public static readonly Vector3f UnitX = new Vector3f(1.0f, 0.0f, 0.0f);
+        public static readonly Vector3f UnitY = new Vector3f(0.0f, 1.0f, 0.0f);
+        public static readonly Vector3f UnitZ = new Vector3f(0.0f, 0.0f, 1.0f);
+        public static readonly Vector3f Up =    new Vector3f(0.0f, 1.0f, 0.0f);
+        public static readonly Vector3f One =   new Vector3f(1.0f, 1.0f, 1.0f);
+        public static readonly Vector3f Zero =  new Vector3f(0.0f, 0.0f, 0.0f);
 
         public float Length()
         {
-            return MathF.Sqrt((X * X) + (Y * Y));
+            return System.MathF.Sqrt((X * X) + (Y * Y) + (Z * Z));
         }
 
         public float LengthSqr()
         {
-            return (X * X) + (Y * Y);
+            return (X * X) + (Y * Y) + (Z * Z);
         }
 
         public void Normalize()
@@ -74,109 +86,116 @@ namespace Leviathan.Math
             var scale = 1.0f / Length();
             X *= scale;
             Y *= scale;
+            Z *= scale;
         }
 
-        public Vector2f Normalized()
+        public Vector3f Normalized()
         {
             var scale = 1.0f / Length();
             float _x = scale * X;
             float _y = scale * Y;
-            return new Vector2f(_x, _y);
+            float _z = scale * Z;
+            return new Vector3f(_x, _y, _z);
         }
-
-
 
         #region Operators
         [Pure]
-        public static Vector2f operator +(Vector2f left, Vector2f right)
+        public static Vector3f operator +(Vector3f left, Vector3f right)
         {
             left.X += right.X;
             left.Y += right.Y;
+            left.Z += right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2f operator -(Vector2f left, Vector2f right)
+        public static Vector3f operator -(Vector3f left, Vector3f right)
         {
             left.X -= right.X;
             left.Y -= right.Y;
+            left.Z -= right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2f operator *(Vector2f left, Vector2f right)
+        public static Vector3f operator *(Vector3f left, Vector3f right)
         {
             left.X *= right.X;
             left.Y *= right.Y;
+            left.Z *= right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2f operator *(float scalar, Vector2f right)
+        public static Vector3f operator *(float scalar, Vector3f right)
         {
             right.X *= scalar;
             right.Y *= scalar;
+            right.Z *= scalar;
             return right;
         }
 
         [Pure]
-        public static Vector2f operator *(Vector2f right, float scalar)
+        public static Vector3f operator *(Vector3f left, float scalar)
         {
-            right.X *= scalar;
-            right.Y *= scalar;
-            return right;
+            left.X *= scalar;
+            left.Y *= scalar;
+            left.Z *= scalar;
+            return left;
         }
 
         [Pure]
-        public static Vector2f operator /(Vector2f left, Vector2f right)
+        public static Vector3f operator /(Vector3f left, Vector3f right)
         {
             left.X /= right.X;
             left.Y /= right.Y;
+            left.Z /= right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2f operator /(float scalar, Vector2f right)
+        public static Vector3f operator /(float scalar, Vector3f right)
         {
             right.X /= scalar;
             right.Y /= scalar;
+            right.Z /= scalar;
             return right;
         }
 
         [Pure]
-        public static Vector2f operator /(Vector2f right, float scalar)
+        public static Vector3f operator /(Vector3f left, float scalar)
         {
-            right.X /= scalar;
-            right.Y /= scalar;
-            return right;
+            left.X /= scalar;
+            left.Y /= scalar;
+            left.Z /= scalar;
+            return left;
         }
 
         [Pure]
-        public static bool operator ==(Vector2f left, Vector2f right)
+        public static bool operator ==(Vector3f left, Vector3f right)
         {
             return left.Equals(right);
         }
 
         [Pure]
-        public static bool operator !=(Vector2f left, Vector2f right)
+        public static bool operator !=(Vector3f left, Vector3f right)
         {
             return !(left.Equals(right));
         }
-
         #endregion
 
         #region Conversion
 
         [Pure]
-        public static explicit operator Vector2f(Vector2i vec)
+        public static explicit operator Vector3f(Vector3i vec)
         {
-            return new Vector2f(vec.X, vec.Y);
+            return new Vector3f(vec.X, vec.Y, vec.Z);
         }
 
         [Pure]
-        public static explicit operator Vector2f(Vector2d vec)
+        public static explicit operator Vector3f(Vector3d vec)
         {
-            return new Vector2f((float)vec.X, (float)vec.Y);
+            return new Vector3f((float)vec.X, (float)vec.Y, (float)vec.Z);
         }
 
         #endregion
@@ -184,12 +203,12 @@ namespace Leviathan.Math
         #region Overrides
         public override bool Equals(object obj)
         {
-            return obj is Vector2f && Equals((Vector2f)obj);
+            return obj is Vector3f && Equals((Vector3f)obj);
         }
 
-        public bool Equals(Vector2f obj)
+        public bool Equals(Vector3f obj)
         {
-            return X == obj.X && Y == obj.Y;
+            return X == obj.X && Y == obj.Y && Z == obj.Z;
         }
 
         public override int GetHashCode()
@@ -199,10 +218,8 @@ namespace Leviathan.Math
 
         public override string ToString()
         {
-            return $"[{X} | {Y}]";
+            return $"[{X} | {Y} | {Z}]";
         }
         #endregion
     }
-
-
 }

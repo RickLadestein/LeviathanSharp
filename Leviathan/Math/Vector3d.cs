@@ -8,16 +8,19 @@ using System.Diagnostics.Contracts;
 namespace Leviathan.Math
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct Vector2d
+    public struct Vector3d
     {
         public double X;
         public double Y;
+        public double Z;
 
-        public Vector2d(double _x, double _y)
+        public Vector3d(double _x, double _y, double _z)
         {
             X = _x;
             Y = _y;
+            Z = _z;
         }
+
         public double this[int index]
         {
             get
@@ -32,6 +35,11 @@ namespace Leviathan.Math
                     return Y;
                 }
 
+                if(index == 2)
+                {
+                    return Z;
+                }
+
                 throw new IndexOutOfRangeException("Vector index out of range: " + index);
             }
 
@@ -44,6 +52,9 @@ namespace Leviathan.Math
                 else if (index == 1)
                 {
                     Y = value;
+                } else if (index == 2)
+                {
+                    Z = value;
                 }
                 else
                 {
@@ -52,19 +63,21 @@ namespace Leviathan.Math
             }
         }
 
-        public static readonly Vector2d UnitX = new Vector2d(1.0d, 0.0d);
-        public static readonly Vector2d UnitY = new Vector2d(0.0d, 1.0d);
-        public static readonly Vector2d One =   new Vector2d(1.0d, 1.0d);
-        public static readonly Vector2d Zero =  new Vector2d(0.0d, 0.0d);
+        public static readonly Vector3d UnitX = new Vector3d(1.0d, 0.0d, 0.0d);
+        public static readonly Vector3d UnitY = new Vector3d(0.0d, 1.0d, 0.0d);
+        public static readonly Vector3d UnitZ = new Vector3d(0.0d, 0.0d, 1.0d);
+        public static readonly Vector3d Up =    new Vector3d(0.0d, 1.0d, 0.0d);
+        public static readonly Vector3d One =   new Vector3d(1.0d, 1.0d, 1.0d);
+        public static readonly Vector3d Zero =  new Vector3d(0.0d, 0.0d, 0.0d);
 
         public double Length()
         {
-            return System.Math.Sqrt((X * X) + (Y * Y));
+            return System.Math.Sqrt((X * X) + (Y * Y) + (Z * Z));
         }
 
         public double LengthSqr()
         {
-            return (X * X) + (Y * Y);
+            return (X * X) + (Y * Y) + (Z * Z);
         }
 
         public void Normalize()
@@ -72,109 +85,116 @@ namespace Leviathan.Math
             var scale = 1.0f / Length();
             X *= scale;
             Y *= scale;
+            Z *= scale;
         }
 
-        public Vector2d Normalized()
+        public Vector3d Normalized()
         {
             var scale = 1.0f / Length();
             double _x = scale * X;
             double _y = scale * Y;
-            return new Vector2d(_x, _y);
+            double _z = scale * Z;
+            return new Vector3d(_x, _y, _z);
         }
-
-
 
         #region Operators
         [Pure]
-        public static Vector2d operator +(Vector2d left, Vector2d right)
+        public static Vector3d operator +(Vector3d left, Vector3d right)
         {
             left.X += right.X;
             left.Y += right.Y;
+            left.Z += right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2d operator -(Vector2d left, Vector2d right)
+        public static Vector3d operator -(Vector3d left, Vector3d right)
         {
             left.X -= right.X;
             left.Y -= right.Y;
+            left.Z -= right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2d operator *(Vector2d left, Vector2d right)
+        public static Vector3d operator *(Vector3d left, Vector3d right)
         {
             left.X *= right.X;
             left.Y *= right.Y;
+            left.Z *= right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2d operator *(double scalar, Vector2d right)
+        public static Vector3d operator *(double scalar, Vector3d right)
         {
             right.X *= scalar;
             right.Y *= scalar;
+            right.Z *= scalar;
             return right;
         }
 
         [Pure]
-        public static Vector2d operator *(Vector2d right, double scalar)
+        public static Vector3d operator *(Vector3d left, double scalar)
         {
-            right.X *= scalar;
-            right.Y *= scalar;
-            return right;
+            left.X *= scalar;
+            left.Y *= scalar;
+            left.Z *= scalar;
+            return left;
         }
 
         [Pure]
-        public static Vector2d operator /(Vector2d left, Vector2d right)
+        public static Vector3d operator /(Vector3d left, Vector3d right)
         {
             left.X /= right.X;
             left.Y /= right.Y;
+            left.Z /= right.Z;
             return left;
         }
 
         [Pure]
-        public static Vector2d operator /(double scalar, Vector2d right)
+        public static Vector3d operator /(double scalar, Vector3d right)
         {
             right.X /= scalar;
             right.Y /= scalar;
+            right.Z /= scalar;
             return right;
         }
 
         [Pure]
-        public static Vector2d operator /(Vector2d right, double scalar)
+        public static Vector3d operator /(Vector3d left, double scalar)
         {
-            right.X /= scalar;
-            right.Y /= scalar;
-            return right;
+            left.X /= scalar;
+            left.Y /= scalar;
+            left.Z /= scalar;
+            return left;
         }
 
         [Pure]
-        public static bool operator ==(Vector2d left, Vector2d right)
+        public static bool operator ==(Vector3d left, Vector3d right)
         {
             return left.Equals(right);
         }
 
         [Pure]
-        public static bool operator !=(Vector2d left, Vector2d right)
+        public static bool operator !=(Vector3d left, Vector3d right)
         {
             return !(left.Equals(right));
         }
-
         #endregion
 
         #region Conversion
 
         [Pure]
-        public static explicit operator Vector2d(Vector2i vec)
+        public static explicit operator Vector3d(Vector3i vec)
         {
-            return new Vector2d(vec.X, vec.Y);
+            return new Vector3d(vec.X, vec.Y, vec.Z);
         }
 
         [Pure]
-        public static explicit operator Vector2d(Vector2f vec)
+        public static explicit operator Vector3d(Vector3f vec)
         {
-            return new Vector2d((double)vec.X, (double)vec.Y);
+            return new Vector3d((double)vec.X, (double)vec.Y, (double)vec.Z);
         }
 
         #endregion
@@ -182,12 +202,12 @@ namespace Leviathan.Math
         #region Overrides
         public override bool Equals(object obj)
         {
-            return obj is Vector2d && Equals((Vector2d)obj);
+            return obj is Vector3d && Equals((Vector3d)obj);
         }
 
-        public bool Equals(Vector2d obj)
+        public bool Equals(Vector3d obj)
         {
-            return X == obj.X && Y == obj.Y;
+            return X == obj.X && Y == obj.Y && Z == obj.Z;
         }
 
         public override int GetHashCode()
@@ -197,7 +217,7 @@ namespace Leviathan.Math
 
         public override string ToString()
         {
-            return $"[{X} | {Y}]";
+            return $"[{X} | {Y} | {Z}]";
         }
         #endregion
     }
