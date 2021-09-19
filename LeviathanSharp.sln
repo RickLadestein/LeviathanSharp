@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leviathan", "Leviathan\Leviathan.csproj", "{A48A673A-D7A3-4BE3-9242-2D6BCE0A2AC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan", "Leviathan\Leviathan.csproj", "{A48A673A-D7A3-4BE3-9242-2D6BCE0A2AC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{EFEA6B77-8982-4ECD-B6F1-EDCF0AB110F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{EFEA6B77-8982-4ECD-B6F1-EDCF0AB110F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeviathanUnitTest", "LeviathanUnitTest\LeviathanUnitTest.csproj", "{CC547937-9B31-440B-8BBD-7DA460831246}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{EFEA6B77-8982-4ECD-B6F1-EDCF0AB110F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFEA6B77-8982-4ECD-B6F1-EDCF0AB110F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFEA6B77-8982-4ECD-B6F1-EDCF0AB110F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC547937-9B31-440B-8BBD-7DA460831246}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC547937-9B31-440B-8BBD-7DA460831246}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC547937-9B31-440B-8BBD-7DA460831246}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC547937-9B31-440B-8BBD-7DA460831246}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
