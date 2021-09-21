@@ -20,7 +20,7 @@ namespace Leviathan
 
         public Window(uint width, uint height, WindowMode mode)
         {
-            this.nativeWindow = NativeWindow.CreateWindow(width, height, "Window", WindowMode.WINDOWED);
+            this.nativeWindow = NativeWindow.CreateWindow(width, height, "Window", mode);
             BindGLFWCallbacks();
         }
 
@@ -33,9 +33,15 @@ namespace Leviathan
             nativeWindow.glfw_context.SetWindowFocusCallback(nativeWindow.w_handle, OnWindowFocusChanged);
         }
 
+        public static void Start(Window wnd)
+        {
+            wnd.Run();
+        }
 
-        public unsafe void Run() {
 
+        private unsafe void Run() {
+
+            nativeWindow.gl_context.ClearColor(System.Drawing.Color.Red);
             while(!this.ShutdownRequested)
             {
                 nativeWindow.PollEvents();

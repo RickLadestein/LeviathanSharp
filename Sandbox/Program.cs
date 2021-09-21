@@ -9,7 +9,7 @@ namespace Sandbox
         static void Main(string[] args)
         {
             Window w = new Window(1080, 720, WindowMode.WINDOWED);
-            w.Run();
+            Window.Start(w);
             return;
         }
 
