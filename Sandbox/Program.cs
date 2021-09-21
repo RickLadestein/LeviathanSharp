@@ -8,8 +8,8 @@ namespace Sandbox
     {
         static void Main(string[] args)
         {
-            Program p = new Program();
-            Vector2f v2f;
+            Window w = new Window(1080, 720, WindowMode.WINDOWED);
+            w.Run();
             return;
         }
 
