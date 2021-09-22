@@ -14,13 +14,13 @@ namespace Leviathan.Core.Input
     public delegate void CursorPosCallback(WindowHandle* window, double x, double y);
      */
 
-    public delegate void OnCursorEnter(bool entered);
-    public delegate void OnMouseButton(MouseButton btn, InputAction action);
-    public delegate void OnMouseButtonRelease(MouseButton btn);
-    public delegate void OnMouseButtonPress(MouseButton btn);
-    public delegate void OnMouseButtonRepeat(MouseButton btn);
-    public delegate void OnMouseScroll(Vector2d scroll);
-    public delegate void OnMouseMove(Vector2d pos, Vector2d delta);
+    public delegate void CursorEnterFunc(bool entered);
+    public delegate void MouseButtonFunc(MouseButton btn, InputAction action);
+    public delegate void MouseReleaseCallback(MouseButton btn);
+    public delegate void MousePressFunc(MouseButton btn);
+    public delegate void MouseRepeatFunc(MouseButton btn);
+    public delegate void MouseScrollFunc(Vector2d scroll);
+    public delegate void MouseMoveFunc(Vector2d pos, Vector2d delta);
 
     public class Mouse
     {
@@ -36,13 +36,13 @@ namespace Leviathan.Core.Input
         public bool InWindow { get; private set; }
         public bool RawMotion { get; private set; }
 
-        public event OnCursorEnter Enter;
-        public event OnMouseButton Button;
-        public event OnMouseButtonPress Press;
-        public event OnMouseButtonRelease Release;
-        public event OnMouseButtonRepeat Repeat;
-        public event OnMouseScroll Scroll;
-        public event OnMouseMove Move;
+        public event CursorEnterFunc Enter;
+        public event MouseButtonFunc Button;
+        public event MousePressFunc Press;
+        public event MouseReleaseCallback Release;
+        public event MouseRepeatFunc Repeat;
+        public event MouseScrollFunc Scroll;
+        public event MouseMoveFunc Move;
 
         public unsafe Mouse(Window _parent, ref NativeWindow wnd)
         {
@@ -105,6 +105,8 @@ namespace Leviathan.Core.Input
             RawMotion = enabled;
         }
 
+
+        #region Callbacks
         private bool ContainsButton(MouseButton btn)
         {
             for (int i = 0; i < MAX_PRESSED_BTNS; i++)
@@ -119,7 +121,7 @@ namespace Leviathan.Core.Input
 
         private void AddButton(MouseButton btn)
         {
-            if(!ContainsButton(btn))
+            if (!ContainsButton(btn))
             {
                 for (int i = 0; i < MAX_PRESSED_BTNS; i++)
                 {
@@ -130,26 +132,24 @@ namespace Leviathan.Core.Input
                     }
                 }
             }
-            
+
         }
 
         private void RemoveButton(MouseButton btn)
         {
-            for(int i = 0; i < MAX_PRESSED_BTNS; i++)
+            for (int i = 0; i < MAX_PRESSED_BTNS; i++)
             {
-                if(btns[i] == btn)
+                if (btns[i] == btn)
                 {
                     btns[i] = MouseButton.Invalid;
                     return;
                 }
             }
         }
-
-
-        #region Callbacks
         private unsafe void OnMouseEnter(WindowHandle* window, bool entered) 
         {
             InWindow = entered;
+            Enter?.Invoke(entered);
         }
 
         private unsafe void OnMouseButton(WindowHandle* window, Silk.NET.GLFW.MouseButton button, Silk.NET.GLFW.InputAction action, Silk.NET.GLFW.KeyModifiers mods) 
