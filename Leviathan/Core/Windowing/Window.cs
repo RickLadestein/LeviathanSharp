@@ -1,16 +1,41 @@
-﻿using Silk.NET.GLFW;
+﻿using Leviathan.Core.Input;
+using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Leviathan
+namespace Leviathan.Core.Windowing
 {
     public class Window
     {
-        private NativeWindow nativeWindow;
+        public NativeWindow nativeWindow;
+
+        public event WindowRefreshFunc refresh;
+        public event WindowMoveFunc move;
+        public event WindowResizeFunc resize;
+        public event WindowFocusFunc focus;
+        public event WindowCloseFunc close;
 
         public bool ShutdownRequested { get; private set; }
+
+        public Keyboard Keyboard { get; private set; }
+        public Mouse Mouse { get; private set; }
+
+        public Glfw glfw_context
+        {
+            get {
+                return nativeWindow.glfw_context;
+            }
+        }
+
+        public GL gl_context
+        {
+            get
+            {
+                return nativeWindow.gl_context;
+            }
+        }
 
         public Window(uint width, uint height, string title, WindowMode mode)
         {
@@ -26,6 +51,7 @@ namespace Leviathan
 
         private unsafe void BindGLFWCallbacks()
         {
+            Mouse = new Mouse(this, ref nativeWindow);
             nativeWindow.glfw_context.SetWindowIconifyCallback(nativeWindow.w_handle, OnWindowIconified);
             nativeWindow.glfw_context.SetWindowPosCallback(nativeWindow.w_handle, OnWindowPosChanged);
             nativeWindow.glfw_context.SetWindowSizeCallback(nativeWindow.w_handle, OnWindowSizeChanged);
@@ -44,11 +70,15 @@ namespace Leviathan
             nativeWindow.gl_context.ClearColor(System.Drawing.Color.Red);
             while(!this.ShutdownRequested)
             {
-                nativeWindow.PollEvents();
+                if (!nativeWindow.w_isIconified)
+                {
+                    nativeWindow.PollEvents();
+                    nativeWindow.ClearBuffer(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                    refresh?.Invoke();
 
-                nativeWindow.ClearBuffer(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-                nativeWindow.SwapBuffers();
+                    nativeWindow.SwapBuffers();
+                }
                 this.ShutdownRequested = nativeWindow.glfw_context.WindowShouldClose(nativeWindow.w_handle);
             }
         }
@@ -61,22 +91,26 @@ namespace Leviathan
 
         private unsafe void OnWindowPosChanged(WindowHandle* wnd, int xpos, int ypos)
         {
-            nativeWindow.w_position = new Math.Vector2f(xpos, ypos);
+            nativeWindow.w_position.Set(xpos, ypos);
+            move?.Invoke(new Math.Vector2f(xpos, ypos));
         }
 
         private unsafe void OnWindowSizeChanged(WindowHandle* wnd, int width, int height)
         {
-            nativeWindow.w_size = new Math.Vector2f(width, height);
+            nativeWindow.w_size.Set(width, height);
+            resize?.Invoke(new Math.Vector2f(width, height));
         }
 
         private unsafe void OnWindowFocusChanged(WindowHandle* wnd, bool focused)
         {
             nativeWindow.w_hasfocus = focused;
+            focus?.Invoke(focused);
         }
 
         private unsafe void OnWindowCloseRequested(WindowHandle* wnd)
         {
             ShutdownRequested = true;
+            close?.Invoke();
         }
     }
 }

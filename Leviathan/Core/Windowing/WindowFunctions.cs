@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Leviathan.Math;
 
-namespace Leviathan
+namespace Leviathan.Core.Windowing
 {
     /// <summary>
     /// The refresh function of the window

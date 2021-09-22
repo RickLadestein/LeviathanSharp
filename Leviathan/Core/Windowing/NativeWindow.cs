@@ -4,13 +4,13 @@ using System.Text;
 using Leviathan.Math;
 using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
-namespace Leviathan
+namespace Leviathan.Core.Windowing
 {
     public struct NativeWindow
     {
         public String w_title;
-        public Vector2f w_position;
-        public Vector2f w_size;
+        public Vector2d w_position;
+        public Vector2d w_size;
         public bool w_hasfocus;
         public bool w_isIconified;
 
@@ -69,10 +69,10 @@ namespace Leviathan
                 }
             }
 
-            output.w_size = new Vector2f((int)width, (int)height);
+            output.w_size = new Vector2d((int)width, (int)height);
             output.w_title = title;
             output.glfw_context.GetWindowPos(output.w_handle, out int x_pos, out int y_pos);
-            output.w_position = new Vector2f(x_pos, y_pos);
+            output.w_position = new Vector2d(x_pos, y_pos);
 
             output.n_window = new GlfwNativeWindow(output.glfw_context, output.w_handle);
             if (output.n_window.Win32.HasValue)

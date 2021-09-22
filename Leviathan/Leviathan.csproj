@@ -22,4 +22,10 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Core\Graphics\" />
+    <Folder Include="Core\Sound\" />
+    <Folder Include="ECS\" />
+  </ItemGroup>
+
 </Project>
