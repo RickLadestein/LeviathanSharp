@@ -58,6 +58,11 @@ namespace Leviathan.Math
         public static readonly Vector2i One =   new Vector2i(1, 1);
         public static readonly Vector2i Zero =  new Vector2i(0, 0);
 
+        public void Set(int _x, int _y)
+        {
+            X = _x;
+            Y = _y;
+        }
         public float Length()
         {
             return MathF.Sqrt((X * X) + (Y * Y));

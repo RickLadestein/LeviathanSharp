@@ -74,6 +74,13 @@ namespace Leviathan.Math
         public static readonly Vector4f One =   new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly Vector4f Zero =  new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 
+        public void Set(float _x, float _y, float _z, float _w)
+        {
+            X = _x;
+            Y = _y;
+            Z = _z;
+            W = _w;
+        }
         public float Length()
         {
             return System.MathF.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));

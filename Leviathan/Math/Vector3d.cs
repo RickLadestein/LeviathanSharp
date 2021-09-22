@@ -70,6 +70,12 @@ namespace Leviathan.Math
         public static readonly Vector3d One =   new Vector3d(1.0d, 1.0d, 1.0d);
         public static readonly Vector3d Zero =  new Vector3d(0.0d, 0.0d, 0.0d);
 
+        public void Set(double _x, double _y, double _z)
+        {
+            X = _x;
+            Y = _y;
+            Z = _z;
+        }
         public double Length()
         {
             return System.Math.Sqrt((X * X) + (Y * Y) + (Z * Z));

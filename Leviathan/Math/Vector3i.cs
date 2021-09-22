@@ -71,6 +71,12 @@ namespace Leviathan.Math
         public static readonly Vector3i One =   new Vector3i(1, 1, 1);
         public static readonly Vector3i Zero =  new Vector3i(0, 0, 0);
 
+        public void Set(int _x, int _y, int _z)
+        {
+            X = _x;
+            Y = _y;
+            Z = _z;
+        }
         public float Length()
         {
             return System.MathF.Sqrt((X * X) + (Y * Y) + (Z * Z));
