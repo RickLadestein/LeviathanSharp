@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\Graphics\" />
     <Folder Include="Core\Sound\" />
     <Folder Include="ECS\" />
+    <Folder Include="Util\" />
   </ItemGroup>
 
 </Project>

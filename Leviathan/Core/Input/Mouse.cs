@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Leviathan.Core.Graphics;
 using Leviathan.Core.Windowing;
 using Leviathan.Math;
 using Silk.NET.GLFW;
@@ -60,10 +61,10 @@ namespace Leviathan.Core.Input
             Position.Set((float)x_pos, (float)y_pos);
             oldpos = Position;
 
-            wnd.glfw_context.SetCursorEnterCallback(wnd.w_handle, OnMouseEnter);
-            wnd.glfw_context.SetMouseButtonCallback(wnd.w_handle, OnMouseButton);
-            wnd.glfw_context.SetScrollCallback(wnd.w_handle, OnMouseScroll);
-            wnd.glfw_context.SetCursorPosCallback(wnd.w_handle, OnCursorPosChanged);
+            Context.glfw_context.SetCursorEnterCallback(wnd.w_handle, OnMouseEnter);
+            Context.glfw_context.SetMouseButtonCallback(wnd.w_handle, OnMouseButton);
+            Context.glfw_context.SetScrollCallback(wnd.w_handle, OnMouseScroll);
+            Context.glfw_context.SetCursorPosCallback(wnd.w_handle, OnCursorPosChanged);
         }
 
         public List<MouseButton>GetPressedButtons()
@@ -74,7 +75,7 @@ namespace Leviathan.Core.Input
 
         public unsafe void SetCursorPos(Vector2d newpos)
         {
-            parent.glfw_context.SetCursorPos(parent_window, newpos.X, newpos.Y);
+            Context.glfw_context.SetCursorPos(parent_window, newpos.X, newpos.Y);
         }
 
         public unsafe void SetMouseMode(MouseMode mode)
@@ -82,13 +83,13 @@ namespace Leviathan.Core.Input
             switch(mode)
             {
                 case MouseMode.Normal:
-                    parent.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorNormal);
+                    Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorNormal);
                     break;
                 case MouseMode.FPS:
-                    parent.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorDisabled);
+                    Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorDisabled);
                     break;
                 case MouseMode.Invisible:
-                    parent.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorHidden);
+                    Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorHidden);
                     break;
             }
         }
@@ -97,10 +98,10 @@ namespace Leviathan.Core.Input
         {
             if(enabled)
             {
-                parent.glfw_context.SetInputMode(parent_window, CursorStateAttribute.RawMouseMotion, true);
+                Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.RawMouseMotion, true);
             } else
             {
-                parent.glfw_context.SetInputMode(parent_window, CursorStateAttribute.RawMouseMotion, false);
+                Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.RawMouseMotion, false);
             }
             RawMotion = enabled;
         }

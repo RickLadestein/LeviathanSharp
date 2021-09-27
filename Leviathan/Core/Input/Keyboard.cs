@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Leviathan.Core.Windowing;
+using Leviathan.Core.Graphics;
 using Leviathan.Math;
 using Silk.NET.GLFW;
 
@@ -39,8 +40,8 @@ namespace Leviathan.Core.Input
             }
 
 
-            wnd.glfw_context.SetKeyCallback(parent_window, OnKeyAction);
-            wnd.glfw_context.SetCharCallback(parent_window, OnKeyboardChar);
+            Context.glfw_context.SetKeyCallback(parent_window, OnKeyAction);
+            Context.glfw_context.SetCharCallback(parent_window, OnKeyboardChar);
         }
 
         public List<KeyboardKey> GetPressedKeys()

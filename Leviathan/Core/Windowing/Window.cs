@@ -40,12 +40,14 @@ namespace Leviathan.Core.Windowing
         public Window(uint width, uint height, string title, WindowMode mode)
         {
             this.nativeWindow = NativeWindow.CreateWindow(width, height, title, mode);
+            Graphics.Context.RegisterContext(nativeWindow.gl_context, nativeWindow.glfw_context);
             BindGLFWCallbacks();
         }
 
         public Window(uint width, uint height, WindowMode mode)
         {
             this.nativeWindow = NativeWindow.CreateWindow(width, height, "Window", mode);
+            Graphics.Context.RegisterContext(nativeWindow.gl_context, nativeWindow.glfw_context);
             BindGLFWCallbacks();
         }
 
