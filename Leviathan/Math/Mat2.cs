@@ -7,7 +7,7 @@ using System.Diagnostics.Contracts;
 
 namespace Leviathan.Math
 {
-
+    //TODO Add further functionality: Mat2
     [StructLayout(LayoutKind.Sequential)]
     public struct Mat2
     {
