@@ -75,6 +75,7 @@ namespace Leviathan.Core.Graphics.Buffers
             foreach (InstanceBuffer ib in ibufs)
             {
                 IBO tmp = IBO.Create(ib, current_attrib);
+                
                 this.current_attrib += 1;
                 ibos[index] = tmp;
                 index++;
@@ -121,6 +122,7 @@ namespace Leviathan.Core.Graphics.Buffers
 
                 Context.gl_context.VertexAttribPointer(tmp.vao_index, (int)tmp.coll_type, (GLEnum)tmp.value_type, false, 0, (void*)0);
                 Context.gl_context.EnableVertexAttribArray(tmp.vao_index);
+                Context.gl_context.VertexAttribDivisor(current_attrib, ibuf.mode);
             };
             Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, 0);
             return tmp;

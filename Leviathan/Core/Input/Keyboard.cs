@@ -105,12 +105,10 @@ namespace Leviathan.Core.Input
                     case Silk.NET.GLFW.InputAction.Press:
                         AddButton(k);
                         Press?.Invoke(k, scanCode);
-                        Console.WriteLine($"Key {k} was pressed");
                         break;
                     case Silk.NET.GLFW.InputAction.Release:
                         RemoveButton(k);
                         Release?.Invoke(k, scanCode);
-                        Console.WriteLine($"Key {k} was released");
                         break;
                     case Silk.NET.GLFW.InputAction.Repeat:
                         Repeat?.Invoke(k, scanCode);

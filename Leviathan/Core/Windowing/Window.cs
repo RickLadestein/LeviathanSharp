@@ -93,11 +93,6 @@ namespace Leviathan.Core.Windowing
                 Time.FrameDelta = (float)(curr_frametime - prev_frametime);
                 prev_frametime = curr_frametime;
 
-                if(Time.FrameDelta < MIN_FRAMETIME)
-                {
-                    int wait = (int) System.Math.Round((MIN_FRAMETIME - Time.FrameDelta) * 1000);
-                    System.Threading.Thread.Sleep(wait);
-                }
                 this.ShutdownRequested = nativeWindow.glfw_context.WindowShouldClose(nativeWindow.w_handle);
             }
         }

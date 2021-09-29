@@ -43,13 +43,32 @@ namespace Sandbox
 
             ShaderFile sf = new ShaderFile("./assets/default.glsl");
             ShaderProgram.Import(sf, "default");
+
+            ShaderFile sf1 = new ShaderFile("./assets/default_instance.glsl");
+            ShaderProgram.Import(sf1, "default_instance");
             Mesh.Import("cube", "./assets/cube.obj", ElementType.TRIANGLES);
 
             MaterialComponent matcomp = new MaterialComponent();
-            matcomp.SetShader("default");
+            matcomp.SetShader("default_instance");
 
             MeshComponent meshcomp = new MeshComponent();
             meshcomp.SetMesh("cube");
+
+            Random rnd = new Random();
+            FloatAttribute fa = new FloatAttribute(DataCollectionType.VEC3);
+            FloatAttribute fa1 = new FloatAttribute(DataCollectionType.VEC3);
+            for(int i = 0; i < 10; i++)
+            {
+                for(int j = 0; j < 10; j++)
+                {
+                    fa.AddData(new Vector3f((i + (i * 10)), 0.0f, (j + (j*10))));
+                    fa1.AddData(new Vector3f((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble()));
+                }
+            }
+            InstanceBuffer ibuff = InstanceBuffer.FromAttribute(fa, 1);
+            InstanceBuffer ibuff1 = InstanceBuffer.FromAttribute(fa1, 1);
+            meshcomp.Vbuffer.LoadInstanceBuffers(new InstanceBuffer[2] { ibuff, ibuff1});
+
 
             RenderComponent rcomp = new RenderComponent();
 
@@ -62,29 +81,29 @@ namespace Sandbox
 
         private static void W_refresh()
         {
-            en.GetComponent<RenderComponent>().Render(cam);
+            en.GetComponent<RenderComponent>().RenderInstanced(cam, 100);
             keys = w.Keyboard.GetPressedKeys();
             foreach(KeyboardKey k in keys)
             {
                 switch(k)
                 {
                     case KeyboardKey.W:
-                        cam.Position += cam.Foreward * Time.FrameDelta;
+                        cam.Position += cam.Foreward * Time.FrameDelta * 5.0f;
                         break;
                     case KeyboardKey.A:
-                        cam.Position -= cam.Right * Time.FrameDelta;
+                        cam.Position -= cam.Right * Time.FrameDelta * 5.0f;
                         break;
                     case KeyboardKey.S:
-                        cam.Position -= cam.Foreward * Time.FrameDelta;
+                        cam.Position -= cam.Foreward * Time.FrameDelta * 5.0f;
                         break;
                     case KeyboardKey.D:
-                        cam.Position += cam.Right * Time.FrameDelta;
+                        cam.Position += cam.Right * Time.FrameDelta * 5.0f;
                         break;
                     case KeyboardKey.Space:
-                        cam.Position += cam.Up * Time.FrameDelta;
+                        cam.Position += cam.Up * Time.FrameDelta * 5.0f;
                         break;
                     case KeyboardKey.ShiftLeft:
-                        cam.Position -= cam.Up * Time.FrameDelta;
+                        cam.Position -= cam.Up * Time.FrameDelta * 5.0f;
                         break;
                     
                 }
@@ -95,8 +114,8 @@ namespace Sandbox
         {
             if(w.Mouse.Mode == MouseMode.FPS)
             {
-                float yaw = -(float)delta.X * Time.FrameDelta;
-                float pitch = (float)delta.Y * Time.FrameDelta;
+                float yaw = -(float)delta.X * Time.FrameDelta * 2.0f;
+                float pitch = (float)delta.Y * Time.FrameDelta * 2.0f;
                 cam.Rotate2D(pitch, yaw);            
             }
         }
