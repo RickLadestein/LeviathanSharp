@@ -57,12 +57,6 @@ namespace Leviathan.Math
         public static readonly Vector2d One =   new Vector2d(1.0d, 1.0d);
         public static readonly Vector2d Zero =  new Vector2d(0.0d, 0.0d);
 
-        public void Set(double _x, double _y)
-        {
-            X = _x;
-            Y = _y;
-        }
-
         public double Length()
         {
             return System.Math.Sqrt((X * X) + (Y * Y));
@@ -88,7 +82,10 @@ namespace Leviathan.Math
             return new Vector2d(_x, _y);
         }
 
-
+        public static double Dot(Vector2d v1, Vector2d v2)
+        {
+            return (v1.X * v2.X) + (v1.Y * v2.Y);
+        }
 
         #region Operators
         [Pure]
@@ -97,6 +94,12 @@ namespace Leviathan.Math
             left.X += right.X;
             left.Y += right.Y;
             return left;
+        }
+
+        [Pure]
+        public static Vector2d operator -(Vector2d vec)
+        {
+            return new Vector2d(-vec.X, -vec.Y);
         }
 
         [Pure]

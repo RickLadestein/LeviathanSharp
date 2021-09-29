@@ -95,6 +95,12 @@ namespace Leviathan.Math
             Z *= scale;
         }
 
+        public static Vector3f Normalize(Vector3f input)
+        {
+            input.Normalize();
+            return input;
+        }
+
         public Vector3f Normalized()
         {
             var scale = 1.0f / Length();
@@ -104,7 +110,23 @@ namespace Leviathan.Math
             return new Vector3f(_x, _y, _z);
         }
 
+        public static float Dot(Vector3f v1, Vector3f v2)
+        {
+            return (v1.X * v2.X) + (v1.Y * v2.Y) + (v1.Z * v2.Z);
+        }
+
+        public static Vector3f Cross(Vector3f left, Vector3f right)
+        {
+            Vector3f result = Vector3f.Zero;
+            result.X = (left.Y * right.Z) - (left.Z * right.Y);
+            result.Y = (left.Z * right.X) - (left.X * right.Z);
+            result.Z = (left.X * right.Y) - (left.Y * right.X);
+            return result;
+        }
+
+
         #region Operators
+
         [Pure]
         public static Vector3f operator +(Vector3f left, Vector3f right)
         {
@@ -112,6 +134,12 @@ namespace Leviathan.Math
             left.Y += right.Y;
             left.Z += right.Z;
             return left;
+        }
+
+        [Pure]
+        public static Vector3f operator -(Vector3f vec)
+        {
+            return new Vector3f(-vec.X, -vec.Y, -vec.Z);
         }
 
         [Pure]

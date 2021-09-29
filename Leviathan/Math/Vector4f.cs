@@ -15,6 +15,20 @@ namespace Leviathan.Math
         public float Z;
         public float W;
 
+        public Vector3f Xyz
+        {
+            get
+            {
+                return new Vector3f(X, Y, Z);
+            }
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
+            }
+        }
+
         public Vector4f(float _x, float _y, float _z, float _w)
         {
             X = _x;
@@ -69,7 +83,7 @@ namespace Leviathan.Math
         public static readonly Vector4f UnitX = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
         public static readonly Vector4f UnitY = new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
         public static readonly Vector4f UnitZ = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
-        public static readonly Vector4f UnitW = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
+        public static readonly Vector4f UnitW = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
         public static readonly Vector4f Up =    new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
         public static readonly Vector4f One =   new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly Vector4f Zero =  new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
@@ -110,6 +124,11 @@ namespace Leviathan.Math
             return new Vector4f(_x, _y, _z, _w);
         }
 
+        public static float Dot(Vector4f v1, Vector4f v2)
+        {
+            return (v1.X * v2.X) + (v1.Y * v2.Y) + (v1.Z * v2.Z) + (v1.W * v2.W);
+        }
+
         #region Operators
         [Pure]
         public static Vector4f operator +(Vector4f left, Vector4f right)
@@ -119,6 +138,12 @@ namespace Leviathan.Math
             left.Z += right.Z;
             left.W += right.W;
             return left;
+        }
+
+        [Pure]
+        public static Vector4f operator -(Vector4f vec)
+        {
+            return new Vector4f(-vec.X, -vec.Y, -vec.Z, -vec.W);
         }
 
         [Pure]

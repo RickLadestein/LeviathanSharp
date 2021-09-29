@@ -88,7 +88,10 @@ namespace Leviathan.Math
             return new Vector2i(_x, _y);
         }
 
-
+        public static int Dot(Vector2i v1, Vector2i v2)
+        {
+            return (v1.X * v2.X) + (v1.Y * v2.Y);
+        }
 
         #region Operators
         [Pure]
@@ -97,6 +100,12 @@ namespace Leviathan.Math
             left.X += right.X;
             left.Y += right.Y;
             return left;
+        }
+
+        [Pure]
+        public static Vector2i operator -(Vector2i vec)
+        {
+            return new Vector2i(-vec.X, -vec.Y);
         }
 
         [Pure]

@@ -104,6 +104,20 @@ namespace Leviathan.Math
             return new Vector3i(_x, _y, _z);
         }
 
+        public static int Dot(Vector3i v1, Vector3i v2)
+        {
+            return (v1.X * v2.X) + (v1.Y * v2.Y) + (v1.Z * v2.Z);
+        }
+
+        public static Vector3i Cross(Vector3i left, Vector3i right)
+        {
+            Vector3i result = Vector3i.Zero;
+            result.X = (left.Y * right.Z) - (left.Z * right.Y);
+            result.Y = (left.Z * right.X) - (left.X * right.Z);
+            result.Z = (left.X * right.Y) - (left.Y * right.X);
+            return result;
+        }
+
         #region Operators
         [Pure]
         public static Vector3i operator +(Vector3i left, Vector3i right)
@@ -112,6 +126,12 @@ namespace Leviathan.Math
             left.Y += right.Y;
             left.Z += right.Z;
             return left;
+        }
+
+        [Pure]
+        public static Vector3i operator -(Vector3i vec)
+        {
+            return new Vector3i(-vec.X, -vec.Y, -vec.Z);
         }
 
         [Pure]

@@ -15,6 +15,20 @@ namespace Leviathan.Math
         public int Z;
         public int W;
 
+        public Vector3i Xyz
+        {
+            get
+            {
+                return new Vector3i(X, Y, Z);
+            }
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
+            }
+        }
+
         public Vector4i(int _x, int _y, int _z, int _w)
         {
             X = _x;
@@ -110,6 +124,11 @@ namespace Leviathan.Math
             return new Vector4i(_x, _y, _z, _w);
         }
 
+        public static int Dot(Vector4i v1, Vector4i v2)
+        {
+            return (v1.X * v2.X) + (v1.Y * v2.Y) + (v1.Z * v2.Z) + (v1.W * v2.W);
+        }
+
         #region Operators
         [Pure]
         public static Vector4i operator +(Vector4i left, Vector4i right)
@@ -119,6 +138,12 @@ namespace Leviathan.Math
             left.Z += right.Z;
             left.W += right.W;
             return left;
+        }
+
+        [Pure]
+        public static Vector4i operator -(Vector4i vec)
+        {
+            return new Vector4i(-vec.X, -vec.Y, -vec.Z, -vec.W);
         }
 
         [Pure]
