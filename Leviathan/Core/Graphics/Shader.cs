@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Leviathan.Math;
+using Leviathan.Util;
 
 namespace Leviathan.Core.Graphics
 {
     public class ShaderProgram
     {
-        private uint Handle;
-        public static ShaderProgram Bound { get; private set; }
+        public uint Handle;
+        public static uint BoundProgram { get; private set; }
 
         public ShaderProgram(VertexShader vshader, FragmentShader fshader)
         {
@@ -80,19 +81,19 @@ namespace Leviathan.Core.Graphics
 
         public void Bind()
         {
-            if(Bound != this)
+            if(BoundProgram != Handle)
             {
                 Context.gl_context.UseProgram(Handle);
-                Bound = this;
+                BoundProgram = Handle;
             }
         }
 
         public void Unbind()
         {
-            if (Bound == this)
+            if (BoundProgram == Handle)
             {
                 Context.gl_context.UseProgram(0);
-                Bound = null;
+                BoundProgram = 0;
             } else
             {
                 throw new Exception("Attempted to unbind not currently bound shader program");
@@ -112,6 +113,30 @@ namespace Leviathan.Core.Graphics
                 return $"ShaderProgram linking failed: \n {log}";
             }
             return String.Empty;
+        }
+
+        public static void Import(ShaderFile sfile, string shader_identifier)
+        {
+            ShaderProgram sp;
+            if(sfile.HasVertex && sfile.HasFragment)
+            {
+                VertexShader vshader = new VertexShader(sfile.Vertex_src);
+                FragmentShader fshader = new FragmentShader(sfile.Fragment_src);
+                if(sfile.HasGeometry)
+                {
+                    GeometryShader gshader = new GeometryShader(sfile.Geometry_src);
+                    sp = new ShaderProgram(vshader, gshader, fshader);
+                }
+                sp = new ShaderProgram(vshader, fshader);
+            } else if(sfile.HasCompute)
+            {
+                ComputeShader cshader = new ComputeShader(sfile.Compute_src);
+                sp = new ShaderProgram(cshader);
+            } else
+            {
+                throw new Exception("Shaderfile was not complete: please fix");
+            }
+            ShaderResourceManager.Instance.AddResource(shader_identifier, sp);
         }
 
 
@@ -276,22 +301,22 @@ namespace Leviathan.Core.Graphics
 
     public class VertexShader : Shader
     {
-        public VertexShader(string vpath) : base(vpath, ShaderType.VERTEX) { }
+        public VertexShader(string vsrc) : base(vsrc, ShaderType.VERTEX) { }
     }
 
     public class GeometryShader : Shader
     {
-        public GeometryShader(string gpath) : base(gpath, ShaderType.GEOMETRY) { }
+        public GeometryShader(string gsrc) : base(gsrc, ShaderType.GEOMETRY) { }
     }
 
     public class FragmentShader : Shader
     {
-        public FragmentShader(string fpath) : base(fpath, ShaderType.FRAGMENT) { }
+        public FragmentShader(string fsrc) : base(fsrc, ShaderType.FRAGMENT) { }
     }
 
     public class ComputeShader : Shader
     {
-        public ComputeShader(string cpath) : base(cpath, ShaderType.COMPUTE) { }
+        public ComputeShader(string csrc) : base(csrc, ShaderType.COMPUTE) { }
     }
 
 
@@ -366,12 +391,20 @@ namespace Leviathan.Core.Graphics
         private const string c_marker = "COMPUTE";
         private const string cat_marker = "??";
         public string Vertex_src { get; private set; }
+        public bool HasVertex { get; private set; }
         public string Geometry_src { get; private set; }
+        public bool HasGeometry { get; private set; }
         public string Fragment_src { get; private set; }
+        public bool HasFragment { get; private set; }
         public string Compute_src { get; private set; }
+        public bool HasCompute { get; private set; }
         public string File_path { get; private set; }
         public ShaderFile(string path)
         {
+            HasVertex = false;
+            HasGeometry = false;
+            HasFragment = false;
+            HasCompute = false;
             if (path == null)
             {
                 throw new ArgumentNullException(nameof(path));
@@ -427,15 +460,19 @@ namespace Leviathan.Core.Graphics
             switch(marker) {
                 case v_marker:
                     Vertex_src = content;
+                    HasVertex = true;
                     break;
                 case g_marker:
                     Geometry_src = content;
+                    HasGeometry = true;
                     break;
                 case f_marker:
                     Fragment_src = content;
+                    HasFragment = true;
                     break;
                 case c_marker:
                     Compute_src = content;
+                    HasCompute = true;
                     break;
                 default:
                     break;

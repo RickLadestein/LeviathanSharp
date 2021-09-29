@@ -4,11 +4,13 @@ using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Leviathan.Core.Windowing
 {
     public class Window
     {
+        private double prev_frametime;
         public NativeWindow nativeWindow;
 
         public event WindowRefreshFunc refresh;
@@ -21,6 +23,8 @@ namespace Leviathan.Core.Windowing
 
         public Keyboard Keyboard { get; private set; }
         public Mouse Mouse { get; private set; }
+
+        private static float MIN_FRAMETIME = 0.002f;
 
         public Glfw glfw_context
         {
@@ -39,15 +43,17 @@ namespace Leviathan.Core.Windowing
 
         public Window(uint width, uint height, string title, WindowMode mode)
         {
+            prev_frametime = 0.0f;
             this.nativeWindow = NativeWindow.CreateWindow(width, height, title, mode);
-            Graphics.Context.RegisterContext(nativeWindow.gl_context, nativeWindow.glfw_context);
+            Graphics.Context.RegisterContext(nativeWindow.gl_context, nativeWindow.glfw_context, this);
             BindGLFWCallbacks();
         }
 
         public Window(uint width, uint height, WindowMode mode)
         {
+            prev_frametime = 0.0f;
             this.nativeWindow = NativeWindow.CreateWindow(width, height, "Window", mode);
-            Graphics.Context.RegisterContext(nativeWindow.gl_context, nativeWindow.glfw_context);
+            Graphics.Context.RegisterContext(nativeWindow.gl_context, nativeWindow.glfw_context, this);
             BindGLFWCallbacks();
         }
 
@@ -70,17 +76,27 @@ namespace Leviathan.Core.Windowing
 
         private unsafe void Run() {
 
-            nativeWindow.gl_context.ClearColor(System.Drawing.Color.Red);
+            nativeWindow.gl_context.ClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+            nativeWindow.gl_context.Enable(EnableCap.DepthTest);
+            double curr_frametime;
             while(!this.ShutdownRequested)
             {
+                nativeWindow.PollEvents();
                 if (!nativeWindow.w_isIconified)
                 {
-                    nativeWindow.PollEvents();
                     nativeWindow.ClearBuffer(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                     refresh?.Invoke();
-
-
                     nativeWindow.SwapBuffers();
+                }
+
+                curr_frametime = nativeWindow.glfw_context.GetTime();
+                Time.FrameDelta = (float)(curr_frametime - prev_frametime);
+                prev_frametime = curr_frametime;
+
+                if(Time.FrameDelta < MIN_FRAMETIME)
+                {
+                    int wait = (int) System.Math.Round((MIN_FRAMETIME - Time.FrameDelta) * 1000);
+                    System.Threading.Thread.Sleep(wait);
                 }
                 this.ShutdownRequested = nativeWindow.glfw_context.WindowShouldClose(nativeWindow.w_handle);
             }
@@ -94,13 +110,15 @@ namespace Leviathan.Core.Windowing
 
         private unsafe void OnWindowPosChanged(WindowHandle* wnd, int xpos, int ypos)
         {
-            nativeWindow.w_position.Set(xpos, ypos);
+            nativeWindow.w_position.X = xpos;
+            nativeWindow.w_position.Y = ypos;
             move?.Invoke(new Math.Vector2f(xpos, ypos));
         }
 
         private unsafe void OnWindowSizeChanged(WindowHandle* wnd, int width, int height)
         {
-            nativeWindow.w_size.Set(width, height);
+            nativeWindow.w_size.X = width;
+            nativeWindow.w_size.Y = height;
             resize?.Invoke(new Math.Vector2f(width, height));
         }
 

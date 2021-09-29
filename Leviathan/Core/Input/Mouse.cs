@@ -58,7 +58,7 @@ namespace Leviathan.Core.Input
 
 
             wnd.glfw_context.GetCursorPos(wnd.w_handle, out double x_pos, out double y_pos);
-            Position.Set((float)x_pos, (float)y_pos);
+            Position = new Vector2d((float)x_pos, (float)y_pos);
             oldpos = Position;
 
             Context.glfw_context.SetCursorEnterCallback(wnd.w_handle, OnMouseEnter);
@@ -92,6 +92,7 @@ namespace Leviathan.Core.Input
                     Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorHidden);
                     break;
             }
+            this.Mode = mode;
         }
 
         public unsafe void SetRawInputMode(bool enabled)
@@ -184,7 +185,7 @@ namespace Leviathan.Core.Input
 
         private unsafe void OnCursorPosChanged(WindowHandle* window, double x, double y) 
         {
-            Position.Set(x, y);
+            Position = new Vector2d(x,y);
             Vector2d delta = Position - oldpos;
 
 
