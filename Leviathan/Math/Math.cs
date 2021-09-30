@@ -22,6 +22,18 @@ namespace Leviathan.Math
         }
 
         [Pure]
+        public static Vector2f DegreesToRadians(Vector2f degrees)
+        {
+            return new Vector2f(DegreesToRadians(degrees.X), DegreesToRadians(degrees.Y));
+        }
+
+        [Pure]
+        public static Vector3f DegreesToRadians(Vector3f degrees)
+        {
+            return new Vector3f(DegreesToRadians(degrees.X), DegreesToRadians(degrees.Y), DegreesToRadians(degrees.Z));
+        }
+
+        [Pure]
         public static double RadiansToDegrees(double radians)
         {
             const double radToDeg = 180.0d / System.Math.PI;
@@ -33,6 +45,17 @@ namespace Leviathan.Math
         {
             const float radToDeg = 180.0f / MathF.PI;
             return radians * radToDeg;
+        }
+
+        [Pure]
+        public static Vector3f RadiansToDegrees(Vector3f degrees)
+        {
+            return new Vector3f(RadiansToDegrees(degrees.X), RadiansToDegrees(degrees.Y), RadiansToDegrees(degrees.Z));
+        }
+        [Pure]
+        public static Vector2f RadiansToDegrees(Vector2f degrees)
+        {
+            return new Vector2f(RadiansToDegrees(degrees.X), RadiansToDegrees(degrees.Y));
         }
 
         [Pure]

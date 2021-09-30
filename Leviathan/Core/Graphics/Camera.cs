@@ -8,33 +8,20 @@ namespace Leviathan.Core.Graphics
 {
     public class Camera
     {
-        private Transform transform;
-
-        public CameraViewSettings ViewSettings { get; private set; }
-        public Mat4 ProjectionMatrix { get; private set; }
-        public Mat4 ViewMatrix { get; private set; }
-
+        public Vector3f Position;
+        public Quaternion Orientation;
         public Vector3f Foreward { get; private set; }
         public Vector3f Up { get; private set; }
         public Vector3f Right { get; private set; }
         public Vector3f Target { get; private set; }
 
-        public Vector3f Position
-        {
-            get { return transform.Position; }
-            set { transform.Position = value; }
-        }
-
-        public Vector3f Rotation
-        {
-            get { return transform.Rotation; }
-            set { transform.SetOrientationDeg(value.X, value.Y, value.Z); }
-        }
+        public CameraViewSettings ViewSettings { get; private set; }
+        public CameraMode Mode { get; private set; }
+        public Mat4 ProjectionMatrix { get; private set; }
+        public Mat4 ViewMatrix { get; private set; }
 
         public Camera()
         {
-            transform = new Transform();
-            transform.Reset();
             CameraViewSettings tmp = new CameraViewSettings()
             {
                 capture_size = new Vector2i(1080, 720),
@@ -42,6 +29,13 @@ namespace Leviathan.Core.Graphics
                 clipspace = new Vector2f(0.1f, 100.0f)
             };
             SetViewSettings(tmp);
+            this.SetMode(CameraMode.FPS);
+        }
+
+        public void SetMode(CameraMode newmode)
+        {
+            this.Mode = newmode;
+            this.Orientation = Quaternion.Identity;
             UpdateViewMatrix();
         }
 
@@ -53,9 +47,7 @@ namespace Leviathan.Core.Graphics
         /// <param name="roll">The z-axis rotation in degrees</param>
         public void Rotate3D(float pitch, float yaw, float roll)
         {
-            this.transform.Rotate(Vector3f.UnitX, pitch);
-            this.transform.Rotate(Vector3f.UnitY, yaw);
-            this.transform.Rotate(Vector3f.UnitZ, roll);
+            Rotate3D(new Vector3f(pitch, yaw, roll));
         }
 
         /// <summary>
@@ -64,7 +56,7 @@ namespace Leviathan.Core.Graphics
         /// <param name="rotation">The xyz-axis rotation vector in degrees</param>
         public void Rotate3D(Vector3f rotation)
         {
-            Rotate3D(rotation.X, rotation.Y, rotation.Z);
+            this.Orientation = Quaternion.Rotate(Orientation, rotation);
         }
 
         /// <summary>
@@ -74,8 +66,7 @@ namespace Leviathan.Core.Graphics
         /// <param name="yaw">The y-axis rotation in degrees</param>
         public void Rotate2D(float pitch, float yaw)
         {
-            this.transform.Rotate(Vector3f.UnitX, pitch);
-            this.transform.Rotate(Vector3f.UnitY, yaw);
+            Rotate2D(new Vector2f(pitch, yaw));
         }
 
         /// <summary>
@@ -84,7 +75,32 @@ namespace Leviathan.Core.Graphics
         /// <param name="rotation">The xy-axis rotation vector in degrees</param>
         public void Rotate2D(Vector2f rotation)
         {
-            Rotate2D(rotation.X, rotation.Y);
+            if(Mode == CameraMode.FPS && !CheckRotation(rotation))
+            {
+                return;
+            }
+            Orientation = Quaternion.Rotate(Orientation, rotation);
+        }
+
+        private bool CheckRotation(Vector2f rotation)
+        {
+            
+            Quaternion neworient = Quaternion.Rotate(Orientation, rotation);
+            Vector3f eulerangles_rad = neworient.ToEulerAngles();
+            Vector3f eulerangles = Math.Math.RadiansToDegrees(eulerangles_rad);
+            Console.WriteLine(eulerangles);
+            if (eulerangles.X > 89.0f || eulerangles.X < -89.0f)
+            {
+                return false;
+            } else
+            {
+                return true;
+            }
+        }
+
+        public void Translate(Vector3f offset)
+        {
+            this.Position = Position + offset;
         }
 
         public void SetViewSettings(CameraViewSettings newsettings)
@@ -101,19 +117,25 @@ namespace Leviathan.Core.Graphics
         public void UpdateViewMatrix()
         {
             //Translate the orientation to looking point
-            Vector4f _foreward = transform.Orientation * Vector4f.UnitZ;
+            Vector4f _foreward = Orientation * Vector4f.UnitZ;
             this.Foreward = _foreward.Xyz;
-            this.Target = this.Foreward + this.transform.Position;
+            this.Target = this.Foreward + this.Position;
 
             //apply the current orientation and calculate right vector, up vector and lookat matrix
             Vector3f virt_cam_up = Vector3f.UnitY;
-            Vector3f cam_dir = Vector3f.Normalize(this.transform.Position - this.Target);
+            Vector3f cam_dir = Vector3f.Normalize(this.Position - this.Target);
             this.Right = Vector3f.Normalize(Vector3f.Cross(virt_cam_up, cam_dir));
             this.Up = Vector3f.Normalize(Vector3f.Cross(cam_dir, this.Right));
-            this.ViewMatrix = Mat4.LookAt(this.transform.Position, this.Target, this.Up);
+            this.ViewMatrix = Mat4.LookAt(this.Position, this.Target, this.Up);
         }
 
 
+    }
+
+    public enum CameraMode
+    {
+        OMNIDIRECTIONAL,
+        FPS
     }
 
     public struct CameraViewSettings

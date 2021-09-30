@@ -88,22 +88,25 @@ namespace Sandbox
                 switch(k)
                 {
                     case KeyboardKey.W:
-                        cam.Position += cam.Foreward * Time.FrameDelta * 5.0f;
+                        cam.Translate(cam.Foreward * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.A:
-                        cam.Position -= cam.Right * Time.FrameDelta * 5.0f;
+                        cam.Translate( -cam.Right * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.S:
-                        cam.Position -= cam.Foreward * Time.FrameDelta * 5.0f;
+                        cam.Translate(-cam.Foreward * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.D:
-                        cam.Position += cam.Right * Time.FrameDelta * 5.0f;
+                        cam.Translate(cam.Right * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.Space:
-                        cam.Position += cam.Up * Time.FrameDelta * 5.0f;
+                        cam.Translate(cam.Up * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.ShiftLeft:
-                        cam.Position -= cam.Up * Time.FrameDelta * 5.0f;
+                        cam.Translate(-cam.Up * Time.FrameDelta * 5.0f);
+                        break;
+                    case KeyboardKey.Enter:
+                        cam.SetMode(CameraMode.FPS);
                         break;
                     
                 }

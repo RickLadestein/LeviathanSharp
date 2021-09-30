@@ -114,6 +114,46 @@ namespace Leviathan.Math
         }
 
         /// <summary>
+        /// Rotates a given quaternion in given axis
+        /// </summary>
+        /// <param name="quat">Quaternion to be rotated</param>
+        /// <param name="axis_angle">The axis angle that needs to be rotated (UNIT_X/UNIT_Y/UNIT_Z)</param>
+        /// <param name="degrees">The rotation angle in degrees</param>
+        /// <returns></returns>
+        public static Quaternion RotateAxisAngle(Quaternion quat, Vector3f axis_angle, float degrees)
+        {
+            Quaternion rot = Quaternion.FromAxisAngle(axis_angle, Leviathan.Math.Math.DegreesToRadians(degrees));
+            return quat * rot;
+        }
+
+        /// <summary>
+        /// Rotates a given quaternion in X,Y,Z axis comform rotation order Y->X
+        /// </summary>
+        /// <param name="quat">Quaternion to be rotated</param>
+        /// <param name="axis_rotation_d">The rotation angles in degrees (X_AXIS, Y_AXIS, Z_AXIS)</param>
+        /// <returns>Quaternion representing new orientation</returns>
+        public static Quaternion Rotate(Quaternion quat, Vector3f axis_rotation_d)
+        {
+            Quaternion rotx = Quaternion.FromAxisAngle(Vector3f.UnitX, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.X));
+            Quaternion roty = Quaternion.FromAxisAngle(Vector3f.UnitY, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.Y));
+            Quaternion rotz = Quaternion.FromAxisAngle(Vector3f.UnitZ, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.Z));
+            return quat * roty * rotx * rotz;
+        }
+
+        /// <summary>
+        /// Rotates a given quaternion in X,Y axis comform rotation order Y->X->Z
+        /// </summary>
+        /// <param name="quat">Quaternion to be rotated</param>
+        /// <param name="axis_rotation_d">The rotation angles in degrees (X_AXIS, Y_AXIS)</param>
+        /// <returns>Quaternion representing new orientation</returns>
+        public static Quaternion Rotate(Quaternion quat, Vector2f axis_rotation_d)
+        {
+            Quaternion rotx = Quaternion.FromAxisAngle(Vector3f.UnitX, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.X));
+            Quaternion roty = Quaternion.FromAxisAngle(Vector3f.UnitY, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.Y));
+            return quat * roty * rotx;
+        }
+
+        /// <summary>
         /// Convert the current quaternion to axis angle representation.
         /// </summary>
         /// <param name="axis">The resultant axis.</param>
