@@ -117,8 +117,8 @@ namespace Sandbox
         {
             if(w.Mouse.Mode == MouseMode.FPS)
             {
-                float yaw = -(float)delta.X * Time.FrameDelta * 2.0f;
-                float pitch = (float)delta.Y * Time.FrameDelta * 2.0f;
+                float yaw = (float)delta.X * Time.FrameDelta * 2.0f;
+                float pitch = -(float)delta.Y * Time.FrameDelta * 2.0f;
                 cam.Rotate2D(pitch, yaw);            
             }
         }
