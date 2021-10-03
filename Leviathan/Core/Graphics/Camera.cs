@@ -59,6 +59,7 @@ namespace Leviathan.Core.Graphics
         public void Rotate3D(Vector3f rotation)
         {
             this.Orientation += rotation;
+            CorrectRotation();
         }
 
         /// <summary>
@@ -78,6 +79,23 @@ namespace Leviathan.Core.Graphics
         public void Rotate2D(Vector2f rotation)
         {
             this.Orientation += new Vector3f(rotation.X, rotation.Y, 0.0f);
+            CorrectRotation();
+        }
+
+        private void CorrectRotation()
+        {
+            if (Mode == CameraMode.FPS)
+            {
+
+                if(Orientation.X > 89.9f)
+                {
+                    Orientation.X = 89.9f;
+                } else if(Orientation.X < -89.9f)
+                {
+                    Orientation.X = -89.9f;
+                }
+
+            }
         }
 
         public void Translate(Vector3f offset)
@@ -113,7 +131,7 @@ namespace Leviathan.Core.Graphics
             this.Right = Vector3f.Normalize(Vector3f.Cross(virt_cam_up, cam_dir));
             this.Up = Vector3f.Normalize(Vector3f.Cross(cam_dir, this.Right));
             this.ViewMatrix = Mat4.LookAt(this.Position, this.Target, this.Up);
-            Console.WriteLine(Up);
+            Console.WriteLine(Orientation);
         }
 
 
