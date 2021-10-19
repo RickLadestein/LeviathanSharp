@@ -22,6 +22,14 @@ namespace Leviathan.ECS
             ShaderProgram sh = matcomp.Shader;
             sh.Bind();
 
+            MultiTexture tex = matcomp.Texture;
+            TextureBuffer.Instance.UseMultitex(tex);
+
+            for(int i = 0; i < TextureBuffer.MAX_TEXTURES; i++)
+            {
+                sh.SetUniform($"texture_{i}", i);
+            }
+
             VertexBuffer vbuf = meshcomp.Vbuffer;
             vbuf.Bind();
             sh.SetUniform("model", parent.Transform.ModelMat);

@@ -131,7 +131,7 @@ namespace Leviathan.Core.Graphics
             this.Right = Vector3f.Normalize(Vector3f.Cross(virt_cam_up, cam_dir));
             this.Up = Vector3f.Normalize(Vector3f.Cross(cam_dir, this.Right));
             this.ViewMatrix = Mat4.LookAt(this.Position, this.Target, this.Up);
-            Console.WriteLine(Orientation);
+            //Console.WriteLine(Orientation);
         }
 
 

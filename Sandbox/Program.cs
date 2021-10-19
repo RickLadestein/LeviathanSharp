@@ -10,6 +10,7 @@ using Leviathan.ECS;
 using System.Collections.Generic;
 using Leviathan.Core.Input;
 using Leviathan.Core;
+using Leviathan.Util;
 
 namespace Sandbox
 {
@@ -48,8 +49,12 @@ namespace Sandbox
             ShaderProgram.Import(sf1, "default_instance");
             Mesh.Import("cube", "./assets/cube.obj", ElementType.TRIANGLES);
 
+            Texture t1 = Texture2D.ImportTexture("./assets/image.png");
+            TextureResourceManager.Instance.AddResource("default", t1);
+
             MaterialComponent matcomp = new MaterialComponent();
             matcomp.SetShader("default_instance");
+            matcomp.SetTextureUnit("default", 0);
 
             MeshComponent meshcomp = new MeshComponent();
             meshcomp.SetMesh("cube");

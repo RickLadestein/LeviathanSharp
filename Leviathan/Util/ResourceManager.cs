@@ -1,4 +1,5 @@
 ﻿using Leviathan.Core.Graphics;
+using Leviathan.Core.Graphics.Buffers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -186,6 +187,30 @@ namespace Leviathan.Util
                     if (instance == null)
                     {
                         instance = new ShaderResourceManager();
+                    }
+                }
+                return instance;
+            }
+        }
+    }
+
+    public class TextureResourceManager : ResourceManager<Texture>
+    {
+        private static TextureResourceManager instance;
+        private static object _lck = new object();
+
+        /// <summary>
+        /// The current instance of ShaderResourceManager
+        /// </summary>
+        public static TextureResourceManager Instance
+        {
+            get
+            {
+                lock (_lck)
+                {
+                    if (instance == null)
+                    {
+                        instance = new TextureResourceManager();
                     }
                 }
                 return instance;
