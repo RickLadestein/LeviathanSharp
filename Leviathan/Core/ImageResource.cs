@@ -50,9 +50,9 @@ namespace Leviathan.Core
             int bits_per_pixel = image.PixelType.BitsPerPixel;
             switch(bits_per_pixel)
             {
-                case 16:
+                case 64:
                     return Silk.NET.OpenGL.PixelType.UnsignedShort;
-                case 32:
+                case 128:
                     return Silk.NET.OpenGL.PixelType.Float;
                 default:
                     return Silk.NET.OpenGL.PixelType.Byte;

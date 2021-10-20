@@ -399,32 +399,32 @@ namespace Leviathan.Core.Graphics
         public string Compute_src { get; private set; }
         public bool HasCompute { get; private set; }
         public string File_path { get; private set; }
-        public ShaderFile(string path)
+        public ShaderFile(string from_path, string content)
         {
-            HasVertex = false;
-            HasGeometry = false;
-            HasFragment = false;
-            HasCompute = false;
-            if (path == null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
+            //HasVertex = false;
+            //HasGeometry = false;
+            //HasFragment = false;
+            //HasCompute = false;
+            //if (path == null)
+            //{
+            //    throw new ArgumentNullException(nameof(path));
+            //}
+            //
+            //if (path.Length == 0)
+            //{
+            //    throw new ArgumentException("Path was empty", nameof(path));
+            //}
+            //
+            //if (!path.EndsWith(".glsl"))
+            //{
+            //    throw new ArgumentException("Given path does not lead to valid shader file");
+            //}
+            //
+            //
+            //System.IO.StreamReader rd = new System.IO.StreamReader(path);
+            //string content = rd.ReadToEnd();
 
-            if (path.Length == 0)
-            {
-                throw new ArgumentException("Path was empty", nameof(path));
-            }
-
-            if (!path.EndsWith(".glsl"))
-            {
-                throw new ArgumentException("Given path does not lead to valid shader file");
-            }
-
-            this.File_path = path;
-
-            System.IO.StreamReader rd = new System.IO.StreamReader(path);
-            string content = rd.ReadToEnd();
-
+            this.File_path = from_path;
             string[] tokens = content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
             string marker = "", sh_src = "";
             for(int i = 0; i < tokens.Length; i++)
@@ -452,7 +452,29 @@ namespace Leviathan.Core.Graphics
                     HandleSplits(marker, sh_src);
                 }
             }
+            //rd.Close();
+        }
+
+        public static ShaderFile Import(String path)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            if (path.Length == 0)
+            {
+                throw new ArgumentException("Path was empty", nameof(path));
+            }
+
+            if (!path.EndsWith(".glsl"))
+            {
+                throw new ArgumentException("Given path does not lead to valid shader file");
+            }
+            System.IO.StreamReader rd = new System.IO.StreamReader(path);
+            string content = rd.ReadToEnd();
             rd.Close();
+            return new ShaderFile(path, content);
         }
 
         private void HandleSplits(string marker, string content)

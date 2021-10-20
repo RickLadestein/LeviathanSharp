@@ -21,6 +21,48 @@ namespace Leviathan.Util
             access_mutex = new Mutex();
         }
 
+        public static void Init()
+        {
+            if (!System.IO.Directory.Exists("./assets"))
+            {
+                System.IO.Directory.CreateDirectory("./assets");
+            }
+
+            if (!System.IO.Directory.Exists("./assets/default"))
+            {
+                System.IO.Directory.CreateDirectory("./assets/default");
+
+                System.Reflection.Assembly ass = System.Reflection.Assembly.GetExecutingAssembly();
+                string[] names = ass.GetManifestResourceNames();
+                System.IO.Stream stream;
+                foreach (String filename in names)
+                {
+                    stream = ass.GetManifestResourceStream(filename);
+                    if (stream == null)
+                    {
+                        throw new Exception("Manifest stream error!");
+                    }
+                    else
+                    {
+                        String[] tokens = filename.Split(".");
+                        System.IO.StreamReader reader = new System.IO.StreamReader(stream);
+                        System.IO.StreamWriter writer = new System.IO.StreamWriter($"./assets/default/{tokens[tokens.Length - 2]}.{tokens[tokens.Length - 1]}", false);
+                        writer.Write(reader.ReadToEnd());
+                        reader.Close();
+                        writer.Flush();
+                        writer.Close();
+                    }
+                    stream.Close();
+                }
+            }
+
+            
+
+            TextureResourceManager trm = TextureResourceManager.Instance;
+            MeshResourceManager mrm = MeshResourceManager.Instance;
+            ShaderResourceManager srm = ShaderResourceManager.Instance;
+        }
+
         /// <summary>
         /// Checks if the collection contains a resource with given identifier
         /// </summary>
@@ -168,6 +210,23 @@ namespace Leviathan.Util
             }
         }
 
+        private MeshResourceManager() : base()
+        {
+            IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
+            foreach(string file in eFiles)
+            {
+                if(file.EndsWith(".obj"))
+                {
+                    String[] tokens = file.Split("\\");
+                    string full_name = tokens[tokens.Length - 1];
+                    string name = full_name.Remove(full_name.Length - 4);
+                    Mesh.Import(name, file, ElementType.TRIANGLES, out Mesh mesh);
+                    this.AddResource(name, mesh);
+                }
+            }
+
+        }
+
     }
 
     public class ShaderResourceManager : ResourceManager<ShaderProgram>
@@ -192,6 +251,44 @@ namespace Leviathan.Util
                 return instance;
             }
         }
+
+        private ShaderResourceManager() : base()
+        {
+            IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
+            foreach (string file in eFiles)
+            {
+                if (file.EndsWith(".glsl"))
+                {
+                    String[] tokens = file.Split("\\");
+                    string full_name = tokens[tokens.Length - 1];
+                    string name = full_name.Remove(full_name.Length - 5);
+                    ShaderFile sfile = ShaderFile.Import(file);
+                    ShaderProgram sp = null;
+
+                    if (sfile.HasVertex && sfile.HasFragment)
+                    {
+                        VertexShader vshader = new VertexShader(sfile.Vertex_src);
+                        FragmentShader fshader = new FragmentShader(sfile.Fragment_src);
+                        if (sfile.HasGeometry)
+                        {
+                            GeometryShader gshader = new GeometryShader(sfile.Geometry_src);
+                            sp = new ShaderProgram(vshader, gshader, fshader);
+                        }
+                        sp = new ShaderProgram(vshader, fshader);
+                    }
+                    else if (sfile.HasCompute)
+                    {
+                        ComputeShader cshader = new ComputeShader(sfile.Compute_src);
+                        sp = new ShaderProgram(cshader);
+                    }
+                    else
+                    {
+                        throw new Exception("Shaderfile was not complete: please fix");
+                    }
+                    AddResource(name, sp);
+                }
+            }
+        }
     }
 
     public class TextureResourceManager : ResourceManager<Texture>
@@ -214,6 +311,23 @@ namespace Leviathan.Util
                     }
                 }
                 return instance;
+            }
+        }
+
+        public TextureResourceManager() : base()
+        {
+            IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
+            foreach (string file in eFiles)
+            {
+                if (file.EndsWith(".jpeg"))
+                {
+                    String[] tokens = file.Split("\\");
+                    string full_name = tokens[tokens.Length - 1];
+                    string name = full_name.Remove(full_name.Length - 4);
+                    Leviathan.Core.ImageResource image = Leviathan.Core.ImageResource.Load(file, true);
+                    Texture2D tex = new Texture2D(image);
+                    AddResource(name, tex);
+                }
             }
         }
     }

@@ -13,6 +13,7 @@ namespace Leviathan.ECS
         public MeshComponent() : base()
         {
             Vbuffer = new VertexBuffer();
+            SetMesh("Cube");
         }
 
         public void SetMesh(string identifier)

@@ -64,6 +64,10 @@ namespace Leviathan.Core.Graphics
 
         public MinMagSetting Filter { get; private set; }
 
+        public Silk.NET.OpenGL.PixelType PixelType { get; protected set; }
+        public Silk.NET.OpenGL.PixelFormat PixelFormat { get; protected set; }
+        public Silk.NET.OpenGL.InternalFormat InternalPixelFormat { get; protected set; }
+
         public static Texture Zero = new Texture2D() { Handle = 0, Type = TextureType.TEXTURE_2D };
         private Texture oldtex;
 
@@ -96,12 +100,12 @@ namespace Leviathan.Core.Graphics
                 Context.gl_context.TexImage2D(
                     (Silk.NET.OpenGL.GLEnum)this.Type, 
                     0, 
-                    (int)im.GetPixelInternalFormat(), 
+                    (int)InternalPixelFormat, 
                     im.width, 
                     im.height, 
                     0, 
-                    im.GetPixelFormat(), 
-                    im.GetPixelType(), 
+                    PixelFormat, 
+                    PixelType, 
                     data);
             }
         }
@@ -148,6 +152,10 @@ namespace Leviathan.Core.Graphics
             {
                 throw new ArgumentNullException(nameof(im));
             }
+
+            this.PixelType = im.GetPixelType();
+            this.InternalPixelFormat = im.GetPixelInternalFormat();
+            this.PixelFormat = im.GetPixelFormat();
 
             StartModification();
             Context.gl_context.BindTexture(Silk.NET.OpenGL.GLEnum.Texture2D, this.Handle);

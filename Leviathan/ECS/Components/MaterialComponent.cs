@@ -16,6 +16,8 @@ namespace Leviathan.ECS
         public MaterialComponent()
         {
             Shader = null;
+            Texture = new MultiTexture();
+            SetShader("default");
         }
 
         public void SetShader(string shader_id)

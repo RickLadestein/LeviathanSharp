@@ -36,52 +36,34 @@ namespace Sandbox
 
         private static void InitResources()
         {
-            if(!Directory.Exists("./assets"))
-            {
-                Directory.CreateDirectory("./assets");
-            }
+            ResourceManager<Texture>.Init(); //TODO Add a more pretty way to initialise default resources
             cam = new Camera();
 
-            ShaderFile sf = new ShaderFile("./assets/default.glsl");
-            ShaderProgram.Import(sf, "default");
+            
+            //basic entity construction
+            en = new Entity("cubetest");
+            en.AddComponent(new MaterialComponent());
+            en.AddComponent(new MeshComponent());
+            en.AddComponent(new RenderComponent());
+            en.Transform.Position = Vector3f.UnitZ * 4;
 
-            ShaderFile sf1 = new ShaderFile("./assets/default_instance.glsl");
-            ShaderProgram.Import(sf1, "default_instance");
-            Mesh.Import("cube", "./assets/cube.obj", ElementType.TRIANGLES);
 
-            Texture t1 = Texture2D.ImportTexture("./assets/image.png");
-            TextureResourceManager.Instance.AddResource("default", t1);
-
-            MaterialComponent matcomp = new MaterialComponent();
-            matcomp.SetShader("default_instance");
-            matcomp.SetTextureUnit("default", 0);
-
-            MeshComponent meshcomp = new MeshComponent();
-            meshcomp.SetMesh("cube");
-
+            //Entity modification
+            en.GetComponent<MaterialComponent>().SetShader("default_instance");
             Random rnd = new Random();
             FloatAttribute fa = new FloatAttribute(DataCollectionType.VEC3);
             FloatAttribute fa1 = new FloatAttribute(DataCollectionType.VEC3);
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
-                for(int j = 0; j < 10; j++)
+                for (int j = 0; j < 10; j++)
                 {
-                    fa.AddData(new Vector3f((i + (i * 10)), 0.0f, (j + (j*10))));
+                    fa.AddData(new Vector3f((i + (i * 10)), 0.0f, (j + (j * 10))));
                     fa1.AddData(new Vector3f((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble()));
                 }
             }
             InstanceBuffer ibuff = InstanceBuffer.FromAttribute(fa, 1);
             InstanceBuffer ibuff1 = InstanceBuffer.FromAttribute(fa1, 1);
-            meshcomp.Vbuffer.LoadInstanceBuffers(new InstanceBuffer[2] { ibuff, ibuff1});
-
-
-            RenderComponent rcomp = new RenderComponent();
-
-            en = new Entity("cubetest");
-            en.AddComponent(matcomp);
-            en.AddComponent(meshcomp);
-            en.AddComponent(rcomp);
-            en.Transform.Position = Vector3f.UnitZ * 4;
+            en.GetComponent<MeshComponent>().Vbuffer.LoadInstanceBuffers(new InstanceBuffer[2] { ibuff, ibuff1 });
         }
 
         private static void W_refresh()
@@ -113,7 +95,6 @@ namespace Sandbox
                     case KeyboardKey.Enter:
                         cam.SetMode(CameraMode.FPS);
                         break;
-                    
                 }
             }
         }

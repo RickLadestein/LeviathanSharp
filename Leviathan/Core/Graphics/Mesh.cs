@@ -16,6 +16,7 @@ namespace Leviathan.Core.Graphics
         public String Name { get; private set; }
         public ElementType PrimitiveType { get; private set; }
         public uint VertexCount { get; private set; }
+        //TODO add Material support
         public AttributeCollection Attribs { get; private set; }
         public VBO[] vbos;
         public Mesh(string name)
@@ -60,6 +61,36 @@ namespace Leviathan.Core.Graphics
             MeshResourceManager.Instance.AddResource(identifier, mesh);
         }
 
+        public static void Import(string identifier, string path, ElementType prim_type, out Mesh mesh)
+        {
+            mesh = new Mesh(identifier);
+            mesh.PrimitiveType = prim_type;
+            String error = ImportMeshFromFile(path, out Assimp.Mesh a_mesh);
+            if (error.Length > 0)
+            {
+                throw new Exception($"Mesh import failed: {error}");
+            }
+
+            ParseMeshData(mesh, a_mesh);
+            mesh.BuildBuffers();
+        }
+
+        //TODO add Material support
+        public static void Import(string identifier, System.IO.Stream stream, ElementType prim_type)
+        {
+            Mesh mesh = new Mesh(identifier);
+            mesh.PrimitiveType = prim_type;
+            String error = ImportMeshFromStream(stream, out Assimp.Mesh a_mesh);
+            if (error.Length > 0)
+            {
+                throw new Exception($"Mesh import failed: {error}");
+            }
+
+            ParseMeshData(mesh, a_mesh);
+            mesh.BuildBuffers();
+            MeshResourceManager.Instance.AddResource(identifier, mesh);
+        }
+
         private static String ImportMeshFromFile(string path, out Assimp.Mesh mesh)
         {
             mesh = null;
@@ -68,6 +99,34 @@ namespace Leviathan.Core.Graphics
                 Assimp.AssimpContext ac = new AssimpContext();
                 ac.SetConfig(new NormalSmoothingAngleConfig(66.0f));
                 Assimp.Scene s = ac.ImportFile(path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals | PostProcessSteps.CalculateTangentSpace);
+
+                if (s.MeshCount == 0)
+                {
+                    return "No meshes were found in the file";
+                }
+
+                if (s.MeshCount > 1)
+                {
+                    return "Scene detected: please only load single mesh files";
+                }
+
+                mesh = s.Meshes[0];
+                return String.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        private static String ImportMeshFromStream(System.IO.Stream filestream, out Assimp.Mesh mesh)
+        {
+            mesh = null;
+            try
+            {
+                Assimp.AssimpContext ac = new AssimpContext();
+                ac.SetConfig(new NormalSmoothingAngleConfig(66.0f));
+                Assimp.Scene s = ac.ImportFileFromStream(filestream, PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals | PostProcessSteps.CalculateTangentSpace);
 
                 if (s.MeshCount == 0)
                 {

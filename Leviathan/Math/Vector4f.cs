@@ -129,6 +129,62 @@ namespace Leviathan.Math
             return (v1.X * v2.X) + (v1.Y * v2.Y) + (v1.Z * v2.Z) + (v1.W * v2.W);
         }
 
+        /// <summary>
+        /// Transform a Vector by the given Matrix using right-handed notation.
+        /// </summary>
+        /// <param name="mat">The desired transformation.</param>
+        /// <param name="vec">The vector to transform.</param>
+        /// <returns>The transformed vector.</returns>
+        [Pure]
+        public static Vector4f TransformColumn(Mat4 mat, Vector4f vec)
+        {
+            TransformColumn(in mat, in vec, out Vector4f result);
+            return result;
+        }
+
+        /// <summary>
+        /// Transform a Vector by the given Matrix.
+        /// </summary>
+        /// <param name="vec">The vector to transform.</param>
+        /// <param name="mat">The desired transformation.</param>
+        /// <returns>The transformed vector.</returns>
+        [Pure]
+        public static Vector4f TransformRow(Vector4f vec, Mat4 mat)
+        {
+            TransformRow(in vec, in mat, out Vector4f result);
+            return result;
+        }
+
+        /// <summary>
+        /// Transform a Vector by the given Matrix.
+        /// </summary>
+        /// <param name="vec">The vector to transform.</param>
+        /// <param name="mat">The desired transformation.</param>
+        /// <param name="result">The transformed vector.</param>
+        public static void TransformRow(in Vector4f vec, in Mat4 mat, out Vector4f result)
+        {
+            result = new Vector4f(
+                (vec.X * mat.Row0.X) + (vec.Y * mat.Row1.X) + (vec.Z * mat.Row2.X) + (vec.W * mat.Row3.X),
+                (vec.X * mat.Row0.Y) + (vec.Y * mat.Row1.Y) + (vec.Z * mat.Row2.Y) + (vec.W * mat.Row3.Y),
+                (vec.X * mat.Row0.Z) + (vec.Y * mat.Row1.Z) + (vec.Z * mat.Row2.Z) + (vec.W * mat.Row3.Z),
+                (vec.X * mat.Row0.W) + (vec.Y * mat.Row1.W) + (vec.Z * mat.Row2.W) + (vec.W * mat.Row3.W));
+        }
+
+        /// <summary>
+        /// Transform a Vector by the given Matrix using right-handed notation.
+        /// </summary>
+        /// <param name="mat">The desired transformation.</param>
+        /// <param name="vec">The vector to transform.</param>
+        /// <param name="result">The transformed vector.</param>
+        public static void TransformColumn(in Mat4 mat, in Vector4f vec, out Vector4f result)
+        {
+            result = new Vector4f(
+                (mat.Row0.X * vec.X) + (mat.Row0.Y * vec.Y) + (mat.Row0.Z * vec.Z) + (mat.Row0.W * vec.W),
+                (mat.Row1.X * vec.X) + (mat.Row1.Y * vec.Y) + (mat.Row1.Z * vec.Z) + (mat.Row1.W * vec.W),
+                (mat.Row2.X * vec.X) + (mat.Row2.Y * vec.Y) + (mat.Row2.Z * vec.Z) + (mat.Row2.W * vec.W),
+                (mat.Row3.X * vec.X) + (mat.Row3.Y * vec.Y) + (mat.Row3.Z * vec.Z) + (mat.Row3.W * vec.W));
+        }
+
         #region Operators
         [Pure]
         public static Vector4f operator +(Vector4f left, Vector4f right)
@@ -184,6 +240,32 @@ namespace Leviathan.Math
             left.Z *= scalar;
             left.W *= scalar;
             return left;
+        }
+
+        /// <summary>
+        /// Transform a Vector by the given Matrix.
+        /// </summary>
+        /// <param name="vec">The vector to transform.</param>
+        /// <param name="mat">The desired transformation.</param>
+        /// <returns>The transformed vector.</returns>
+        [Pure]
+        public static Vector4f operator *(Vector4f vec, Mat4 mat)
+        {
+            TransformRow(in vec, in mat, out Vector4f result);
+            return result;
+        }
+
+        /// <summary>
+        /// Transform a Vector by the given Matrix using right-handed notation.
+        /// </summary>
+        /// <param name="mat">The desired transformation.</param>
+        /// <param name="vec">The vector to transform.</param>
+        /// <returns>The transformed vector.</returns>
+        [Pure]
+        public static Vector4f operator *(Mat4 mat, Vector4f vec)
+        {
+            TransformColumn(in mat, in vec, out Vector4f result);
+            return result;
         }
 
         [Pure]
