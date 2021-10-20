@@ -9,6 +9,29 @@ namespace Leviathan.ECS
 {
     public class RenderComponent : Component
     {
+
+        protected override void AddDependencies()
+        {
+            base.AddDependencies();
+            if(!parent.HasComponent<MeshComponent>())
+            {
+                Console.WriteLine($"Entity[{parent.Id}] was missing MeshComponent: adding default");
+                parent.AddComponent(new MeshComponent());
+            }
+
+            if(!parent.HasComponent<MaterialComponent>())
+            {
+                Console.WriteLine($"Entity[{parent.Id}] was missing MaterialComponent: adding default");
+                parent.AddComponent(new MaterialComponent());
+            }
+        }
+
+        public override void Initialise()
+        {
+            base.Initialise();
+            AddDependencies();
+        }
+
         public void Render(Camera target)
         {
             if (!parent.HasComponent<MeshComponent>())

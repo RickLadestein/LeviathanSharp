@@ -86,6 +86,7 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             Context.gl_context.DeleteVertexArray(handle);
             this.handle = Context.gl_context.GenVertexArray();
+            this.current_attrib = 0;
         }
     }
 

@@ -42,10 +42,11 @@ namespace Sandbox
             
             //basic entity construction
             en = new Entity("cubetest");
-            en.AddComponent(new MaterialComponent());
+            //en.AddComponent(new MaterialComponent());
             en.AddComponent(new MeshComponent());
             en.AddComponent(new RenderComponent());
             en.Transform.Position = Vector3f.UnitZ * 4;
+            en.Transform.Scale = new Vector3f(2, 2, 2);
 
 
             //Entity modification
@@ -63,6 +64,7 @@ namespace Sandbox
             }
             InstanceBuffer ibuff = InstanceBuffer.FromAttribute(fa, 1);
             InstanceBuffer ibuff1 = InstanceBuffer.FromAttribute(fa1, 1);
+            en.GetComponent<MeshComponent>().SetMesh("Monkey");
             en.GetComponent<MeshComponent>().Vbuffer.LoadInstanceBuffers(new InstanceBuffer[2] { ibuff, ibuff1 });
         }
 

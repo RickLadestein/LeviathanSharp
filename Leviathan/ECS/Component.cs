@@ -24,6 +24,11 @@ namespace Leviathan.ECS
             id = Guid.NewGuid();
         }
 
+        protected virtual void AddDependencies()
+        {
+            return;
+        }
+
         /// <summary>
         /// Initialises the component to default values after entity has aggregated the component 
         /// </summary>
