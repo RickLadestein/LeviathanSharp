@@ -66,6 +66,13 @@ namespace Sandbox
             InstanceBuffer ibuff1 = InstanceBuffer.FromAttribute(fa1, 1);
             en.GetComponent<MeshComponent>().SetMesh("Monkey");
             en.GetComponent<MeshComponent>().Vbuffer.LoadInstanceBuffers(new InstanceBuffer[2] { ibuff, ibuff1 });
+
+            Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.Blend);
+            Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
+            Context.gl_context.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
+            Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
+            Context.gl_context.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
+
         }
 
         private static void W_refresh()

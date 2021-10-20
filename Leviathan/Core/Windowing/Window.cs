@@ -87,6 +87,7 @@ namespace Leviathan.Core.Windowing
                     nativeWindow.ClearBuffer(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                     refresh?.Invoke();
                     nativeWindow.SwapBuffers();
+                    nativeWindow.ClearBuffer(ClearBufferMask.DepthBufferBit);
                 }
 
                 curr_frametime = nativeWindow.glfw_context.GetTime();
