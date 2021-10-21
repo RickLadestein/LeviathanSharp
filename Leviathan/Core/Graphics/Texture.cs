@@ -67,6 +67,8 @@ namespace Leviathan.Core.Graphics
 
         public Silk.NET.OpenGL.PixelType PixelType { get; protected set; }
         public Silk.NET.OpenGL.PixelFormat PixelFormat { get; protected set; }
+
+        public Vector3i Size { get; protected set; }
         public Silk.NET.OpenGL.InternalFormat InternalPixelFormat { get; protected set; }
 
         public static Texture Zero = new Texture2D() { Handle = 0, Type = TextureType.TEXTURE_2D };
@@ -157,6 +159,7 @@ namespace Leviathan.Core.Graphics
             this.PixelType = im.GetPixelType();
             this.InternalPixelFormat = im.GetPixelInternalFormat();
             this.PixelFormat = im.GetPixelFormat();
+            this.Size = new Vector3i((int)im.width, (int)im.height, 1);
 
             StartModification();
             Context.gl_context.BindTexture(Silk.NET.OpenGL.GLEnum.Texture2D, this.Handle);
@@ -207,4 +210,39 @@ namespace Leviathan.Core.Graphics
             return output;
         }
     }
+
+    public class Texture3D : Texture
+    {
+        public Texture3D(Vector3i size, Silk.NET.OpenGL.PixelFormat pformat, Silk.NET.OpenGL.InternalFormat iformat, Silk.NET.OpenGL.PixelType ptype) 
+            : base(TextureType.TEXTURE_3D)
+        {
+            this.PixelType = ptype;
+            this.InternalPixelFormat = iformat;
+            this.PixelFormat = pformat;
+            this.Size = size;
+            StartModification();
+            Context.gl_context.BindTexture(Silk.NET.OpenGL.GLEnum.Texture3D, this.Handle);
+            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint) Wrap);
+            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint) Wrap);
+            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint) Filter);
+            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint) Filter);
+
+            unsafe
+            {
+                Context.gl_context.TexImage3D(
+                    (Silk.NET.OpenGL.GLEnum)this.Type,
+                    0,
+                    (int) InternalPixelFormat,
+                    (uint) size.X,
+                    (uint) size.Y,
+                    (uint) size.Z,
+                    0,
+                    PixelFormat,
+                    PixelType,
+                    null);
+        }
+
+        EndModification();
+    }
+}
 }
