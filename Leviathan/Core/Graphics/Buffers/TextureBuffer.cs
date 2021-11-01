@@ -73,8 +73,17 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             for(int i = 0; i < MAX_TEXTURES; i++)
             {
-                uint h1 = textures[i].Handle;
-                uint h2 = mtex.textures[i].Handle;
+                uint h1 = 0;
+                if (textures[i] != null)
+                {
+                    h1 = textures[i].Handle;
+                }
+
+                uint h2 = 0;
+                if(mtex.textures[i] != null)
+                {
+                    h2 = mtex.textures[i].Handle;
+                }
 
                 if(h1 != h2)
                 {

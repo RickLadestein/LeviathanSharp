@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Leviathan.Math;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,6 +33,8 @@ namespace Leviathan.ECS
         /// The children this entity has
         /// </summary>
         public List<Entity> Children { get; private set; }
+
+        public Entity Parent { get; private set; }
 
         /// <summary>
         /// Creates a new instance of Entity with default parameters
@@ -68,6 +71,24 @@ namespace Leviathan.ECS
                 Transform.Reset();
             }
         }
+
+        public Mat4 GetParentedModelMat()
+        {
+            Mat4 result = Mat4.Identity;
+            result *= Transform.ModelMat;
+            if(Parent != null)
+            {
+                result *= Parent.GetParentedModelMat();
+            }
+            return result;
+        }
+
+        public void AddChild(Entity child)
+        {
+            child.Parent = this;
+            Children.Add(child);
+        }
+        
 
         /// <summary>
         /// Adds a component to this Entity

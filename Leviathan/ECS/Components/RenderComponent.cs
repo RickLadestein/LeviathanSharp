@@ -1,5 +1,6 @@
 ﻿using Leviathan.Core.Graphics;
 using Leviathan.Core.Graphics.Buffers;
+using Leviathan.Math;
 using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,9 @@ namespace Leviathan.ECS
 
             VertexBuffer vbuf = meshcomp.Vbuffer;
             vbuf.Bind();
-            sh.SetUniform("model", parent.Transform.ModelMat);
+
+            //sh.SetUniform("model", parent.Transform.ModelMat);
+            sh.SetUniform("model", parent.GetParentedModelMat());
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
             sh.SetUniform("projection", target.ProjectionMatrix);
             sh.SetUniform("view", target.ViewMatrix);

@@ -19,7 +19,12 @@ namespace Sandbox
         public static Window w;
         public static Camera cam;
         public static Entity en;
+        public static Entity en2;
+        public static Entity en3;
+        public static World world;
         public static List<KeyboardKey> keys;
+
+        public static DHTable dhtable;
         static void Main(string[] args)
         {
             keys = new List<KeyboardKey>();
@@ -28,6 +33,8 @@ namespace Sandbox
             w.refresh += W_refresh;
             w.Keyboard.Press += Keyboard_Press;
             w.Mouse.Move += Mouse_Move;
+            world = World.Instance;
+            world.PrimaryCam.Position = Vector3f.UnitY;
             Window.Start(w);
             return;
         }
@@ -37,35 +44,73 @@ namespace Sandbox
         private static void InitResources()
         {
             ResourceManager<Texture>.Init(); //TODO Add a more pretty way to initialise default resources
-            cam = new Camera();
 
-            
+            ShaderFile sf = ShaderFile.Import("./assets/plane.glsl");
+            ShaderProgram.Import(sf, "plane");
+
+            ShaderProgram.Import(ShaderFile.Import("./assets/joint.glsl"), "joint");
+            ShaderProgram.Import(ShaderFile.Import("./assets/arm.glsl"), "arm");
+            //cam = new Camera();
+
             //basic entity construction
-            en = new Entity("cubetest");
+            en = new Entity("platform");
             //en.AddComponent(new MaterialComponent());
             en.AddComponent(new MeshComponent());
+            en.AddComponent(new MaterialComponent());
             en.AddComponent(new RenderComponent());
-            en.Transform.Position = Vector3f.UnitZ * 4;
-            en.Transform.Scale = new Vector3f(2, 2, 2);
+            en.Transform.Position = Vector3f.Zero;
+            en.Transform.Scale = new Vector3f(100, 1, 100);
+            en.GetComponent<MeshComponent>().SetMesh("Plane");
+            en.GetComponent<MaterialComponent>().SetShader("plane");
+            World.Instance.AddEntity(en);
 
+            en2 = new Entity("rotate1");
+            en2.AddComponent(new MeshComponent());
+            en2.AddComponent(new MaterialComponent());
+            en2.AddComponent(new RenderComponent());
+            en2.Transform.Position = new Vector3f(5.0f, 1.0f, 0.0f);
+            en2.GetComponent<MeshComponent>().SetMesh("Cylinder");
+            en2.GetComponent<MaterialComponent>().SetShader("joint");
+            World.Instance.AddEntity(en2);
+
+            Entity en2_2 = new Entity("arm1");
+            en2_2.AddComponent(new MeshComponent());
+            en2_2.AddComponent(new MaterialComponent());
+            en2_2.AddComponent(new RenderComponent());
+            en2_2.Transform.Position = new Vector3f(2.5f, 1.0f, 0.0f);
+            en2_2.Transform.Scale = new Vector3f(0.25f, 2.0f, 0.25f);
+            en2_2.Transform.Rotate(Vector3f.UnitZ, 90);
+            en2_2.GetComponent<MeshComponent>().SetMesh("Cylinder");
+            en2_2.GetComponent<MaterialComponent>().SetShader("arm");
+            en2.AddChild(en2_2);
+            World.Instance.AddEntity(en2_2);
+
+            en3 = new Entity("rotate2");
+            en3.AddComponent(new MeshComponent());
+            en3.AddComponent(new MaterialComponent());
+            en3.AddComponent(new RenderComponent());
+            en3.Transform.Position = new Vector3f(5.0f, 1.5f, 0.0f);
+            en3.Transform.Rotate(Vector3f.UnitX, 90);
+            en3.GetComponent<MeshComponent>().SetMesh("Cylinder");
+            en3.GetComponent<MaterialComponent>().SetShader("joint");
+
+            Entity en3_2 = new Entity("arm2");
+            en3_2.AddComponent(new MeshComponent());
+            en3_2.AddComponent(new MaterialComponent());
+            en3_2.AddComponent(new RenderComponent());
+            en3_2.Transform.Position = new Vector3f(2.0f, 1.0f, 0.0f);
+            en3_2.Transform.Rotate(Vector3f.UnitZ, 90);
+            en3_2.Transform.Scale = new Vector3f(0.25f, 2.0f, 0.25f);
+            en3_2.GetComponent<MeshComponent>().SetMesh("Cylinder");
+            en3_2.GetComponent<MaterialComponent>().SetShader("arm");
+            en3.AddChild(en3_2);
+            World.Instance.AddEntity(en3_2);
+
+            en2.AddChild(en3);
+            World.Instance.AddEntity(en3);
 
             //Entity modification
-            en.GetComponent<MaterialComponent>().SetShader("default_instance");
-            Random rnd = new Random();
-            FloatAttribute fa = new FloatAttribute(DataCollectionType.VEC3);
-            FloatAttribute fa1 = new FloatAttribute(DataCollectionType.VEC3);
-            for (int i = 0; i < 10; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    fa.AddData(new Vector3f((i + (i * 10)), 0.0f, (j + (j * 10))));
-                    fa1.AddData(new Vector3f((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble()));
-                }
-            }
-            InstanceBuffer ibuff = InstanceBuffer.FromAttribute(fa, 1);
-            InstanceBuffer ibuff1 = InstanceBuffer.FromAttribute(fa1, 1);
-            en.GetComponent<MeshComponent>().SetMesh("Monkey");
-            en.GetComponent<MeshComponent>().Vbuffer.LoadInstanceBuffers(new InstanceBuffer[2] { ibuff, ibuff1 });
+
 
             Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.Blend);
             Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
@@ -77,32 +122,44 @@ namespace Sandbox
 
         private static void W_refresh()
         {
-            en.GetComponent<RenderComponent>().RenderInstanced(cam, 100);
+            //en.GetComponent<RenderComponent>().Render(cam);
             keys = w.Keyboard.GetPressedKeys();
             foreach(KeyboardKey k in keys)
             {
                 switch(k)
                 {
                     case KeyboardKey.W:
-                        cam.Translate(cam.Foreward * Time.FrameDelta * 5.0f);
+                        world.PrimaryCam.Translate(world.PrimaryCam.Foreward * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.A:
-                        cam.Translate( -cam.Right * Time.FrameDelta * 5.0f);
+                        world.PrimaryCam.Translate( -world.PrimaryCam.Right * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.S:
-                        cam.Translate(-cam.Foreward * Time.FrameDelta * 5.0f);
+                        world.PrimaryCam.Translate(-world.PrimaryCam.Foreward * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.D:
-                        cam.Translate(cam.Right * Time.FrameDelta * 5.0f);
+                        world.PrimaryCam.Translate(world.PrimaryCam.Right * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.Space:
-                        cam.Translate(cam.Up * Time.FrameDelta * 5.0f);
+                        world.PrimaryCam.Translate(world.PrimaryCam.Up * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.ShiftLeft:
-                        cam.Translate(-cam.Up * Time.FrameDelta * 5.0f);
+                        world.PrimaryCam.Translate(-world.PrimaryCam.Up * Time.FrameDelta * 5.0f);
                         break;
                     case KeyboardKey.Enter:
-                        cam.SetMode(CameraMode.FPS);
+                        world.PrimaryCam.SetMode(CameraMode.FPS);
+                        break;
+                    case KeyboardKey.Keypad1:
+                        en2.Transform.Rotate(Vector3f.UnitY, Time.FrameDelta * 50);
+                        break;
+                    case KeyboardKey.Keypad3:
+                        en2.Transform.Rotate(Vector3f.UnitY, -Time.FrameDelta * 50);
+                        break;
+                    case KeyboardKey.Keypad4:
+                        en3.Transform.Rotate(Vector3f.UnitY, Time.FrameDelta * 50);
+                        break;
+                    case KeyboardKey.Keypad6:
+                        en3.Transform.Rotate(Vector3f.UnitY, -Time.FrameDelta * 50);
                         break;
                 }
             }
@@ -114,7 +171,7 @@ namespace Sandbox
             {
                 float yaw = (float)delta.X * Time.FrameDelta * 2.0f;
                 float pitch = -(float)delta.Y * Time.FrameDelta * 2.0f;
-                cam.Rotate2D(pitch, yaw);            
+                world.PrimaryCam.Rotate2D(pitch, yaw);            
             }
         }
 

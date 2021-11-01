@@ -121,7 +121,8 @@ namespace Leviathan.ECS
             Mat4 rot = Mat4.CreateFromQuaternion(this.Orientation);
             Mat4 trans = Mat4.CreateTranslation(Position);
             Mat4 scl = Mat4.CreateScale(Scale);
-            this._model = Mat4.Identity * trans * scl * rot;
+            //this._model = Mat4.Identity * trans * scl * rot;
+            this._model = Mat4.Identity * scl * rot * trans;
             //this._model = Mat4.Identity * trans ;
         }
 
