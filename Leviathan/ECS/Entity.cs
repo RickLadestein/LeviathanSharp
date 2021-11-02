@@ -72,6 +72,10 @@ namespace Leviathan.ECS
             }
         }
 
+        /// <summary>
+        /// Gets the concatinated model matrices from the parents and the current transform 
+        /// </summary>
+        /// <returns>Model matrix describing the translation/rotation/scale of the current entity relative to the world</returns>
         public Mat4 GetParentedModelMat()
         {
             Mat4 result = Mat4.Identity;
@@ -83,10 +87,44 @@ namespace Leviathan.ECS
             return result;
         }
 
+        /// <summary>
+        /// Adds a child Entity to this Entity
+        /// </summary>
+        /// <param name="child">A to be child Entity</param>
         public void AddChild(Entity child)
         {
             child.Parent = this;
             Children.Add(child);
+        }
+
+        /// <summary>
+        /// Adds a collection of children Entities to this Entity
+        /// </summary>
+        /// <param name="children">A collection of to be children entities</param>
+        public void AddChildren(List<Entity> children)
+        {
+            if (children != null)
+            {
+                foreach (Entity child in children)
+                {
+                    this.AddChild(child);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the parent Entity of this Entity
+        /// </summary>
+        /// <param name="_newparent">The Entity that this Entity is the child of</param>
+        public void SetParent(Entity _newparent)
+        {
+            this.Parent = _newparent;
+        }
+
+        public void SetTransform(Transform _newtrans)
+        {
+            this.Transform = _newtrans;
+            this.Transform.Parent = this;
         }
         
 
@@ -106,6 +144,21 @@ namespace Leviathan.ECS
                 c.parent = this;
                 c.Initialise();
                 components.Add(c);
+            }
+        }
+
+        /// <summary>
+        /// Adds a collection of components to this Entity
+        /// </summary>
+        /// <param name="_components">The components to add</param>
+        public void AddComponents(List<Component> _components)
+        {
+            if(_components != null)
+            {
+                foreach(Component c in _components)
+                {
+                    this.AddComponent(c);
+                }
             }
         }
 
@@ -226,6 +279,52 @@ namespace Leviathan.ECS
                 }
             }
             return false;
+        }
+    }
+
+    public class EntityFactory
+    {
+        private Entity target;
+
+        public EntityFactory()
+        {
+            target = new Entity();
+        }
+
+        public EntityFactory SetEntityName(String _name)
+        {
+            target.Name = _name;
+            return this;
+        }
+
+        public EntityFactory SetEntityTransform(Transform _transform)
+        {
+            target.Transform = _transform;
+            return this;
+        }
+
+        public EntityFactory SetEntityParent(Entity _parent)
+        {
+            target.SetParent(_parent);
+            return this;
+        }
+
+        public EntityFactory AddEntityChildren(List<Entity> _children)
+        {
+            target.AddChildren(_children);
+            return this;
+        }
+
+        public EntityFactory AddEntityChild(Entity _child)
+        {
+            target.AddChild(_child);
+            return this;
+        }
+
+        public EntityFactory AddEntityComponents(List<Component> _components)
+        {
+            //target.AddComponent(_components)
+            return this;
         }
     }
 }

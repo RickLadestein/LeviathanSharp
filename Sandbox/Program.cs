@@ -48,10 +48,6 @@ namespace Sandbox
             ShaderFile sf = ShaderFile.Import("./assets/plane.glsl");
             ShaderProgram.Import(sf, "plane");
 
-            ShaderProgram.Import(ShaderFile.Import("./assets/joint.glsl"), "joint");
-            ShaderProgram.Import(ShaderFile.Import("./assets/arm.glsl"), "arm");
-            //cam = new Camera();
-
             //basic entity construction
             en = new Entity("platform");
             //en.AddComponent(new MaterialComponent());
@@ -64,51 +60,6 @@ namespace Sandbox
             en.GetComponent<MaterialComponent>().SetShader("plane");
             World.Instance.AddEntity(en);
 
-            en2 = new Entity("rotate1");
-            en2.AddComponent(new MeshComponent());
-            en2.AddComponent(new MaterialComponent());
-            en2.AddComponent(new RenderComponent());
-            en2.Transform.Position = new Vector3f(5.0f, 1.0f, 0.0f);
-            en2.GetComponent<MeshComponent>().SetMesh("Cylinder");
-            en2.GetComponent<MaterialComponent>().SetShader("joint");
-            World.Instance.AddEntity(en2);
-
-            Entity en2_2 = new Entity("arm1");
-            en2_2.AddComponent(new MeshComponent());
-            en2_2.AddComponent(new MaterialComponent());
-            en2_2.AddComponent(new RenderComponent());
-            en2_2.Transform.Position = new Vector3f(2.5f, 1.0f, 0.0f);
-            en2_2.Transform.Scale = new Vector3f(0.25f, 2.0f, 0.25f);
-            en2_2.Transform.Rotate(Vector3f.UnitZ, 90);
-            en2_2.GetComponent<MeshComponent>().SetMesh("Cylinder");
-            en2_2.GetComponent<MaterialComponent>().SetShader("arm");
-            en2.AddChild(en2_2);
-            World.Instance.AddEntity(en2_2);
-
-            en3 = new Entity("rotate2");
-            en3.AddComponent(new MeshComponent());
-            en3.AddComponent(new MaterialComponent());
-            en3.AddComponent(new RenderComponent());
-            en3.Transform.Position = new Vector3f(5.0f, 1.5f, 0.0f);
-            en3.Transform.Rotate(Vector3f.UnitX, 90);
-            en3.GetComponent<MeshComponent>().SetMesh("Cylinder");
-            en3.GetComponent<MaterialComponent>().SetShader("joint");
-
-            Entity en3_2 = new Entity("arm2");
-            en3_2.AddComponent(new MeshComponent());
-            en3_2.AddComponent(new MaterialComponent());
-            en3_2.AddComponent(new RenderComponent());
-            en3_2.Transform.Position = new Vector3f(2.0f, 1.0f, 0.0f);
-            en3_2.Transform.Rotate(Vector3f.UnitZ, 90);
-            en3_2.Transform.Scale = new Vector3f(0.25f, 2.0f, 0.25f);
-            en3_2.GetComponent<MeshComponent>().SetMesh("Cylinder");
-            en3_2.GetComponent<MaterialComponent>().SetShader("arm");
-            en3.AddChild(en3_2);
-            World.Instance.AddEntity(en3_2);
-
-            en2.AddChild(en3);
-            World.Instance.AddEntity(en3);
-
             //Entity modification
 
 
@@ -117,7 +68,6 @@ namespace Sandbox
             Context.gl_context.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
             Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
             Context.gl_context.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
-
         }
 
         private static void W_refresh()

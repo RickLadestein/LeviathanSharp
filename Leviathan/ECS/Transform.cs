@@ -8,6 +8,11 @@ namespace Leviathan.ECS
     public struct Transform
     {
         /// <summary>
+        /// The Entity that this Transform belongs to
+        /// </summary>
+        public Entity Parent { get; set; }
+
+        /// <summary>
         /// The current Position
         /// </summary>
         public Vector3f Position;
@@ -24,9 +29,45 @@ namespace Leviathan.ECS
             }
         }
 
+        /// <summary>
+        /// Gets the normalized Direction vector of the Transform
+        /// </summary>
+        public Vector3f Direction
+        {
+            get
+            {
+                Vector4f result = Orientation * Vector4f.Forward;
+                return new Vector3f(result.X, result.Y, result.Z).Normalized();
+            }
+        }
 
         /// <summary>
-        /// The current orientation
+        /// Gets the normalized Up vector of the Transform
+        /// </summary>
+        public Vector3f Up
+        {
+            get
+            {
+                Vector4f result = Orientation * Vector4f.Up;
+                return new Vector3f(result.X, result.Y, result.Z).Normalized();
+            }
+        }
+
+        /// <summary>
+        /// Gets the normalized Right vector of the Transform
+        /// </summary>
+        public Vector3f Right
+        {
+            get
+            {
+                Vector4f result = Orientation * Vector4f.Right;
+                return new Vector3f(result.X, result.Y, result.Z).Normalized();
+            }
+        }
+
+
+        /// <summary>
+        /// The current orientation quaternion
         /// </summary>
         public Quaternion Orientation;
 
@@ -93,6 +134,11 @@ namespace Leviathan.ECS
             Quaternion Quaternion_z = Quaternion.FromAxisAngle(new Vector3f(0.0f, 0.0f, 1.0f), roll);
             Quaternion Quaternion_fin = Quaternion_y * Quaternion_z * Quaternion_x;
             this.Orientation = Quaternion_fin;
+        }
+
+        public void SetOrientation(Quaternion orientation)
+        {
+            this.Orientation = orientation;
         }
 
         /// <summary>

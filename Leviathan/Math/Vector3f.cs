@@ -70,6 +70,10 @@ namespace Leviathan.Math
         public static readonly Vector3f Up =    new Vector3f(0.0f, 1.0f, 0.0f);
         public static readonly Vector3f One =   new Vector3f(1.0f, 1.0f, 1.0f);
         public static readonly Vector3f Zero =  new Vector3f(0.0f, 0.0f, 0.0f);
+        public static readonly Vector3f Forward = new Vector3f(1.0f, 0.0f, 0.0f);
+        public static readonly Vector3f Backward = new Vector3f(-1.0f, 0.0f, 0.0f);
+        public static readonly Vector3f Right = new Vector3f(0.0f, 0.0f, 1.0f);
+        public static readonly Vector3f Left = new Vector3f(0.0f, 0.0f, -1.0f);
 
         public void Set(float _x, float _y, float _z)
         {
