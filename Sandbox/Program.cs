@@ -17,24 +17,16 @@ namespace Sandbox
     class Program
     {
         public static Window w;
-        public static Camera cam;
         public static Entity en;
-        public static Entity en2;
-        public static Entity en3;
         public static World world;
         public static List<KeyboardKey> keys;
 
-        public static DHTable dhtable;
         static void Main(string[] args)
         {
             keys = new List<KeyboardKey>();
             w = new Window(1080, 720, WindowMode.WINDOWED);
             InitResources();
-            w.refresh += W_refresh;
-            w.Keyboard.Press += Keyboard_Press;
-            w.Mouse.Move += Mouse_Move;
             world = World.Instance;
-            world.PrimaryCam.Position = Vector3f.UnitY;
             Window.Start(w);
             return;
         }
@@ -54,11 +46,37 @@ namespace Sandbox
             en.AddComponent(new MeshComponent());
             en.AddComponent(new MaterialComponent());
             en.AddComponent(new RenderComponent());
-            en.Transform.Position = Vector3f.Zero;
-            en.Transform.Scale = new Vector3f(100, 1, 100);
+            en.Transform.LocalPosition = Vector3f.Zero;
+            en.Transform.LocalScale = new Vector3f(10, 1, 10);
             en.GetComponent<MeshComponent>().SetMesh("Plane");
             en.GetComponent<MaterialComponent>().SetShader("plane");
             World.Instance.AddEntity(en);
+
+            Entity en2 = new Entity("platform2");
+            //en.AddComponent(new MaterialComponent());
+            en2.AddComponent(new MeshComponent());
+            en2.AddComponent(new MaterialComponent());
+            en2.AddComponent(new RenderComponent());
+            en2.Transform.LocalPosition = Vector3f.Zero;
+            en2.Transform.LocalScale = new Vector3f(0.5f, 0.5f, 0.5f);
+            en2.GetComponent<MeshComponent>().SetMesh("Cube");
+            en2.GetComponent<MaterialComponent>().SetShader("default");
+            World.Instance.AddEntity(en2);
+
+            Entity camera = new Entity("camera");
+            camera.AddComponent(new CameraComponent());
+            camera.GetComponent<CameraComponent>().Primary = true;
+            camera.Transform.LocalPosition = Vector3f.UnitY;
+
+            Entity player = new Entity("player");
+            player.AddChild(camera);
+            player.Transform.LocalPosition = Vector3f.Zero;
+            PlayerScript ps = new PlayerScript
+            {
+                camera = camera
+            };
+            player.AddScript(ps);
+            World.Instance.AddEntity(player);
 
             //Entity modification
 
@@ -68,75 +86,6 @@ namespace Sandbox
             Context.gl_context.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
             Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
             Context.gl_context.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
-        }
-
-        private static void W_refresh()
-        {
-            //en.GetComponent<RenderComponent>().Render(cam);
-            keys = w.Keyboard.GetPressedKeys();
-            foreach(KeyboardKey k in keys)
-            {
-                switch(k)
-                {
-                    case KeyboardKey.W:
-                        world.PrimaryCam.Translate(world.PrimaryCam.Foreward * Time.FrameDelta * 5.0f);
-                        break;
-                    case KeyboardKey.A:
-                        world.PrimaryCam.Translate( -world.PrimaryCam.Right * Time.FrameDelta * 5.0f);
-                        break;
-                    case KeyboardKey.S:
-                        world.PrimaryCam.Translate(-world.PrimaryCam.Foreward * Time.FrameDelta * 5.0f);
-                        break;
-                    case KeyboardKey.D:
-                        world.PrimaryCam.Translate(world.PrimaryCam.Right * Time.FrameDelta * 5.0f);
-                        break;
-                    case KeyboardKey.Space:
-                        world.PrimaryCam.Translate(world.PrimaryCam.Up * Time.FrameDelta * 5.0f);
-                        break;
-                    case KeyboardKey.ShiftLeft:
-                        world.PrimaryCam.Translate(-world.PrimaryCam.Up * Time.FrameDelta * 5.0f);
-                        break;
-                    case KeyboardKey.Enter:
-                        world.PrimaryCam.SetMode(CameraMode.FPS);
-                        break;
-                    case KeyboardKey.Keypad1:
-                        en2.Transform.Rotate(Vector3f.UnitY, Time.FrameDelta * 50);
-                        break;
-                    case KeyboardKey.Keypad3:
-                        en2.Transform.Rotate(Vector3f.UnitY, -Time.FrameDelta * 50);
-                        break;
-                    case KeyboardKey.Keypad4:
-                        en3.Transform.Rotate(Vector3f.UnitY, Time.FrameDelta * 50);
-                        break;
-                    case KeyboardKey.Keypad6:
-                        en3.Transform.Rotate(Vector3f.UnitY, -Time.FrameDelta * 50);
-                        break;
-                }
-            }
-        }
-
-        private static void Mouse_Move(Vector2d pos, Vector2d delta)
-        {
-            if(w.Mouse.Mode == MouseMode.FPS)
-            {
-                float yaw = (float)delta.X * Time.FrameDelta * 2.0f;
-                float pitch = -(float)delta.Y * Time.FrameDelta * 2.0f;
-                world.PrimaryCam.Rotate2D(pitch, yaw);            
-            }
-        }
-
-        private static void Keyboard_Press(KeyboardKey key, int scanCode)
-        {
-            if(key == KeyboardKey.E)
-            {
-                if(w.Mouse.Mode == MouseMode.FPS)
-                {
-                    w.Mouse.SetMouseMode(MouseMode.Normal);
-                } else
-                {
-                    w.Mouse.SetMouseMode(MouseMode.FPS);
-                }
-            }
         }
     }
 }

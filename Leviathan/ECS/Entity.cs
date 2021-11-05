@@ -45,9 +45,11 @@ namespace Leviathan.ECS
             Scripts = new List<MonoScript>();
             Id = Guid.NewGuid();
             Name = "Entity";
+            //this.AddComponent(new Transform());
             Transform = new Transform();
-            Children = new List<Entity>();
+            Transform.Parent = this;
             Transform.Reset();
+            Children = new List<Entity>();
         }
 
         /// <summary>
@@ -66,25 +68,11 @@ namespace Leviathan.ECS
                 Id = Guid.NewGuid();
                 Name = name;
                 Transform = new Transform();
+                Transform.Parent = this;
                 Children = new List<Entity>();
                 Scripts = new List<MonoScript>();
                 Transform.Reset();
             }
-        }
-
-        /// <summary>
-        /// Gets the concatinated model matrices from the parents and the current transform 
-        /// </summary>
-        /// <returns>Model matrix describing the translation/rotation/scale of the current entity relative to the world</returns>
-        public Mat4 GetParentedModelMat()
-        {
-            Mat4 result = Mat4.Identity;
-            result *= Transform.ModelMat;
-            if(Parent != null)
-            {
-                result *= Parent.GetParentedModelMat();
-            }
-            return result;
         }
 
         /// <summary>
@@ -141,7 +129,7 @@ namespace Leviathan.ECS
             }
             else
             {
-                c.parent = this;
+                c.Parent = this;
                 c.Initialise();
                 components.Add(c);
             }

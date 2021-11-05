@@ -122,7 +122,7 @@ namespace Leviathan.Math
         /// <returns></returns>
         public static Quaternion RotateAxisAngle(Quaternion quat, Vector3f axis_angle, float degrees)
         {
-            Quaternion rot = Quaternion.FromAxisAngle(axis_angle, Leviathan.Math.Math.DegreesToRadians(degrees));
+            Quaternion rot = Quaternion.FromAxisAngle(axis_angle, MathL.DegreesToRadians(degrees));
             return quat * rot;
         }
 
@@ -134,9 +134,9 @@ namespace Leviathan.Math
         /// <returns>Quaternion representing new orientation</returns>
         public static Quaternion Rotate(Quaternion quat, Vector3f axis_rotation_d)
         {
-            Quaternion rotx = Quaternion.FromAxisAngle(Vector3f.UnitX, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.X));
-            Quaternion roty = Quaternion.FromAxisAngle(Vector3f.UnitY, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.Y));
-            Quaternion rotz = Quaternion.FromAxisAngle(Vector3f.UnitZ, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.Z));
+            Quaternion rotx = Quaternion.FromAxisAngle(Vector3f.UnitX, MathL.DegreesToRadians(axis_rotation_d.X));
+            Quaternion roty = Quaternion.FromAxisAngle(Vector3f.UnitY, MathL.DegreesToRadians(axis_rotation_d.Y));
+            Quaternion rotz = Quaternion.FromAxisAngle(Vector3f.UnitZ, MathL.DegreesToRadians(axis_rotation_d.Z));
             return quat * roty * rotx * rotz;
         }
 
@@ -148,8 +148,8 @@ namespace Leviathan.Math
         /// <returns>Quaternion representing new orientation</returns>
         public static Quaternion Rotate(Quaternion quat, Vector2f axis_rotation_d)
         {
-            Quaternion rotx = Quaternion.FromAxisAngle(Vector3f.UnitX, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.X));
-            Quaternion roty = Quaternion.FromAxisAngle(Vector3f.UnitY, Leviathan.Math.Math.DegreesToRadians(axis_rotation_d.Y));
+            Quaternion rotx = Quaternion.FromAxisAngle(Vector3f.UnitX, MathL.DegreesToRadians(axis_rotation_d.X));
+            Quaternion roty = Quaternion.FromAxisAngle(Vector3f.UnitY, MathL.DegreesToRadians(axis_rotation_d.Y));
             return quat * roty * rotx;
         }
 
@@ -172,7 +172,7 @@ namespace Leviathan.Math
         public Vector4f ToAxisAngle()
         {
             var q = this;
-            if (Leviathan.Math.Math.Abs(q.W) > 1.0f)
+            if (MathL.Abs(q.W) > 1.0f)
             {
                 q.Normalize();
             }

@@ -1,12 +1,11 @@
-﻿using Leviathan.Core.Graphics;
+﻿using Leviathan.Core;
+using Leviathan.Core.Graphics;
 using Leviathan.Math;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-using MathL = Leviathan.Math.Math;
-
-namespace Leviathan.ECS.Components
+namespace Leviathan.ECS
 {
     public class CameraComponent : Component
     {
@@ -14,13 +13,30 @@ namespace Leviathan.ECS.Components
         {
             _projection = Mat4.Identity;
             _view = Mat4.Identity;
-            _projection_s = new ProjectionSettings();
+            Projection = new ProjectionSettings();
+        }
+
+        public bool Primary
+        {
+            get
+            {
+                return World.Instance.PrimaryCam == this;
+            }
+            set
+            {
+                World.Instance.PrimaryCam = this;
+            }
         }
 
         private bool projection_changed;
         private ProjectionSettings _projection_s;
         public ProjectionSettings Projection { 
             get {
+                if(projection_changed)
+                {
+                    UpdateProjectionMatrix();
+                    projection_changed = false;
+                }
                 return _projection_s;
             } 
             set {
@@ -49,6 +65,7 @@ namespace Leviathan.ECS.Components
         public Mat4 ViewMatrix {
             get
             {
+                UpdateViewmatrix();
                 return _view;
             }
             private set
@@ -59,26 +76,11 @@ namespace Leviathan.ECS.Components
 
         private void UpdateViewmatrix()
         {
-            //Translate the orientation to looking point
-            //Vector3f rotation = Vector3f.Zero;
-            //rotation.X = Math.Math.Cos(Math.Math.DegreesToRadians(Orientation.Y)) * Math.Math.Cos(Math.Math.DegreesToRadians(Orientation.X));
-            //rotation.Y = Math.Math.Sin(Math.Math.DegreesToRadians(Orientation.X));
-            //rotation.Z = Math.Math.Sin(Math.Math.DegreesToRadians(Orientation.Y)) * Math.Math.Cos(Math.Math.DegreesToRadians(Orientation.X));
-            //
-            //this.Foreward = rotation;
-            //
-            ////apply the current orientation and calculate right vector, up vector and lookat matrix
-            //Vector3f virt_cam_up = Vector3f.UnitY;
-            
-            
-            Vector3f Target = parent.Transform.Direction + parent.Transform.Position;
-            Vector3f cam_dir = Vector3f.Normalize(parent.Transform.Position - Target);
-            Right = Vector3f.Normalize(Vector3f.Cross(virt_cam_up, cam_dir));
-            Up = Vector3f.Normalize(Vector3f.Cross(cam_dir, this.Right));
-            
-            Vector3f 
-            this.ViewMatrix = Mat4.LookAt(parent.Transform.Position, Target, this.Up);
-            //Console.WriteLine(Orientation);
+            Vector3f Target = Parent.Transform.Forward + Parent.Transform.Position;
+            this.ViewMatrix = Mat4.LookAt(Parent.Transform.Position, Target, Parent.Transform.Up);
+            //Console.WriteLine($"Current Target: {Target}");
+            //Vector3f Target = parent.Transform.Direction + parent.Transform.Position;
+            //this.ViewMatrix = Mat4.LookAt(parent.Transform.Position, Target, parent.Transform.Up);
         }
 
         private void UpdateProjectionMatrix()

@@ -12,8 +12,4 @@
     <ProjectReference Include="..\Leviathan\Leviathan.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DH\" />
-  </ItemGroup>
-
 </Project>

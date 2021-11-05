@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Leviathan.Math
 {
-    public static class Math
+    public static class MathL
     {
         [Pure]
         public static double DegreesToRadians(double degrees)

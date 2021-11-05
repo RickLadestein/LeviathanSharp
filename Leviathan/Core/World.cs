@@ -29,13 +29,14 @@ namespace Leviathan.Core
         private Mutex entitymutex;
         private List<Entity> entities;
 
-        public Camera PrimaryCam { get; private set; }
+        //public Camera PrimaryCam { get; private set; }
+        public CameraComponent PrimaryCam { get; set; }
 
         private World()
         {
             entitymutex = new Mutex();
             entities = new List<Entity>();
-            PrimaryCam = new Camera();
+            //PrimaryCam = new Camera();
             Context.parent_window.refresh += Parent_window_refresh;
         }
 
@@ -111,13 +112,23 @@ namespace Leviathan.Core
             entitymutex.WaitOne();
             try
             {
-                foreach(Entity en in entities)
+                foreach (Entity en in entities)
+                {
+                    foreach (MonoScript ms in en.Scripts)
+                    {
+                        ms.Update();
+                    }
+                }
+
+                foreach (Entity en in entities)
                 {
                     if(en.HasComponent<RenderComponent>())
                     {
                         en.GetComponent<RenderComponent>().Render(PrimaryCam);
                     }
                 }
+
+                
             } finally
             {
                 entitymutex.ReleaseMutex();

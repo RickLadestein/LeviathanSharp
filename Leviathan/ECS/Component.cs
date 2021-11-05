@@ -14,7 +14,7 @@ namespace Leviathan.ECS
         /// <summary>
         /// The entity this component is bound to
         /// </summary>
-        public Entity parent { get; set; }
+        public Entity Parent { get; set; }
 
         /// <summary>
         /// Creates a new instance of Component with default parameters

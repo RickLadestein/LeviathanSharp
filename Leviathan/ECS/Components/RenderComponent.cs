@@ -14,16 +14,16 @@ namespace Leviathan.ECS
         protected override void AddDependencies()
         {
             base.AddDependencies();
-            if(!parent.HasComponent<MeshComponent>())
+            if(!Parent.HasComponent<MeshComponent>())
             {
-                Console.WriteLine($"Entity[{parent.Id}] was missing MeshComponent: adding default");
-                parent.AddComponent(new MeshComponent());
+                Console.WriteLine($"Entity[{Parent.Id}] was missing MeshComponent: adding default");
+                Parent.AddComponent(new MeshComponent());
             }
 
-            if(!parent.HasComponent<MaterialComponent>())
+            if(!Parent.HasComponent<MaterialComponent>())
             {
-                Console.WriteLine($"Entity[{parent.Id}] was missing MaterialComponent: adding default");
-                parent.AddComponent(new MaterialComponent());
+                Console.WriteLine($"Entity[{Parent.Id}] was missing MaterialComponent: adding default");
+                Parent.AddComponent(new MaterialComponent());
             }
         }
 
@@ -35,13 +35,13 @@ namespace Leviathan.ECS
 
         public void Render(Camera target)
         {
-            if (!parent.HasComponent<MeshComponent>())
+            if (!Parent.HasComponent<MeshComponent>())
             {
                 throw new Exception("Tried to draw entity without a mesh on screen");
             }
 
-            MeshComponent meshcomp = parent.GetComponent<MeshComponent>();
-            MaterialComponent matcomp = parent.GetComponent<MaterialComponent>();
+            MeshComponent meshcomp = Parent.GetComponent<MeshComponent>();
+            MaterialComponent matcomp = Parent.GetComponent<MaterialComponent>();
             
             ShaderProgram sh = matcomp.Shader;
             sh.Bind();
@@ -58,7 +58,7 @@ namespace Leviathan.ECS
             vbuf.Bind();
 
             //sh.SetUniform("model", parent.Transform.ModelMat);
-            sh.SetUniform("model", parent.GetParentedModelMat());
+            sh.SetUniform("model", Parent.Transform.ModelMat);
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
             sh.SetUniform("projection", target.ProjectionMatrix);
             sh.SetUniform("view", target.ViewMatrix);
@@ -70,22 +70,58 @@ namespace Leviathan.ECS
             target.UpdateViewMatrix();
         }
 
-        public void RenderInstanced(Camera target, uint instances)
+        public void Render(CameraComponent target)
         {
-            if (!parent.HasComponent<MeshComponent>())
+            if (!Parent.HasComponent<MeshComponent>())
             {
                 throw new Exception("Tried to draw entity without a mesh on screen");
             }
 
-            MeshComponent meshcomp = parent.GetComponent<MeshComponent>();
-            MaterialComponent matcomp = parent.GetComponent<MaterialComponent>();
+            MeshComponent meshcomp = Parent.GetComponent<MeshComponent>();
+            MaterialComponent matcomp = Parent.GetComponent<MaterialComponent>();
+
+            ShaderProgram sh = matcomp.Shader;
+            sh.Bind();
+
+            MultiTexture tex = matcomp.Texture;
+            TextureBuffer.Instance.UseMultitex(tex);
+
+            for (int i = 0; i < TextureBuffer.MAX_TEXTURES; i++)
+            {
+                sh.SetUniform($"texture_{i}", i);
+            }
+
+            VertexBuffer vbuf = meshcomp.Vbuffer;
+            vbuf.Bind();
+
+            //sh.SetUniform("model", parent.Transform.ModelMat);
+            sh.SetUniform("model", Parent.Transform.ModelMat);
+            //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
+            sh.SetUniform("projection", target.ProjectionMatrix);
+            sh.SetUniform("view", target.ViewMatrix);
+            sh.SetUniform("time", (float)Context.glfw_context.GetTime());
+
+            Context.gl_context.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
+            vbuf.Unbind();
+            sh.Unbind();
+        }
+
+        public void RenderInstanced(Camera target, uint instances)
+        {
+            if (!Parent.HasComponent<MeshComponent>())
+            {
+                throw new Exception("Tried to draw entity without a mesh on screen");
+            }
+
+            MeshComponent meshcomp = Parent.GetComponent<MeshComponent>();
+            MaterialComponent matcomp = Parent.GetComponent<MaterialComponent>();
 
             ShaderProgram sh = matcomp.Shader;
             sh.Bind();
 
             VertexBuffer vbuf = meshcomp.Vbuffer;
             vbuf.Bind();
-            sh.SetUniform("model", parent.Transform.ModelMat);
+            sh.SetUniform("model", Parent.Transform.LocalModelMat);
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
             sh.SetUniform("projection", target.ProjectionMatrix);
             sh.SetUniform("view", target.ViewMatrix);

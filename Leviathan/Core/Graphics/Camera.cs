@@ -108,7 +108,7 @@ namespace Leviathan.Core.Graphics
             this.ViewSettings = newsettings;
             float aspect = ((float)ViewSettings.capture_size.X) / ((float)ViewSettings.capture_size.Y);
             this.ProjectionMatrix = Mat4.CreatePerspectiveFieldOfView(
-                                            Math.Math.DegreesToRadians(ViewSettings.field_of_view),
+                                            MathL.DegreesToRadians(ViewSettings.field_of_view),
                                             aspect,
                                             ViewSettings.clipspace.X,
                                             ViewSettings.clipspace.Y);
@@ -118,9 +118,9 @@ namespace Leviathan.Core.Graphics
         {
             //Translate the orientation to looking point
             Vector3f rotation = Vector3f.Zero;
-            rotation.X = Math.Math.Cos(Math.Math.DegreesToRadians(Orientation.Y)) * Math.Math.Cos(Math.Math.DegreesToRadians(Orientation.X));
-            rotation.Y = Math.Math.Sin(Math.Math.DegreesToRadians(Orientation.X));
-            rotation.Z = Math.Math.Sin(Math.Math.DegreesToRadians(Orientation.Y)) * Math.Math.Cos(Math.Math.DegreesToRadians(Orientation.X));
+            rotation.X = MathL.Cos(MathL.DegreesToRadians(Orientation.Y)) * MathL.Cos(MathL.DegreesToRadians(Orientation.X));
+            rotation.Y = MathL.Sin(MathL.DegreesToRadians(Orientation.X));
+            rotation.Z = MathL.Sin(MathL.DegreesToRadians(Orientation.Y)) * MathL.Cos(MathL.DegreesToRadians(Orientation.X));
 
             this.Foreward = rotation;
             this.Target = this.Foreward + this.Position;

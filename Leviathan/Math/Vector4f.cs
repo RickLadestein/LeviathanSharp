@@ -36,6 +36,13 @@ namespace Leviathan.Math
             Z = _z;
             W = _w;
         }
+        public Vector4f(Vector3f vec, float _w)
+        {
+            X = vec.X;
+            Y = vec.Y;
+            Z = vec.Z;
+            W = _w;
+        }
 
         public float this[int index]
         {
@@ -87,10 +94,10 @@ namespace Leviathan.Math
         public static readonly Vector4f Up =    new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
         public static readonly Vector4f One =   new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly Vector4f Zero =  new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly Vector4f Forward = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly Vector4f Backward = new Vector4f(-1.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly Vector4f Right = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
-        public static readonly Vector4f Left = new Vector4f(0.0f, 0.0f, -1.0f, 0.0f);
+        public static readonly Vector4f Forward = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
+        public static readonly Vector4f Backward = new Vector4f(0.0f, 0.0f, -1.0f, 0.0f);
+        public static readonly Vector4f Right = new Vector4f(-1.0f, 0.0f, 0.0f, 0.0f);
+        public static readonly Vector4f Left = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
 
         public void Set(float _x, float _y, float _z, float _w)
         {
