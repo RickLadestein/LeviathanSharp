@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan", "Leviathan\Levi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{EFEA6B77-8982-4ECD-B6F1-EDCF0AB110F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeviathanUnitTest", "LeviathanUnitTest\LeviathanUnitTest.csproj", "{CC547937-9B31-440B-8BBD-7DA460831246}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeviathanUnitTest", "LeviathanUnitTest\LeviathanUnitTest.csproj", "{CC547937-9B31-440B-8BBD-7DA460831246}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

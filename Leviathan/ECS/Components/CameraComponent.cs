@@ -78,9 +78,6 @@ namespace Leviathan.ECS
         {
             Vector3f Target = Parent.Transform.Forward + Parent.Transform.Position;
             this.ViewMatrix = Mat4.LookAt(Parent.Transform.Position, Target, Parent.Transform.Up);
-            //Console.WriteLine($"Current Target: {Target}");
-            //Vector3f Target = parent.Transform.Direction + parent.Transform.Position;
-            //this.ViewMatrix = Mat4.LookAt(parent.Transform.Position, Target, parent.Transform.Up);
         }
 
         private void UpdateProjectionMatrix()

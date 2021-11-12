@@ -87,17 +87,12 @@ namespace Leviathan.Math
             }
         }
 
-        public static readonly Vector4f UnitX = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly Vector4f UnitY = new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
-        public static readonly Vector4f UnitZ = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
-        public static readonly Vector4f UnitW = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
-        public static readonly Vector4f Up =    new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
-        public static readonly Vector4f One =   new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-        public static readonly Vector4f Zero =  new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly Vector4f Forward = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
-        public static readonly Vector4f Backward = new Vector4f(0.0f, 0.0f, -1.0f, 0.0f);
-        public static readonly Vector4f Right = new Vector4f(-1.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly Vector4f Left = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+        public static readonly Vector4f UnitX       = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+        public static readonly Vector4f UnitY       = new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
+        public static readonly Vector4f UnitZ       = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
+        public static readonly Vector4f UnitW       = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+        public static readonly Vector4f One         = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+        public static readonly Vector4f Zero        = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 
         public void Set(float _x, float _y, float _z, float _w)
         {
@@ -260,7 +255,7 @@ namespace Leviathan.Math
         /// <param name="mat">The desired transformation.</param>
         /// <returns>The transformed vector.</returns>
         [Pure]
-        public static Vector4f operator *(Vector4f vec, Mat4 mat)
+        public static Vector4f operator *(Mat4 mat, Vector4f vec)
         {
             TransformRow(in vec, in mat, out Vector4f result);
             return result;
@@ -273,7 +268,7 @@ namespace Leviathan.Math
         /// <param name="vec">The vector to transform.</param>
         /// <returns>The transformed vector.</returns>
         [Pure]
-        public static Vector4f operator *(Mat4 mat, Vector4f vec)
+        public static Vector4f operator *(Vector4f vec, Mat4 mat)
         {
             TransformColumn(in mat, in vec, out Vector4f result);
             return result;

@@ -63,17 +63,42 @@ namespace Sandbox
             en2.GetComponent<MaterialComponent>().SetShader("default");
             World.Instance.AddEntity(en2);
 
+            Entity en3 = new Entity("platform3");
+            //en.AddComponent(new MaterialComponent());
+            en3.AddComponent(new MeshComponent());
+            en3.AddComponent(new MaterialComponent());
+            en3.AddComponent(new RenderComponent());
+            en3.Transform.LocalPosition = Vector3f.UnitX * 2;
+            en3.Transform.LocalScale = new Vector3f(0.5f, 0.5f, 0.5f);
+            en3.GetComponent<MeshComponent>().SetMesh("Cube");
+            en3.GetComponent<MaterialComponent>().SetShader("default");
+            en2.AddChild(en3);
+            World.Instance.AddEntity(en3);
+
+            Entity en4 = new Entity("platform3");
+            //en.AddComponent(new MaterialComponent());
+            en4.AddComponent(new MeshComponent());
+            en4.AddComponent(new MaterialComponent());
+            en4.AddComponent(new RenderComponent());
+            en4.Transform.LocalPosition = Vector3f.UnitX * 2;
+            en4.Transform.LocalScale = new Vector3f(0.5f, 0.5f, 0.5f);
+            en4.GetComponent<MeshComponent>().SetMesh("Cube");
+            en4.GetComponent<MaterialComponent>().SetShader("default");
+            en3.AddChild(en4);
+            World.Instance.AddEntity(en4);
+
             Entity camera = new Entity("camera");
             camera.AddComponent(new CameraComponent());
             camera.GetComponent<CameraComponent>().Primary = true;
-            camera.Transform.LocalPosition = Vector3f.UnitY;
+            camera.Transform.LocalPosition = Vector3f.Zero;
 
             Entity player = new Entity("player");
             player.AddChild(camera);
-            player.Transform.LocalPosition = Vector3f.Zero;
+            player.Transform.LocalPosition = new Vector3f(0.0f, 1.0f, 2.0f);
             PlayerScript ps = new PlayerScript
             {
-                camera = camera
+                camera = camera,
+                rotate_boy = en2
             };
             player.AddScript(ps);
             World.Instance.AddEntity(player);

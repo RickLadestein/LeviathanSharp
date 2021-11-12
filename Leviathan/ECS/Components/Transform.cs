@@ -48,7 +48,7 @@ namespace Leviathan.ECS
             get
             {
                 Mat4 modelmat = GetParentedTransformationMat();
-                Vector3f newpos = (new Vector4f(LocalPosition, 1.0f) * modelmat).Xyz;
+                Vector3f newpos = (modelmat * new Vector4f(LocalPosition, 1.0f)).Xyz;
                 return newpos;
             }
         }
@@ -57,7 +57,7 @@ namespace Leviathan.ECS
         {
             get
             {
-                Vector3f newrot = (GetParentedRotationMatrix() * new Vector4f(LocalRotation, 1.0f)).Xyz;
+                Vector3f newrot = (GetParentedRotation() * new Vector4f(LocalRotation, 1.0f)).Xyz;
                 return newrot;
             }
         }
@@ -69,8 +69,9 @@ namespace Leviathan.ECS
         {
             get
             {
-                Vector4f result =  GetParentedRotationMatrix() * Vector4f.Forward;
-                return new Vector3f(result.X, result.Y, result.Z).Normalized();
+                Vector4f result = GetParentedRotation() * new Vector4f(Vector3f.Forward, 1.0f);
+                //Vector4f result = GetParentedTransformationMat() * new Vector4f(Vector3f.Forward, 1.0f);
+                return result.Xyz.Normalized();
             }
         }
 
@@ -81,10 +82,9 @@ namespace Leviathan.ECS
         {
             get
             {
-                //Vector4f result = Orientation * Vector4f.Up;
-                //Vector4f result = Vector4f.Up * GetParentedRotationMatrix();
-                Vector4f result = GetParentedRotationMatrix() * Vector4f.Up;
-                return new Vector3f(result.X, result.Y, result.Z).Normalized();
+                Vector4f result = GetParentedRotation() * new Vector4f(Vector3f.Up, 1.0f);
+                //Vector4f result = GetParentedTransformationMat() * new Vector4f(Vector3f.Up, 1.0f);
+                return result.Xyz.Normalized();
             }
         }
 
@@ -95,10 +95,10 @@ namespace Leviathan.ECS
         {
             get
             {
-                //Vector4f result = Orientation * Vector4f.Right;
-                //Vector4f result = Vector4f.Right * GetParentedRotationMatrix();
-                Vector4f result = GetParentedRotationMatrix() * Vector4f.Right;
-                return new Vector3f(result.X, result.Y, result.Z).Normalized();
+                Vector4f result = GetParentedRotation() * new Vector4f(Vector3f.Right, 1.0f);
+                //Vector4f result = GetParentedTransformationMat() * new Vector4f(Vector3f.Up, 1.0f);
+                //result.Normalize();
+                return result.Xyz.Normalized();
             }
         }
 
@@ -186,7 +186,7 @@ namespace Leviathan.ECS
         public void Rotate(Vector3f axis_angle, float degrees)
         {
             Quaternion rot = Quaternion.FromAxisAngle(axis_angle, MathL.DegreesToRadians(degrees));
-            this.Orientation = Orientation * rot;
+            this.Orientation *= rot;
         }
 
         private void CalcModelMatrix()
@@ -194,20 +194,18 @@ namespace Leviathan.ECS
             Mat4 rot = Mat4.CreateFromQuaternion(this.Orientation);
             Mat4 trans = Mat4.CreateTranslation(LocalPosition);
             Mat4 scl = Mat4.CreateScale(LocalScale);
-            this._model = Mat4.Identity * scl * rot * trans;
+
+            //SRT (Scale Rotate Translate)
+            this._model = ((Mat4.Identity * scl) * rot) * trans;
+            //this._model = ((Mat4.Identity * trans) * scl) * rot;
         }
 
         private Mat4 CalcTransformMatrix()
         {
             Mat4 rot = Mat4.CreateFromQuaternion(this.Orientation);
             Mat4 trans = Mat4.CreateTranslation(LocalPosition);
-            return Mat4.Identity * rot * trans;
-        }
-
-        private Mat4 CalcRotationMatrix()
-        {
-            Mat4 rot = Mat4.CreateFromQuaternion(this.Orientation);
-            return Mat4.Identity * rot;
+            return (Mat4.Identity * rot) * trans;
+            //return (Mat4.Identity * trans) * rot;
         }
 
         /// <summary>
@@ -217,49 +215,33 @@ namespace Leviathan.ECS
         private Mat4 GetParentedModelMat()
         {
             Mat4 result = Mat4.Identity * LocalModelMat;
-            //result *= ModelMat;
             if (Parent.Parent != null)
             {
                 result *= Parent.Parent.Transform.GetParentedModelMat();
             }
+            //result *= LocalModelMat;
+
+            //Primal_matrix -> Child -> Child -> Child -> etc
             return result;
         }
 
         private Mat4 GetParentedTransformationMat()
         {
             Mat4 result = Mat4.Identity * CalcTransformMatrix();
-            //result *= ModelMat;
             if (Parent.Parent != null)
             {
                 result *= Parent.Parent.Transform.GetParentedTransformationMat();
             }
+            //result *= CalcTransformMatrix();
             return result;
         }
 
-        //private Mat4 GetParentedRotationMatrix()
-        //{
-        //    //result *= ModelMat;
-        //    Mat4 result = Mat4.Identity * CalcRotationMatrix();
-        //    if (Parent.Parent != null)
-        //    {
-        //        result *= Parent.Parent.Transform.GetParentedRotationMatrix();
-        //    }
-        //    return result;
-        //
-        //    //Quaternion result = Quaternion.Identity * Orientation;
-        //    //if(Parent.Parent != null)
-        //    //{
-        //    //    result *= Parent.Parent.Transform.Orientation;
-        //    //}
-        //    //return Mat4.CreateFromQuaternion(result);
-        //}
-
-        private Quaternion GetParentedRotationMatrix()
+        private Quaternion GetParentedRotation()
         {
             Quaternion result = Quaternion.Identity;
             if(Parent.Parent != null)
             {
-                result *= Parent.Parent.Transform.Orientation;
+                result *= Parent.Parent.Transform.GetParentedRotation();
             }
             result *= Orientation;
             result.Normalize();
