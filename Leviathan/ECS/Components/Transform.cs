@@ -70,7 +70,6 @@ namespace Leviathan.ECS
             get
             {
                 Vector4f result = GetParentedRotation() * new Vector4f(Vector3f.Forward, 1.0f);
-                //Vector4f result = GetParentedTransformationMat() * new Vector4f(Vector3f.Forward, 1.0f);
                 return result.Xyz.Normalized();
             }
         }
@@ -238,12 +237,12 @@ namespace Leviathan.ECS
 
         private Quaternion GetParentedRotation()
         {
-            Quaternion result = Quaternion.Identity;
+            Quaternion result = Quaternion.Identity * Orientation;
             if(Parent.Parent != null)
             {
                 result *= Parent.Parent.Transform.GetParentedRotation();
             }
-            result *= Orientation;
+            //result *= Orientation;
             result.Normalize();
             return result;
         }

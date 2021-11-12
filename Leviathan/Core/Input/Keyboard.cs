@@ -46,7 +46,15 @@ namespace Leviathan.Core.Input
 
         public List<KeyboardKey> GetPressedKeys()
         {
-            return new List<KeyboardKey>(keys);
+            List<KeyboardKey> output = new List<KeyboardKey>();
+            for(int i = 0; i < MAX_PRESSED_BTNS; i++)
+            {
+                if (keys[i] != KeyboardKey.Unknown)
+                {
+                    output.Add(keys[i]);
+                }
+            }
+            return output;
         }
 
         public void SetKeyboardMode(KeyboardMode mode)

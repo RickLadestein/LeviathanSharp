@@ -98,7 +98,8 @@ namespace Sandbox
             PlayerScript ps = new PlayerScript
             {
                 camera = camera,
-                rotate_boy = en2
+                rotate_boy = en2,
+                end_boy = en4
             };
             player.AddScript(ps);
             World.Instance.AddEntity(player);

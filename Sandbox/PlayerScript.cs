@@ -13,6 +13,7 @@ namespace Sandbox
     {
         public Entity camera;
         public Entity rotate_boy;
+        public Entity end_boy;
 
         private List<KeyboardKey> keys;
         private Mouse mouse;
@@ -55,11 +56,10 @@ namespace Sandbox
                 xRotation += pitch;
                 xRotation = Math.Clamp(xRotation, -90, 90);
 
-                camera.Transform.Orientation = Quaternion.FromEulerAngles(new Vector3f(MathL.DegreesToRadians(xRotation), 0.0f, 0.0f));
-                entity.Transform.Rotate(Vector3f.UnitY, -yaw);
                 //camera.Transform.Orientation = Quaternion.FromEulerAngles(new Vector3f(MathL.DegreesToRadians(xRotation), 0.0f, 0.0f));
-                //camera.Transform.Rotate(Vector3f.UnitY, yRotation);
-                //Console.WriteLine(yaw);
+                camera.Transform.Orientation = Quaternion.Identity;
+                camera.Transform.Rotate(camera.Transform.Right, xRotation);
+                entity.Transform.Rotate(Vector3f.Up, -yaw);
             }
         }
 
@@ -67,13 +67,6 @@ namespace Sandbox
         {
             base.Update();
             keys = Context.parent_window.Keyboard.GetPressedKeys();
-            if(keys.Count != 0)
-            {
-                //Console.WriteLine($"Position: {camera.Transform.Position}");
-                //Console.WriteLine($"LocalPosition: {camera.Transform.LocalPosition}");
-                //Console.WriteLine($"Forward: {camera.Transform.Forward}");
-                //Console.WriteLine($"Up: {camera.Transform.Up}");
-            }
             foreach (KeyboardKey k in keys)
             {
                 switch (k)
@@ -103,10 +96,10 @@ namespace Sandbox
                         rotate_boy.Transform.Rotate(-Vector3f.UnitY, 20.0f * Time.FrameDelta);
                         break;
                     case KeyboardKey.Keypad8:
-                        camera.Transform.LocalPosition += (camera.Transform.Forward * 20.0f * Time.FrameDelta);
+                        camera.Transform.LocalPosition += (Vector3f.Forward * 20.0f * Time.FrameDelta);
                         break;
                     case KeyboardKey.Keypad2:
-                        camera.Transform.LocalPosition += (-camera.Transform.Forward * 20.0f * Time.FrameDelta);
+                        camera.Transform.LocalPosition += (-Vector3f.Forward * 20.0f * Time.FrameDelta);
                         break;
                 }
             }
