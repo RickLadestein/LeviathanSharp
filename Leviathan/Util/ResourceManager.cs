@@ -1,5 +1,6 @@
 ﻿using Leviathan.Core.Graphics;
 using Leviathan.Core.Graphics.Buffers;
+using Leviathan.Core.Sound;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -331,4 +332,9 @@ namespace Leviathan.Util
             }
         }
     }
+
+    public class AudioResourceManager : ResourceManager<AudioSample>
+    {
+
+    } 
 }

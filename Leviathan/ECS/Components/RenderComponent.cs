@@ -1,4 +1,5 @@
-﻿using Leviathan.Core.Graphics;
+﻿using Leviathan.Core;
+using Leviathan.Core.Graphics;
 using Leviathan.Core.Graphics.Buffers;
 using Leviathan.Math;
 using Silk.NET.OpenGL;

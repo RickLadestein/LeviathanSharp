@@ -1,6 +1,7 @@
 ﻿using Leviathan.Core;
 using Leviathan.Core.Graphics;
 using Leviathan.Core.Input;
+using Leviathan.Core.Sound;
 using Leviathan.ECS;
 using Leviathan.Math;
 using System;
@@ -42,6 +43,17 @@ namespace Sandbox
                 {
                     mouse.SetMouseMode(MouseMode.FPS);
                 }
+
+                
+            }
+
+            if(key == KeyboardKey.Number1)
+            {
+                WaveFile file = WaveFile.Import("./assets/SFX_01.wav");
+                AudioSample sample = new AudioSample(file);
+                SoundSource src = new SoundSource();
+                src.Gain = 0.2f;
+                src.Play(sample);
             }
         }
 
