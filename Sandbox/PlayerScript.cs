@@ -20,6 +20,10 @@ namespace Sandbox
         private Mouse mouse;
         private Keyboard keyboard;
 
+        private SoundSource src;
+        private WaveFile file;
+        private AudioSample sample;
+
         private float xRotation;
         public PlayerScript()
         {
@@ -29,6 +33,11 @@ namespace Sandbox
             mouse.Move += Mouse_Move;
             keyboard.Press += Keyboard_Press;
             xRotation = 0.0f;
+
+            file = WaveFile.Import("./assets/SFX.wav");
+            file.ConvertToMono();
+            sample = new AudioSample(file);
+            src = new SoundSource();
         }
 
         private void Keyboard_Press(KeyboardKey key, int scanCode)
@@ -49,10 +58,8 @@ namespace Sandbox
 
             if(key == KeyboardKey.Number1)
             {
-                WaveFile file = WaveFile.Import("./assets/SFX_01.wav");
-                AudioSample sample = new AudioSample(file);
-                SoundSource src = new SoundSource();
-                src.Gain = 0.2f;
+                
+                //src.Gain = 0.2f;
                 src.Play(sample);
             }
         }

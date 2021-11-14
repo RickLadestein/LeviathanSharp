@@ -80,7 +80,29 @@ namespace Leviathan.Core.Sound
                 }
             }
 
+
+            if(output.Format.audio_format == AudioFormat.IEEE_FLOAT)
+            {
+                output.Data.ConvertIEEEToPCM();
+                output.Format.bits_per_sample = 16;
+                output.Format.audio_format = AudioFormat.PCM;
+            }
             return output;
+        }
+
+        public void ConvertToMono()
+        {
+            this.Format.num_channels = 1;
+            if(this.Format.bits_per_sample == 16)
+            {
+                this.Data.ConvertToMono16();
+            } else if(this.Format.bits_per_sample == 8)
+            {
+                this.Data.ConvertToMono8();
+            } else
+            {
+                throw new NotSupportedException($"{Format.bits_per_sample} bits per sample conversion is not supported");
+            }
         }
 
         private static String ReadBlockId(BinaryReader reader)
@@ -209,12 +231,6 @@ namespace Leviathan.Core.Sound
             {
                 case AudioFormat.PCM:
                     return GetSoundFormatPCM();
-                case AudioFormat.IEEE_FLOAT:
-                    return GetSoundFormatIEEE();
-                case AudioFormat.ITU_A_LAW:
-                    return GetSoundFormatALaw();
-                case AudioFormat.ITU_U_LAW:
-                    return GetSoundFormatIEEE();
                 default:
                     throw new NotSupportedException();
             }
@@ -244,53 +260,6 @@ namespace Leviathan.Core.Sound
                     default:
                         throw new NotSupportedException("PCM format cannot contain more than 16 bits");
                 }
-            }
-        }
-
-        private OpenTK.Audio.OpenAL.ALFormat GetSoundFormatIEEE()
-        {
-            if (num_channels == 1)
-            {
-                switch (bits_per_sample)
-                {
-                    case 32:
-                        return OpenTK.Audio.OpenAL.ALFormat.MonoFloat32Ext;
-                    default:
-                        throw new NotSupportedException("IEEE format cannot contain more or less than 32 bits");
-                }
-            }
-            else
-            {
-                switch (bits_per_sample)
-                {
-                    case 32:
-                        return OpenTK.Audio.OpenAL.ALFormat.StereoFloat32Ext;
-                    default:
-                        throw new NotSupportedException("PCM format cannot contain more or less than 32 bits");
-                }
-            }
-        }
-
-        private OpenTK.Audio.OpenAL.ALFormat GetSoundFormatALaw()
-        {
-            if(num_channels == 1)
-            {
-                return OpenTK.Audio.OpenAL.ALFormat.MonoALawExt;
-            } else
-            {
-                return OpenTK.Audio.OpenAL.ALFormat.StereoALawExt;
-            }
-        }
-
-        private OpenTK.Audio.OpenAL.ALFormat GetSoundFormatMuLaw()
-        {
-            if (num_channels == 1)
-            {
-                return OpenTK.Audio.OpenAL.ALFormat.MonoMuLawExt;
-            }
-            else
-            {
-                return OpenTK.Audio.OpenAL.ALFormat.StereoMuLawExt;
             }
         }
     }
@@ -327,6 +296,80 @@ namespace Leviathan.Core.Sound
             {
                 throw new NotSupportedException("Identifier was not supported for DataChunk");
             }
+        }
+
+        public void ConvertIEEEToPCM()
+        {
+            int original_buffer_idx = 0;
+            int new_buffer_idx = 0;
+            byte[] output_data = new byte[data.Length / 2];
+            while(original_buffer_idx != data.Length)
+            {
+                float original_data = BitConverter.ToSingle(new byte[] {
+                    data[original_buffer_idx],
+                    data[original_buffer_idx + 1] ,
+                    data[original_buffer_idx + 2] ,
+                    data[original_buffer_idx + 3] }, 
+                    0);
+                Int16 converted = (Int16)(original_data * Int16.MaxValue);
+                byte[] converted_bytes = BitConverter.GetBytes(converted);
+                output_data[new_buffer_idx] = converted_bytes[0];
+                output_data[new_buffer_idx + 1] = converted_bytes[1];
+
+                original_buffer_idx += 4;
+                new_buffer_idx += 2;
+            }
+            block_length = (uint)output_data.Length;
+            data = output_data;
+        }
+
+        public void ConvertToMono16()
+        {
+            int original_buffer_idx = 0;
+            int new_buffer_idx = 0;
+            byte[] output_data = new byte[data.Length / 2];
+            while (original_buffer_idx != data.Length)
+            {
+                Int16 data_1 = BitConverter.ToInt16(new byte[] {
+                    data[original_buffer_idx],
+                    data[original_buffer_idx + 1] },
+                    0);
+                Int16 data_2 = BitConverter.ToInt16(new byte[] {
+                    data[original_buffer_idx + 2],
+                    data[original_buffer_idx + 3] },
+                    0);
+
+                Int16 converted = (Int16)((data_1 + data_2) / 2);
+                byte[] converted_bytes = BitConverter.GetBytes(converted);
+                output_data[new_buffer_idx] = converted_bytes[0];
+                output_data[new_buffer_idx + 1] = converted_bytes[1];
+
+                original_buffer_idx += 4;
+                new_buffer_idx += 2;
+            }
+            block_length = (uint)output_data.Length;
+            data = output_data;
+        }
+
+        public void ConvertToMono8()
+        {
+            int original_buffer_idx = 0;
+            int new_buffer_idx = 0;
+            byte[] output_data = new byte[data.Length / 2];
+            while (original_buffer_idx != data.Length)
+            {
+                byte data_1 = data[original_buffer_idx];
+                byte data_2 = data[original_buffer_idx + 1];
+                Int16 avg = (Int16)(((Int16)data_1 + (Int16)data_2) / 2);
+
+                byte converted = BitConverter.GetBytes(avg)[0];
+                output_data[new_buffer_idx] = converted;
+
+                original_buffer_idx += 2;
+                new_buffer_idx += 1;
+            }
+            block_length = (uint)output_data.Length;
+            data = output_data;
         }
     }
 
