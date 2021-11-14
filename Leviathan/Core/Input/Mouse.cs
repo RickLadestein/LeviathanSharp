@@ -57,7 +57,7 @@ namespace Leviathan.Core.Input
             }
 
 
-            wnd.glfw_context.GetCursorPos(wnd.w_handle, out double x_pos, out double y_pos);
+            wnd.graphics_context.glfw_context.GetCursorPos(wnd.w_handle, out double x_pos, out double y_pos);
             Position = new Vector2d((float)x_pos, (float)y_pos);
             oldpos = Position;
 

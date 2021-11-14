@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Leviathan.Core.Windowing;
+using OpenTK.Audio.OpenAL;
 
-namespace Leviathan.Core.Graphics
+namespace Leviathan.Core
 {
     public class Context
     {
         public static GL gl_context { get; private set; }
         public static Glfw glfw_context { get; private set; }
-
         public static Window parent_window { get; private set; }
 
         public static void RegisterContext(GL glc, Glfw glfwc, Window pwindow)
