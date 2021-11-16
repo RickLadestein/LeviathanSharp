@@ -241,6 +241,8 @@ namespace Leviathan.Core.Windowing
                 ALC.CloseDevice(output.sound_device);
                 throw new Exception("Could not enable OpenAL context");
             }
+
+            AL.IsExtensionPresent("SL_DATAFORMAT_PCM_EX");
             return output;
         }
 

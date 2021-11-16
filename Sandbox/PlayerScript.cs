@@ -15,6 +15,7 @@ namespace Sandbox
         public Entity camera;
         public Entity rotate_boy;
         public Entity end_boy;
+        public SoundSourceComponent lcomp;
 
         private List<KeyboardKey> keys;
         private Mouse mouse;
@@ -34,7 +35,7 @@ namespace Sandbox
             keyboard.Press += Keyboard_Press;
             xRotation = 0.0f;
 
-            file = WaveFile.Import("./assets/SFX.wav");
+            file = WaveFile.Import("./assets/SFX_01.wav");
             file.ConvertToMono();
             sample = new AudioSample(file);
             src = new SoundSource();
@@ -58,9 +59,11 @@ namespace Sandbox
 
             if(key == KeyboardKey.Number1)
             {
-                
-                //src.Gain = 0.2f;
-                src.Play(sample);
+
+                //src.Pitch = 0.75f;
+                //src.SecOffset = 2.5f;
+                src.SourceRelative = false;
+                lcomp.Play(sample);
             }
         }
 

@@ -54,6 +54,7 @@ namespace Sandbox
             en.Transform.LocalScale = new Vector3f(10, 1, 10);
             en.GetComponent<MeshComponent>().SetMesh("Plane");
             en.GetComponent<MaterialComponent>().SetShader("plane");
+            en.AddComponent(new SoundSourceComponent());
             World.Instance.AddEntity(en);
 
             Entity en2 = new Entity("platform2");
@@ -103,9 +104,11 @@ namespace Sandbox
             {
                 camera = camera,
                 rotate_boy = en2,
-                end_boy = en4
+                end_boy = en4,
+                lcomp = en.GetComponent<SoundSourceComponent>()
             };
             player.AddScript(ps);
+            player.AddComponent(new SoundListenerComponent());
             World.Instance.AddEntity(player);
 
             //Entity modification
