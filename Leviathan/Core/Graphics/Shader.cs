@@ -7,9 +7,8 @@ using Leviathan.Util;
 
 namespace Leviathan.Core.Graphics
 {
-    public class ShaderProgram
+    public class ShaderProgram : GraphicsResource
     {
-        public uint Handle;
         public static uint BoundProgram { get; private set; }
 
         public ShaderProgram(VertexShader vshader, FragmentShader fshader)
@@ -32,6 +31,9 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception($"Shader program linking has failed: {log}");
             }
+
+            vshader.Dispose();
+            fshader.Dispose();
         }
 
         public ShaderProgram(VertexShader vshader, GeometryShader gshader, FragmentShader fshader)
@@ -55,6 +57,10 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception($"Shader program linking has failed: {log}");
             }
+
+            vshader.Dispose();
+            fshader.Dispose();
+            gshader.Dispose();
         }
 
         public ShaderProgram(ComputeShader cshader)
@@ -77,6 +83,8 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception($"Shader program linking has failed: {log}");
             }
+
+            cshader.Dispose();
         }
 
         public void Bind()
@@ -126,8 +134,10 @@ namespace Leviathan.Core.Graphics
                 {
                     GeometryShader gshader = new GeometryShader(sfile.Geometry_src);
                     sp = new ShaderProgram(vshader, gshader, fshader);
+                } else
+                {
+                    sp = new ShaderProgram(vshader, fshader);
                 }
-                sp = new ShaderProgram(vshader, fshader);
             } else if(sfile.HasCompute)
             {
                 ComputeShader cshader = new ComputeShader(sfile.Compute_src);
@@ -139,6 +149,13 @@ namespace Leviathan.Core.Graphics
             ShaderResourceManager.Instance.AddResource(shader_identifier, sp);
         }
 
+        public override void Dispose()
+        {
+            if(this.Handle != GraphicsResource.EMPTY_HANDLE)
+            {
+                Context.gl_context.DeleteProgram(this.Handle);
+            }
+        }
 
         #region Uniforms
 
@@ -296,6 +313,8 @@ namespace Leviathan.Core.Graphics
                 Context.gl_context.UniformMatrix4(loc, 1, false, (float*)&matrix);
             }
         }
+
+        
         #endregion
     }
 
@@ -320,9 +339,8 @@ namespace Leviathan.Core.Graphics
     }
 
 
-    public abstract class Shader
+    public abstract class Shader : GraphicsResource
     {
-        public uint Handle { get; private set; }
         public ShaderType Type { get; private set; }
         public string Error { get; private set; }
         public bool HasError { get; private set; }
@@ -380,6 +398,13 @@ namespace Leviathan.Core.Graphics
                 return $"{Type} Shader compilation failed: \n {log}";
             }
             return String.Empty;
+        }
+        public override void Dispose()
+        {
+            if(this.Handle != GraphicsResource.EMPTY_HANDLE)
+            {
+                Context.gl_context.DeleteShader(this.Handle);
+            }
         }
     }
 

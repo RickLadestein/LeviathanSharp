@@ -5,9 +5,8 @@ using System.Text;
 
 namespace Leviathan.Core.Sound
 {
-    public class AudioSample : IDisposable
+    public class AudioSample : SoundResource
     {
-        public int Handle { get; private set; }
         public float Duration { get; private set; }
         public int Frequency { get; private set; }
 
@@ -24,18 +23,13 @@ namespace Leviathan.Core.Sound
             pinnedArray.Free();
         }
 
-        public void Destroy()
+        public override void Dispose()
         {
-            if(this.Handle != 0)
+            if (this.Handle != 0)
             {
                 OpenTK.Audio.OpenAL.AL.DeleteBuffer(Handle);
                 this.Handle = 0;
             }
-        }
-
-        public void Dispose()
-        {
-            this.Destroy();
         }
     }
 }

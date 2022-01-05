@@ -56,9 +56,8 @@ namespace Leviathan.Core.Graphics
         /// </summary>
         LINEAR = Silk.NET.OpenGL.GLEnum.Linear
     };
-    public abstract class Texture
+    public abstract class Texture : GraphicsResource
     {
-        public uint Handle { get; private set; }
         public TextureType Type { get; private set; }
 
         public TextureWrapSetting Wrap { get; private set; }
@@ -71,7 +70,7 @@ namespace Leviathan.Core.Graphics
         public Vector3i Size { get; protected set; }
         public Silk.NET.OpenGL.InternalFormat InternalPixelFormat { get; protected set; }
 
-        public static Texture Zero = new Texture2D() { Handle = 0, Type = TextureType.TEXTURE_2D };
+        public static readonly Texture Zero = new Texture2D() { Handle = 0, Type = TextureType.TEXTURE_2D };
         private Texture oldtex;
 
         public Texture(TextureType _type)
@@ -129,6 +128,14 @@ namespace Leviathan.Core.Graphics
             Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)wrap);
             Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)wrap);
             EndModification();
+        }
+
+        public override void Dispose()
+        {
+            if(this.Handle != GraphicsResource.EMPTY_HANDLE)
+            {
+                Context.gl_context.DeleteTexture(this.Handle);
+            }
         }
     }
 
