@@ -14,7 +14,6 @@ namespace Leviathan.ECS
         /// <summary>
         /// The entity this component is bound to
         /// </summary>
-        private Entity _parent;
         public Entity Parent { get; set; }
 
         /// <summary>

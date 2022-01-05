@@ -60,8 +60,8 @@ namespace Leviathan.Core.Windowing
 
         private unsafe void BindGLFWCallbacks()
         {
-            Mouse = new Mouse(this, ref nativeWindow);
-            Keyboard = new Keyboard(this, ref nativeWindow);
+            Mouse = new Mouse(ref nativeWindow);
+            Keyboard = new Keyboard(ref nativeWindow);
             glfw_context.SetWindowIconifyCallback(nativeWindow.w_handle, OnWindowIconified);
             glfw_context.SetWindowPosCallback(nativeWindow.w_handle, OnWindowPosChanged);
             glfw_context.SetWindowSizeCallback(nativeWindow.w_handle, OnWindowSizeChanged);
