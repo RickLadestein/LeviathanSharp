@@ -20,6 +20,7 @@ namespace Leviathan.Core.Input
     public delegate void MouseReleaseCallback(MouseButton btn);
     public delegate void MousePressFunc(MouseButton btn);
     public delegate void MouseRepeatFunc(MouseButton btn);
+    public delegate void MouseClickFunc(MouseButton btn, Vector2d pos);
     public delegate void MouseScrollFunc(Vector2d scroll);
     public delegate void MouseMoveFunc(Vector2d pos, Vector2d delta);
 
@@ -27,9 +28,8 @@ namespace Leviathan.Core.Input
     {
         private Vector2d oldpos;
         private MouseButton[] btns;
-        
-        private Window parent;
-        private unsafe WindowHandle* parent_window;
+
+        private unsafe IntPtr parent_window;
         
         public readonly uint MAX_PRESSED_BTNS = 3;
         public Vector2d Position { get; private set; }
@@ -42,14 +42,14 @@ namespace Leviathan.Core.Input
         public event MousePressFunc Press;
         public event MouseReleaseCallback Release;
         public event MouseRepeatFunc Repeat;
+        public event MouseClickFunc Click;
         public event MouseScrollFunc Scroll;
         public event MouseMoveFunc Move;
 
-        public unsafe Mouse(Window _parent, ref NativeWindow wnd)
+        public unsafe Mouse(ref NativeWindow wnd)
         {
             Mode = MouseMode.Normal;
-            this.parent = _parent;
-            this.parent_window = wnd.w_handle;
+            this.parent_window = new IntPtr(wnd.w_handle);
             btns = new MouseButton[MAX_PRESSED_BTNS];
             for(int i = 0; i < MAX_PRESSED_BTNS; i++)
             {
@@ -75,21 +75,23 @@ namespace Leviathan.Core.Input
 
         public unsafe void SetCursorPos(Vector2d newpos)
         {
-            Context.glfw_context.SetCursorPos(parent_window, newpos.X, newpos.Y);
+            WindowHandle* ptr = (WindowHandle*)this.parent_window.ToPointer();
+            Context.glfw_context.SetCursorPos(ptr, newpos.X, newpos.Y);
         }
 
         public unsafe void SetMouseMode(MouseMode mode)
         {
-            switch(mode)
+            WindowHandle* ptr = (WindowHandle*)this.parent_window.ToPointer();
+            switch (mode)
             {
                 case MouseMode.Normal:
-                    Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorNormal);
+                    Context.glfw_context.SetInputMode(ptr, CursorStateAttribute.Cursor, CursorModeValue.CursorNormal);
                     break;
                 case MouseMode.FPS:
-                    Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorDisabled);
+                    Context.glfw_context.SetInputMode(ptr, CursorStateAttribute.Cursor, CursorModeValue.CursorDisabled);
                     break;
                 case MouseMode.Invisible:
-                    Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.Cursor, CursorModeValue.CursorHidden);
+                    Context.glfw_context.SetInputMode(ptr, CursorStateAttribute.Cursor, CursorModeValue.CursorHidden);
                     break;
             }
             this.Mode = mode;
@@ -97,12 +99,13 @@ namespace Leviathan.Core.Input
 
         public unsafe void SetRawInputMode(bool enabled)
         {
-            if(enabled)
+            WindowHandle* ptr = (WindowHandle*)this.parent_window.ToPointer();
+            if (enabled)
             {
-                Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.RawMouseMotion, true);
+                Context.glfw_context.SetInputMode(ptr, CursorStateAttribute.RawMouseMotion, true);
             } else
             {
-                Context.glfw_context.SetInputMode(parent_window, CursorStateAttribute.RawMouseMotion, false);
+                Context.glfw_context.SetInputMode(ptr, CursorStateAttribute.RawMouseMotion, false);
             }
             RawMotion = enabled;
         }
@@ -144,6 +147,7 @@ namespace Leviathan.Core.Input
                 if (btns[i] == btn)
                 {
                     btns[i] = MouseButton.Invalid;
+                    Click?.Invoke(btn, this.Position);
                     return;
                 }
             }
