@@ -11,7 +11,16 @@ namespace Leviathan.Core.Graphics
 
         public virtual void Dispose()
         {
-            throw new NotImplementedException();
+            if(Handle != EMPTY_HANDLE)
+            {
+                throw new GraphicsResourceDisposeException("Resource still has an active handle to a resource in the Graphics card and cannot " +
+                    "be destroyed with the default Dispose operation");
+            }
         }
+    }
+
+    public class GraphicsResourceDisposeException : Exception
+    {
+        public GraphicsResourceDisposeException(string msg) : base($"Graphics resource dispose error: {msg}") { }
     }
 }

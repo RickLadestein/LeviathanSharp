@@ -53,7 +53,7 @@ namespace Leviathan.Core
                 case 64:
                     return Silk.NET.OpenGL.PixelType.UnsignedShort;
                 case 128:
-                    return Silk.NET.OpenGL.PixelType.Float;
+                    return Silk.NET.OpenGL.PixelType.UnsignedInt;
                 default:
                     return Silk.NET.OpenGL.PixelType.Byte;
             }
@@ -63,7 +63,7 @@ namespace Leviathan.Core
         /// A function which loads an image
         /// </summary>
         /// <param name="path">The path of the image</param>
-        /// <param name="flip">A boolean which contains whether the image should be flipped</param>
+        /// <param name="flip">A boolean which indicates whether the image should be flipped</param>
         /// <returns></returns>
         public static ImageResource Load(string path, bool flip)
         {

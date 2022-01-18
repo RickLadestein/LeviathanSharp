@@ -12,6 +12,7 @@ using Leviathan.Core.Input;
 using Leviathan.Core;
 using Leviathan.Util;
 using Leviathan.Core.Sound;
+using System.IO.Ports;
 
 namespace Sandbox
 {
@@ -19,23 +20,28 @@ namespace Sandbox
     {
         public static Window w;
         public static Entity en;
+        public static Entity en2;
         public static World world;
         public static List<KeyboardKey> keys;
+        public static DataGlove driver;
 
         static void Main(string[] args)
         {
-            
-
-
             keys = new List<KeyboardKey>();
             w = new Window(1080, 720, WindowMode.WINDOWED);
             InitResources();
             world = World.Instance;
+            //driver = new DataGlove("COM3", 9600);
+            w.refresh += W_refresh;
             Window.Start(w);
             return;
         }
 
-        
+        private static void W_refresh()
+        {
+            //en.Transform.Orientation = driver.Received_Quat;
+            //en2.Transform.Orientation = driver.Received_Quat2;
+        }
 
         private static void InitResources()
         {
@@ -57,7 +63,7 @@ namespace Sandbox
             en.AddComponent(new SoundSourceComponent());
             World.Instance.AddEntity(en);
 
-            Entity en2 = new Entity("platform2");
+            en2 = new Entity("platform2");
             //en.AddComponent(new MaterialComponent());
             en2.AddComponent(new MeshComponent());
             en2.AddComponent(new MaterialComponent());
@@ -117,8 +123,8 @@ namespace Sandbox
             Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.Blend);
             Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
             Context.gl_context.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
-            Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
-            Context.gl_context.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
+            //Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
+            //Context.gl_context.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
         }
     }
 }

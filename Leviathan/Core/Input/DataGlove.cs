@@ -4,73 +4,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 
 namespace Leviathan.Util
 {
     public class DataGlove : IDataGloveListener
     {
         private Mutex quat_mutex;
-        private Quaternion quat;
-        private Quaternion quat2;
         private DataGloveSerialWorker worker;
         private SerialPort serialPort;
-        public Quaternion Received_Quat
-        {
-            get
-            {
-                try
-                {
-                    quat_mutex.WaitOne();
-                    return quat;
-                } finally
-                {
-                    quat_mutex.ReleaseMutex();
-                }
-            }
-            set
-            {
-                try
-                {
-                    quat_mutex.WaitOne();
-                    quat = value;
-                }
-                finally
-                {
-                    quat_mutex.ReleaseMutex();
-                }
-            }
-        }
+        
+        public HandOrient handorient;
 
-        public Quaternion Received_Quat2
-        {
-            get
-            {
-                try
-                {
-                    quat_mutex.WaitOne();
-                    return quat2;
-                }
-                finally
-                {
-                    quat_mutex.ReleaseMutex();
-                }
-            }
-            set
-            {
-                try
-                {
-                    quat_mutex.WaitOne();
-                    quat2 = value;
-                }
-                finally
-                {
-                    quat_mutex.ReleaseMutex();
-                }
-            }
-        }
         public DataGlove(string comport, int baud)
         {
-            quat = Quaternion.Identity;
             quat_mutex = new Mutex();
             serialPort = new SerialPort(comport, baud);
             serialPort.Open();
@@ -78,15 +25,9 @@ namespace Leviathan.Util
             worker.Start();
         }
 
-        public void OnQuaternionReceived(Quaternion quat, int id)
+        public void OnHandOrientReceived(HandOrient orient)
         {
-            if(id == 8)
-            {
-                this.quat = quat;
-            } else
-            {
-                this.quat2 = quat;
-            }
+            handorient = orient;
         }
     }
 
@@ -128,30 +69,32 @@ namespace Leviathan.Util
 
         private void ThreadFunc()
         {
-            string line = string.Empty;
             if(!serial.IsOpen)
             {
                 throw new Exception("Serial Port was not open");
             }
 
+            string line = string.Empty;
             while (serial.IsOpen && !shutdownrequested)
             {
                 if(serial.BytesToRead > 0)
                 {
-                    line = serial.ReadLine();
-                    Console.WriteLine(line);
-                    String[] tokens = line.Split('\t');
-                    if (tokens.Length == 5)
+                    byte[] datagram_size = new byte[4];
+                    datagram_size[0] = (byte)serial.ReadChar();
+                    datagram_size[1] = (byte)serial.ReadChar();
+                    datagram_size[2] = (byte)serial.ReadChar();
+                    datagram_size[3] = (byte)serial.ReadChar();
+                    int dt_size = BitConverter.ToInt32(datagram_size, 0);
+
+                    byte[] datagram = new byte[dt_size];
+                    for(int i = 0; i < dt_size; i++)
                     {
-                        int id = int.Parse(tokens[0]);
-                        float w = float.Parse(tokens[1]);
-                        float x = float.Parse(tokens[2]);
-                        float y = float.Parse(tokens[3]);
-                        float z = float.Parse(tokens[4]);
-                        Quaternion quat = new Quaternion(x, z, y, w);
-                        listener.OnQuaternionReceived(quat, id);
-                        
+                        datagram[i] = (byte)serial.ReadChar();
                     }
+                    GCHandle handle = GCHandle.Alloc(datagram, GCHandleType.Pinned);
+                    HandOrient structure = (HandOrient)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(HandOrient));
+                    handle.Free();
+                    listener.OnHandOrientReceived(structure);
                 }
             }
         }
@@ -160,20 +103,18 @@ namespace Leviathan.Util
 
     public interface IDataGloveListener
     {
-        void OnQuaternionReceived(Quaternion quat, int id);
+        void OnHandOrientReceived(HandOrient orient);
     }
 
     public struct FingerOrient
     {
         Quaternion Distal;
         Quaternion Intermediate;
-        Quaternion Proximal;
 
         public static readonly FingerOrient Identity = new FingerOrient()
         {
             Distal = Quaternion.Identity,
             Intermediate = Quaternion.Identity,
-            Proximal = Quaternion.Identity
         };
     }
 
