@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 
 namespace Leviathan.Core.Windowing
 {
-    public class Window
+    public class Window : NativeWindow
     {
         private double prev_frametime;
-        private Context context;
-        public NativeWindow nativeWindow;
 
         public event WindowRefreshFunc refresh;
         public event WindowMoveFunc move;
@@ -28,33 +26,31 @@ namespace Leviathan.Core.Windowing
 
         private static float MIN_FRAMETIME = 0.002f;
 
-        public Window(uint width, uint height, string title, WindowMode mode)
+        public Window(uint width, uint height, string title, WindowMode mode) : base(width, height, title, mode)
         {
             prev_frametime = 0.0f;
-            this.nativeWindow = NativeWindow.CreateWindow(width, height, title, mode);
-            context = new Context(nativeWindow._glcontext, nativeWindow._glfwcontext, this);
-            Context.MakeContextCurrent(context);
+            w_context.SetParentForFirstTimeWindow(this);
+            Context.MakeContextCurrent(w_context);
             BindGLFWCallbacks();
         }
 
-        public Window(uint width, uint height, WindowMode mode)
+        public Window(uint width, uint height, WindowMode mode) : base(width, height, "Window", mode)
         {
             prev_frametime = 0.0f;
-            this.nativeWindow = NativeWindow.CreateWindow(width, height, "Window", mode);
-            context = new Context(nativeWindow._glcontext, nativeWindow._glfwcontext, this);
-            Context.MakeContextCurrent(context);
+            w_context.SetParentForFirstTimeWindow(this);
+            Context.MakeContextCurrent(w_context);
             BindGLFWCallbacks();
         }
 
         private unsafe void BindGLFWCallbacks()
         {
-            Mouse = new Mouse(ref nativeWindow);
-            Keyboard = new Keyboard(ref nativeWindow);
-            nativeWindow._glfwcontext.SetWindowIconifyCallback(nativeWindow.w_handle, OnWindowIconified);
-            nativeWindow._glfwcontext.SetWindowPosCallback(nativeWindow.w_handle, OnWindowPosChanged);
-            nativeWindow._glfwcontext.SetWindowSizeCallback(nativeWindow.w_handle, OnWindowSizeChanged);
-            nativeWindow._glfwcontext.SetWindowCloseCallback(nativeWindow.w_handle, OnWindowCloseRequested);
-            nativeWindow._glfwcontext.SetWindowFocusCallback(nativeWindow.w_handle, OnWindowFocusChanged);
+            Mouse = new Mouse();
+            Keyboard = new Keyboard();
+            Context.GLFWContext.SetWindowIconifyCallback(w_handle, OnWindowIconified);
+            Context.GLFWContext.SetWindowPosCallback(w_handle, OnWindowPosChanged);
+            Context.GLFWContext.SetWindowSizeCallback(w_handle, OnWindowSizeChanged);
+            Context.GLFWContext.SetWindowCloseCallback(w_handle, OnWindowCloseRequested);
+            Context.GLFWContext.SetWindowFocusCallback(w_handle, OnWindowFocusChanged);
         }
 
         public static void Start(Window wnd)
@@ -64,26 +60,25 @@ namespace Leviathan.Core.Windowing
 
 
         private unsafe void Run() {
-
-            nativeWindow._glcontext.ClearColor(0.25f, 0.25f, 0.25f, 1.0f);
-            nativeWindow._glcontext.Enable(EnableCap.DepthTest);
+           Context.GLContext.ClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+            Context.GLContext.Enable(EnableCap.DepthTest);
             double curr_frametime;
             while(!this.ShutdownRequested)
             {
-                nativeWindow.PollEvents();
-                if (!nativeWindow.w_isIconified)
+                PollEvents();
+                if (!w_isIconified)
                 {
-                    nativeWindow.ClearBuffer(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                    ClearBuffer(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                     refresh?.Invoke();
-                    nativeWindow.SwapBuffers();
-                    nativeWindow.ClearBuffer(ClearBufferMask.DepthBufferBit);
+                    SwapBuffers();
+                    ClearBuffer(ClearBufferMask.DepthBufferBit);
                 }
 
-                curr_frametime = nativeWindow._glfwcontext.GetTime();
+                curr_frametime = Context.GLFWContext.GetTime();
                 Time.FrameDelta = (float)(curr_frametime - prev_frametime);
                 prev_frametime = curr_frametime;
 
-                this.ShutdownRequested = nativeWindow._glfwcontext.WindowShouldClose(nativeWindow.w_handle);
+                this.ShutdownRequested = Context.GLFWContext.WindowShouldClose(w_handle);
             }
         }
 
@@ -91,27 +86,27 @@ namespace Leviathan.Core.Windowing
         #region WindowCallbacks
         private unsafe void OnWindowIconified(WindowHandle* wnd, bool iconified)
         {
-            nativeWindow.w_isIconified = iconified;
+            w_isIconified = iconified;
         }
 
 
         private unsafe void OnWindowPosChanged(WindowHandle* wnd, int xpos, int ypos)
         {
-            nativeWindow.w_position.X = xpos;
-            nativeWindow.w_position.Y = ypos;
+            w_position.X = xpos;
+            w_position.Y = ypos;
             move?.Invoke(new Math.Vector2f(xpos, ypos));
         }
 
         private unsafe void OnWindowSizeChanged(WindowHandle* wnd, int width, int height)
         {
-            nativeWindow.w_size.X = width;
-            nativeWindow.w_size.Y = height;
+            w_size.X = width;
+            w_size.Y = height;
             resize?.Invoke(new Math.Vector2f(width, height));
         }
 
         private unsafe void OnWindowFocusChanged(WindowHandle* wnd, bool focused)
         {
-            nativeWindow.w_hasfocus = focused;
+            w_hasfocus = focused;
             focus?.Invoke(focused);
         }
 

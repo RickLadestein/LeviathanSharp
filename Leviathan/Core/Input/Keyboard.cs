@@ -26,9 +26,9 @@ namespace Leviathan.Core.Input
         public event KeyboardKeyReleaseFunc Release;
         public event KeyboardKeyRepeatFunc Repeat;
 
-        public unsafe Keyboard(ref NativeWindow wnd)
+        public unsafe Keyboard()
         {
-            parent_window = new IntPtr(wnd.w_handle);
+            parent_window = new IntPtr(Context.ParentWindow.GetGlfwWindowHandle());
 
             Mode = KeyboardMode.INPUT;
             keys = new KeyboardKey[MAX_PRESSED_BTNS];
@@ -38,8 +38,8 @@ namespace Leviathan.Core.Input
             }
 
 
-            Context.GLFWContext.SetKeyCallback(wnd.w_handle, OnKeyAction);
-            Context.GLFWContext.SetCharCallback(wnd.w_handle, OnKeyboardChar);
+            Context.GLFWContext.SetKeyCallback(Context.ParentWindow.GetGlfwWindowHandle(), OnKeyAction);
+            Context.GLFWContext.SetCharCallback(Context.ParentWindow.GetGlfwWindowHandle(), OnKeyboardChar);
         }
 
         public List<KeyboardKey> GetPressedKeys()

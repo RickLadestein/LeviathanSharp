@@ -92,7 +92,8 @@ namespace Leviathan.ECS
                 _projection_s.perspective.fov = 180.0f;
             }
 
-            Vector2d window_size = Context.ParentWindow.nativeWindow.w_size;
+            Vector2i _window_size = Context.ParentWindow.GetSize();
+            Vector2d window_size = new Vector2d(_window_size.X, _window_size.Y);
             Vector2f clipspace = _projection_s.clipspace.GetClipspace();
             if(_projection_s.mode == ProjectionMode.PERSPECTIVE)
             {

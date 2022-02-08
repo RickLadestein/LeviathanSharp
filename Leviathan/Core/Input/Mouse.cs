@@ -46,10 +46,10 @@ namespace Leviathan.Core.Input
         public event MouseScrollFunc Scroll;
         public event MouseMoveFunc Move;
 
-        public unsafe Mouse(ref NativeWindow wnd)
+        public unsafe Mouse()
         {
             Mode = MouseMode.Normal;
-            this.parent_window = new IntPtr(wnd.w_handle);
+            this.parent_window = new IntPtr(Context.ParentWindow.GetGlfwWindowHandle());
             btns = new MouseButton[MAX_PRESSED_BTNS];
             for(int i = 0; i < MAX_PRESSED_BTNS; i++)
             {
@@ -57,14 +57,14 @@ namespace Leviathan.Core.Input
             }
 
 
-            wnd._glfwcontext.GetCursorPos(wnd.w_handle, out double x_pos, out double y_pos);
+            Context.GLFWContext.GetCursorPos(Context.ParentWindow.GetGlfwWindowHandle(), out double x_pos, out double y_pos);
             Position = new Vector2d((float)x_pos, (float)y_pos);
             oldpos = Position;
 
-            Context.GLFWContext.SetCursorEnterCallback(wnd.w_handle, OnMouseEnter);
-            Context.GLFWContext.SetMouseButtonCallback(wnd.w_handle, OnMouseButton);
-            Context.GLFWContext.SetScrollCallback(wnd.w_handle, OnMouseScroll);
-            Context.GLFWContext.SetCursorPosCallback(wnd.w_handle, OnCursorPosChanged);
+            Context.GLFWContext.SetCursorEnterCallback(Context.ParentWindow.GetGlfwWindowHandle(), OnMouseEnter);
+            Context.GLFWContext.SetMouseButtonCallback(Context.ParentWindow.GetGlfwWindowHandle(), OnMouseButton);
+            Context.GLFWContext.SetScrollCallback(Context.ParentWindow.GetGlfwWindowHandle(), OnMouseScroll);
+            Context.GLFWContext.SetCursorPosCallback(Context.ParentWindow.GetGlfwWindowHandle(), OnCursorPosChanged);
         }
 
         public List<MouseButton>GetPressedButtons()
