@@ -7,6 +7,7 @@ namespace Leviathan.Core.Graphics
     public class GraphicsResource : IDisposable
     {
         public uint Handle;
+        protected uint NewHandle;
         public static readonly uint EMPTY_HANDLE = 0;
 
         public virtual void Dispose()

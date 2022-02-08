@@ -20,7 +20,7 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public VertexBuffer()
         {
-            handle = Context.gl_context.GenVertexArray();
+            handle = Context.GLContext.GenVertexArray();
             current_attrib = 0;
             ibos = new IBO[0];
         }
@@ -29,7 +29,7 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             if(Bound_vbuffer != handle)
             {
-                Context.gl_context.BindVertexArray(handle);
+                Context.GLContext.BindVertexArray(handle);
                 Bound_vbuffer = handle;
             }
         }
@@ -38,7 +38,7 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             if (Bound_vbuffer == handle)
             {
-                Context.gl_context.BindVertexArray(0);
+                Context.GLContext.BindVertexArray(0);
                 Bound_vbuffer = 0;
             } else
             {
@@ -48,7 +48,7 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public void LoadDataBuffers(Mesh mesh)
         {
-            Context.gl_context.BindVertexArray(handle);
+            Context.GLContext.BindVertexArray(handle);
             this.prim_type = mesh.PrimitiveType;
             this.vertex_count = mesh.VertexCount;
             int index = 0;
@@ -56,20 +56,20 @@ namespace Leviathan.Core.Graphics.Buffers
             {
                 unsafe
                 {
-                    Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, vbo.handle);
-                    Context.gl_context.VertexAttribPointer(current_attrib, (int)vbo.coll_type, (GLEnum)vbo.value_type, false, 0, (void*)0);
-                    Context.gl_context.EnableVertexAttribArray(current_attrib);
+                    Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, vbo.handle);
+                    Context.GLContext.VertexAttribPointer(current_attrib, (int)vbo.coll_type, (GLEnum)vbo.value_type, false, 0, (void*)0);
+                    Context.GLContext.EnableVertexAttribArray(current_attrib);
                 }
                 this.current_attrib += 1;
                 index++;
             }
-            Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, 0);
-            Context.gl_context.BindVertexArray(0);
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
+            Context.GLContext.BindVertexArray(0);
         }
 
         public void LoadInstanceBuffers(InstanceBuffer[] ibufs)
         {
-            Context.gl_context.BindVertexArray(handle);
+            Context.GLContext.BindVertexArray(handle);
             ibos = new IBO[ibufs.Length];
             int index = 0;
             foreach (InstanceBuffer ib in ibufs)
@@ -84,8 +84,8 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public void PurgeBuffer()
         {
-            Context.gl_context.DeleteVertexArray(handle);
-            this.handle = Context.gl_context.GenVertexArray();
+            Context.GLContext.DeleteVertexArray(handle);
+            this.handle = Context.GLContext.GenVertexArray();
             this.current_attrib = 0;
         }
     }
@@ -105,7 +105,7 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             IBO tmp = new IBO()
             {
-                handle = Context.gl_context.GenBuffer(),
+                handle = Context.GLContext.GenBuffer(),
                 vao_index = current_attrib,
                 value_type = ibuf.valuetype,
                 coll_type = ibuf.coll_type,
@@ -113,25 +113,25 @@ namespace Leviathan.Core.Graphics.Buffers
             };
 
 
-            Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, tmp.handle);
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, tmp.handle);
             unsafe
             {
                 fixed (void* d_ptr = &ibuf.data[0])
                 {
-                    Context.gl_context.BufferData(GLEnum.ArrayBuffer, (uint)ibuf.data.Length, d_ptr, GLEnum.StaticDraw);
+                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)ibuf.data.Length, d_ptr, GLEnum.StaticDraw);
                 }
 
-                Context.gl_context.VertexAttribPointer(tmp.vao_index, (int)tmp.coll_type, (GLEnum)tmp.value_type, false, 0, (void*)0);
-                Context.gl_context.EnableVertexAttribArray(tmp.vao_index);
-                Context.gl_context.VertexAttribDivisor(current_attrib, ibuf.mode);
+                Context.GLContext.VertexAttribPointer(tmp.vao_index, (int)tmp.coll_type, (GLEnum)tmp.value_type, false, 0, (void*)0);
+                Context.GLContext.EnableVertexAttribArray(tmp.vao_index);
+                Context.GLContext.VertexAttribDivisor(current_attrib, ibuf.mode);
             };
-            Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, 0);
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
             return tmp;
         }
 
         private void Destroy()
         {
-            Context.gl_context.DeleteBuffer(this.handle);
+            Context.GLContext.DeleteBuffer(this.handle);
             this.handle = 0;
         }
 

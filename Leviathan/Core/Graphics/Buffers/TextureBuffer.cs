@@ -99,8 +99,8 @@ namespace Leviathan.Core.Graphics.Buffers
             {
                 if(changemap[i])
                 {
-                    Context.gl_context.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0 + i);
-                    Context.gl_context.BindTexture((Silk.NET.OpenGL.GLEnum)textures[i].Type, textures[i].Handle);
+                    Context.GLContext.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0 + i);
+                    Context.GLContext.BindTexture((Silk.NET.OpenGL.GLEnum)textures[i].Type, textures[i].Handle);
                     changemap[i] = false;
                 }
             }
@@ -110,8 +110,8 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             for(int i = 0; i < MAX_TEXTURES; i++)
             {
-                Context.gl_context.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0 + i);
-                Context.gl_context.BindTexture(Silk.NET.OpenGL.TextureTarget.Texture2D, 0);
+                Context.GLContext.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0 + i);
+                Context.GLContext.BindTexture(Silk.NET.OpenGL.TextureTarget.Texture2D, 0);
             }
         }
     }

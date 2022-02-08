@@ -17,14 +17,14 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception("Vertex/Fragment Shader compilation has failed: check individual error logs for detail");
             }
-            this.Handle = Context.gl_context.CreateProgram();
+            this.Handle = Context.GLContext.CreateProgram();
             if (Handle == 0)
             {
                 throw new Exception("OpenGL was not able to create ShaderProgram handle at this time");
             }
-            Context.gl_context.AttachShader(this.Handle, vshader.Handle);
-            Context.gl_context.AttachShader(this.Handle, fshader.Handle);
-            Context.gl_context.LinkProgram(this.Handle);
+            Context.GLContext.AttachShader(this.Handle, vshader.Handle);
+            Context.GLContext.AttachShader(this.Handle, fshader.Handle);
+            Context.GLContext.LinkProgram(this.Handle);
 
             String log = GetProgramInfoLog();
             if (log.Length > 0)
@@ -42,15 +42,15 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception("Vertex/Geometry/Fragment Shader compilation has failed: check individual error logs for detail");
             }
-            this.Handle = Context.gl_context.CreateProgram();
+            this.Handle = Context.GLContext.CreateProgram();
             if (Handle == 0)
             {
                 throw new Exception("OpenGL was not able to create ShaderProgram handle at this time");
             }
-            Context.gl_context.AttachShader(this.Handle, vshader.Handle);
-            Context.gl_context.AttachShader(this.Handle, gshader.Handle);
-            Context.gl_context.AttachShader(this.Handle, fshader.Handle);
-            Context.gl_context.LinkProgram(this.Handle);
+            Context.GLContext.AttachShader(this.Handle, vshader.Handle);
+            Context.GLContext.AttachShader(this.Handle, gshader.Handle);
+            Context.GLContext.AttachShader(this.Handle, fshader.Handle);
+            Context.GLContext.LinkProgram(this.Handle);
 
             String log = GetProgramInfoLog();
             if (log.Length > 0)
@@ -69,14 +69,14 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception("Compute Shader compilation has failed: check individual error logs for detail");
             }
-            this.Handle = Context.gl_context.CreateProgram();
+            this.Handle = Context.GLContext.CreateProgram();
             if (Handle == 0)
             {
                 throw new Exception("OpenGL was not able to create ShaderProgram handle at this time");
             }
 
-            Context.gl_context.AttachShader(this.Handle, cshader.Handle);
-            Context.gl_context.LinkProgram(this.Handle);
+            Context.GLContext.AttachShader(this.Handle, cshader.Handle);
+            Context.GLContext.LinkProgram(this.Handle);
 
             String log = GetProgramInfoLog();
             if (log.Length > 0)
@@ -89,9 +89,16 @@ namespace Leviathan.Core.Graphics
 
         public void Bind()
         {
+            if(NewHandle != 0 && Handle != NewHandle)
+            {
+                Context.GLContext.DeleteProgram(Handle);
+                Handle = NewHandle;
+                NewHandle = 0;
+            }
+
             if(BoundProgram != Handle)
             {
-                Context.gl_context.UseProgram(Handle);
+                Context.GLContext.UseProgram(Handle);
                 BoundProgram = Handle;
             }
         }
@@ -100,7 +107,7 @@ namespace Leviathan.Core.Graphics
         {
             if (BoundProgram == Handle)
             {
-                Context.gl_context.UseProgram(0);
+                Context.GLContext.UseProgram(0);
                 BoundProgram = 0;
             } else
             {
@@ -115,7 +122,7 @@ namespace Leviathan.Core.Graphics
                 return "ShaderProgram handle was not initialised";
             }
 
-            String log = Context.gl_context.GetProgramInfoLog(this.Handle);
+            String log = Context.GLContext.GetProgramInfoLog(this.Handle);
             if (log.Length > 0)
             {
                 return $"ShaderProgram linking failed: \n {log}";
@@ -153,7 +160,7 @@ namespace Leviathan.Core.Graphics
         {
             if(this.Handle != GraphicsResource.EMPTY_HANDLE)
             {
-                Context.gl_context.DeleteProgram(this.Handle);
+                Context.GLContext.DeleteProgram(this.Handle);
             }
         }
 
@@ -166,11 +173,11 @@ namespace Leviathan.Core.Graphics
         /// <param name="value">Boolean value</param>
         public void SetUniform(string location, bool value)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
                 int rep = value ? 255 : 0;
-                Context.gl_context.Uniform1(loc, rep);
+                Context.GLContext.Uniform1(loc, rep);
             }
         }
 
@@ -181,10 +188,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="value">Integer value</param>
         public void SetUniform(string location, int value)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform1(loc, value);
+                Context.GLContext.Uniform1(loc, value);
             }
         }
 
@@ -195,10 +202,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="value">Unsigned Integer value</param>
         public void SetUniform(string location, uint value)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform1(loc, value);
+                Context.GLContext.Uniform1(loc, value);
             }
         }
 
@@ -209,10 +216,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="value">Float value</param>
         public void SetUniform(string location, float value)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform1(loc, value);
+                Context.GLContext.Uniform1(loc, value);
             }
         }
 
@@ -223,10 +230,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="value">Double value</param>
         public void SetUniform(string location, double value)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform1(loc, value);
+                Context.GLContext.Uniform1(loc, value);
             }
         }
 
@@ -237,10 +244,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="vec">Vector2 value</param>
         public void SetUniform(string location, Vector2f vec)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform2(loc, vec.X, vec.Y);
+                Context.GLContext.Uniform2(loc, vec.X, vec.Y);
             }
         }
 
@@ -251,10 +258,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="vec">Vector3 value</param>
         public void SetUniform(string location, Vector3f vec)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform3(loc, vec.X, vec.Y, vec.Z);
+                Context.GLContext.Uniform3(loc, vec.X, vec.Y, vec.Z);
             }
         }
 
@@ -265,10 +272,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="vec">Vector4 value</param>
         public void SetUniform(string location, Vector4f vec)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.Uniform4(loc, vec.X, vec.Y, vec.Z, vec.W);
+                Context.GLContext.Uniform4(loc, vec.X, vec.Y, vec.Z, vec.W);
             }
         }
 
@@ -279,10 +286,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="matrix">Matrix3 value</param>
         public unsafe void SetUniform(string location, Mat2 matrix)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.UniformMatrix3(loc, 1, false, (float*)&matrix);
+                Context.GLContext.UniformMatrix3(loc, 1, false, (float*)&matrix);
             }
         }
 
@@ -293,10 +300,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="matrix">Matrix3 value</param>
         public unsafe void SetUniform(string location, Mat3 matrix)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.UniformMatrix3(loc, 1, false, (float*)&matrix);
+                Context.GLContext.UniformMatrix3(loc, 1, false, (float*)&matrix);
             }
         }
 
@@ -307,10 +314,10 @@ namespace Leviathan.Core.Graphics
         /// <param name="matrix">Matrix4 value</param>
         public unsafe void SetUniform(string location, Mat4 matrix)
         {
-            int loc = Context.gl_context.GetUniformLocation(this.Handle, location);
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, location);
             if (loc != -1)
             {
-                Context.gl_context.UniformMatrix4(loc, 1, false, (float*)&matrix);
+                Context.GLContext.UniformMatrix4(loc, 1, false, (float*)&matrix);
             }
         }
 
@@ -350,7 +357,7 @@ namespace Leviathan.Core.Graphics
             Type = _type;
             Error = string.Empty;
             HasError = false;
-            Handle = Context.gl_context.CreateShader((Silk.NET.OpenGL.ShaderType)_type);
+            Handle = Context.GLContext.CreateShader((Silk.NET.OpenGL.ShaderType)_type);
             if(Handle == 0)
             {
                 throw new Exception($"Shader handle creation failed: {_type}");
@@ -373,8 +380,8 @@ namespace Leviathan.Core.Graphics
                 return;
             }
 
-            Context.gl_context.ShaderSource(Handle, src);
-            Context.gl_context.CompileShader(Handle);
+            Context.GLContext.ShaderSource(Handle, src);
+            Context.GLContext.CompileShader(Handle);
 
             string log = GetInfoLog();
             if (log.Length > 0)
@@ -392,7 +399,7 @@ namespace Leviathan.Core.Graphics
                 return "Shader handle was not initialised";
             }
 
-            String log = Context.gl_context.GetShaderInfoLog(Handle);
+            String log = Context.GLContext.GetShaderInfoLog(Handle);
             if (log.Length > 0)
             {
                 return $"{Type} Shader compilation failed: \n {log}";
@@ -403,7 +410,7 @@ namespace Leviathan.Core.Graphics
         {
             if(this.Handle != GraphicsResource.EMPTY_HANDLE)
             {
-                Context.gl_context.DeleteShader(this.Handle);
+                Context.GLContext.DeleteShader(this.Handle);
             }
         }
     }
@@ -415,69 +422,68 @@ namespace Leviathan.Core.Graphics
         private const string f_marker = "FRAGMENT";
         private const string c_marker = "COMPUTE";
         private const string cat_marker = "??";
+        private FileSystemWatcher watcher;
         public string Vertex_src { get; private set; }
-        public bool HasVertex { get; private set; }
+        public bool HasVertex { get { return Vertex_src.Length != 0; } }
         public string Geometry_src { get; private set; }
-        public bool HasGeometry { get; private set; }
+        public bool HasGeometry { get { return Geometry_src.Length != 0; } }
         public string Fragment_src { get; private set; }
-        public bool HasFragment { get; private set; }
+        public bool HasFragment { get { return Fragment_src.Length != 0; } }
         public string Compute_src { get; private set; }
-        public bool HasCompute { get; private set; }
+        public bool HasCompute { get { return Compute_src.Length != 0; } }
         public string File_path { get; private set; }
         public ShaderFile(string from_path, string content)
         {
-            //HasVertex = false;
-            //HasGeometry = false;
-            //HasFragment = false;
-            //HasCompute = false;
-            //if (path == null)
-            //{
-            //    throw new ArgumentNullException(nameof(path));
-            //}
-            //
-            //if (path.Length == 0)
-            //{
-            //    throw new ArgumentException("Path was empty", nameof(path));
-            //}
-            //
-            //if (!path.EndsWith(".glsl"))
-            //{
-            //    throw new ArgumentException("Given path does not lead to valid shader file");
-            //}
-            //
-            //
-            //System.IO.StreamReader rd = new System.IO.StreamReader(path);
-            //string content = rd.ReadToEnd();
-
+            Vertex_src = string.Empty;
+            Geometry_src = string.Empty;
+            Fragment_src = string.Empty;
+            Compute_src = string.Empty;
             this.File_path = from_path;
-            string[] tokens = content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            string marker = "", sh_src = "";
-            for(int i = 0; i < tokens.Length; i++)
+            Queue<string> sh_queue;
+            if (content.Contains('\n'))
             {
-                
-                string line = tokens[i].TrimEnd('\r');
-                if (line.Length == 0)
+                if(content.Contains('\r'))
                 {
-                    continue;
-                }
-
-                if (line.StartsWith(cat_marker))
-                {
-                    HandleSplits(marker, sh_src);
-                    sh_src = "";
-                    marker = line.Remove(0, 2);
+                    // \r\n
+                    sh_queue = new Queue<string>(content.Split("\r\n", StringSplitOptions.RemoveEmptyEntries));
                 } else
                 {
-                    sh_src += line;
-                    sh_src += '\n';
+                    // \n
+                    sh_queue = new Queue<string>(content.Split("\n", StringSplitOptions.RemoveEmptyEntries));
+                }
+            } else
+            {
+                throw new NotSupportedException("Newline type not supported");
+            }
+            
+            string marker = "";
+            StringBuilder sh_src = new StringBuilder();
+            while(sh_queue.Count != 0)
+            {
+                string line = sh_queue.Dequeue();
+                if(line.Length == 0)
+                {
+                    continue;   
                 }
 
-                if(i == (tokens.Length - 1) )
+                if(line.StartsWith(cat_marker))
                 {
-                    HandleSplits(marker, sh_src);
+                    if(marker.Length != 0)
+                    {
+                        HandleSplits(marker, sh_src.ToString());
+                        sh_src.Clear();
+                        marker = line.Remove(0, 2);
+                    } else
+                    {
+                        marker = line.Remove(0, 2);
+                    }
+                } else
+                {
+                    sh_src.Append(line);
+                    sh_src.Append(Environment.NewLine);
                 }
             }
-            //rd.Close();
+            HandleSplits(marker, sh_src.ToString());
         }
 
         public static ShaderFile Import(String path)
@@ -507,19 +513,15 @@ namespace Leviathan.Core.Graphics
             switch(marker) {
                 case v_marker:
                     Vertex_src = content;
-                    HasVertex = true;
                     break;
                 case g_marker:
                     Geometry_src = content;
-                    HasGeometry = true;
                     break;
                 case f_marker:
                     Fragment_src = content;
-                    HasFragment = true;
                     break;
                 case c_marker:
                     Compute_src = content;
-                    HasCompute = true;
                     break;
                 default:
                     break;

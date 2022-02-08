@@ -63,9 +63,9 @@ namespace Leviathan.ECS
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
             sh.SetUniform("projection", target.ProjectionMatrix);
             sh.SetUniform("view", target.ViewMatrix);
-            sh.SetUniform("time", (float)Context.glfw_context.GetTime());
+            sh.SetUniform("time", (float)Context.GLFWContext.GetTime());
 
-            Context.gl_context.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
+            Context.GLContext.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
             vbuf.Unbind();
             sh.Unbind();
             target.UpdateViewMatrix();
@@ -100,9 +100,9 @@ namespace Leviathan.ECS
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
             sh.SetUniform("projection", target.ProjectionMatrix);
             sh.SetUniform("view", target.ViewMatrix);
-            sh.SetUniform("time", (float)Context.glfw_context.GetTime());
+            sh.SetUniform("time", (float)Context.GLFWContext.GetTime());
 
-            Context.gl_context.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
+            Context.GLContext.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
             vbuf.Unbind();
             sh.Unbind();
         }
@@ -126,9 +126,9 @@ namespace Leviathan.ECS
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
             sh.SetUniform("projection", target.ProjectionMatrix);
             sh.SetUniform("view", target.ViewMatrix);
-            sh.SetUniform("time", (float)Context.glfw_context.GetTime());
+            sh.SetUniform("time", (float)Context.GLFWContext.GetTime());
 
-            Context.gl_context.DrawArraysInstanced((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count, instances);
+            Context.GLContext.DrawArraysInstanced((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count, instances);
             vbuf.Unbind();
             sh.Unbind();
             target.UpdateViewMatrix();

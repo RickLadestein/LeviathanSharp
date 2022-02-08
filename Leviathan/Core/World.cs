@@ -37,7 +37,7 @@ namespace Leviathan.Core
             entitymutex = new Mutex();
             entities = new List<Entity>();
             //PrimaryCam = new Camera();
-            Context.parent_window.refresh += Parent_window_refresh;
+            Context.ParentWindow.refresh += Parent_window_refresh;
         }
 
         public bool AddEntity(Entity entity)

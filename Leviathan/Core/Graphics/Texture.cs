@@ -75,7 +75,7 @@ namespace Leviathan.Core.Graphics
 
         public Texture(TextureType _type)
         {
-            this.Handle = Context.gl_context.GenTexture();
+            this.Handle = Context.GLContext.GenTexture();
             this.Type = _type;
             this.Wrap = TextureWrapSetting.REPEAT;
             this.Filter = MinMagSetting.NEAREST;
@@ -84,14 +84,14 @@ namespace Leviathan.Core.Graphics
 
         protected void StartModification()
         {
-            Context.gl_context.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0);
+            Context.GLContext.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0);
             oldtex = TextureBuffer.Instance[0];
-            Context.gl_context.BindTexture((Silk.NET.OpenGL.GLEnum)this.Type, this.Handle);
+            Context.GLContext.BindTexture((Silk.NET.OpenGL.GLEnum)this.Type, this.Handle);
         }
 
         protected void EndModification()
         {
-            Context.gl_context.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0);
+            Context.GLContext.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0);
             TextureBuffer.Instance[0] = oldtex;
         }
 
@@ -99,7 +99,7 @@ namespace Leviathan.Core.Graphics
         {
             fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
             {
-                Context.gl_context.TexImage2D(
+                Context.GLContext.TexImage2D(
                     (Silk.NET.OpenGL.GLEnum)this.Type, 
                     0, 
                     (int)InternalPixelFormat, 
@@ -116,8 +116,8 @@ namespace Leviathan.Core.Graphics
         {
             StartModification();
             this.Filter = filter;
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)filter);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)filter);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)filter);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)filter);
             EndModification();
         }
 
@@ -125,8 +125,8 @@ namespace Leviathan.Core.Graphics
         {
             StartModification();
             this.Wrap = wrap;
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)wrap);
             EndModification();
         }
 
@@ -134,7 +134,7 @@ namespace Leviathan.Core.Graphics
         {
             if(this.Handle != GraphicsResource.EMPTY_HANDLE)
             {
-                Context.gl_context.DeleteTexture(this.Handle);
+                Context.GLContext.DeleteTexture(this.Handle);
             }
         }
     }
@@ -169,11 +169,11 @@ namespace Leviathan.Core.Graphics
             this.Size = new Vector3i((int)im.width, (int)im.height, 1);
 
             StartModification();
-            Context.gl_context.BindTexture(Silk.NET.OpenGL.GLEnum.Texture2D, this.Handle);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)Wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)Wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)Filter);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)Filter);
+            Context.GLContext.BindTexture(Silk.NET.OpenGL.GLEnum.Texture2D, this.Handle);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)Wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)Wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)Filter);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)Filter);
             LoadImageIntoTexture(im);
 
             EndModification();
@@ -187,15 +187,15 @@ namespace Leviathan.Core.Graphics
             this.PixelFormat = pformat;
 
             StartModification();
-            Context.gl_context.BindTexture(Silk.NET.OpenGL.GLEnum.Texture2D, this.Handle);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)Wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)Wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)Filter);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)Filter);
+            Context.GLContext.BindTexture(Silk.NET.OpenGL.GLEnum.Texture2D, this.Handle);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint)Wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)Wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)Filter);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)Filter);
 
             unsafe
             {
-                Context.gl_context.TexImage2D(
+                Context.GLContext.TexImage2D(
                     (Silk.NET.OpenGL.GLEnum)this.Type,
                     0,
                     (int)InternalPixelFormat,
@@ -228,15 +228,15 @@ namespace Leviathan.Core.Graphics
             this.PixelFormat = pformat;
             this.Size = size;
             StartModification();
-            Context.gl_context.BindTexture(Silk.NET.OpenGL.GLEnum.Texture3D, this.Handle);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint) Wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint) Wrap);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint) Filter);
-            Context.gl_context.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint) Filter);
+            Context.GLContext.BindTexture(Silk.NET.OpenGL.GLEnum.Texture3D, this.Handle);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapS, (uint) Wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint) Wrap);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint) Filter);
+            Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint) Filter);
 
             unsafe
             {
-                Context.gl_context.TexImage3D(
+                Context.GLContext.TexImage3D(
                     (Silk.NET.OpenGL.GLEnum)this.Type,
                     0,
                     (int) InternalPixelFormat,

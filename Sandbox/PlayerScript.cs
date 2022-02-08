@@ -29,8 +29,8 @@ namespace Sandbox
         public PlayerScript()
         {
             keys = new List<KeyboardKey>();
-            mouse = Context.parent_window.Mouse;
-            keyboard = Context.parent_window.Keyboard;
+            mouse = Context.ParentWindow.Mouse;
+            keyboard = Context.ParentWindow.Keyboard;
             mouse.Move += Mouse_Move;
             keyboard.Press += Keyboard_Press;
             xRotation = 0.0f;
@@ -88,7 +88,7 @@ namespace Sandbox
         public override void Update()
         {
             base.Update();
-            keys = Context.parent_window.Keyboard.GetPressedKeys();
+            keys = Context.ParentWindow.Keyboard.GetPressedKeys();
             foreach (KeyboardKey k in keys)
             {
                 switch (k)

@@ -233,7 +233,7 @@ namespace Leviathan.Core.Graphics
             byte[] vbobuff = attrib.data.ToArray();
             VBO tmp = new VBO()
             {
-                handle = Context.gl_context.GenBuffer(),
+                handle = Context.GLContext.GenBuffer(),
                 attrib_type = attribtype,
                 value_type = attrib.valuetype,
                 coll_type = attrib.coll_type,
@@ -241,22 +241,22 @@ namespace Leviathan.Core.Graphics
             };
 
 
-            Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, tmp.handle);
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, tmp.handle);
             unsafe
             {
                 fixed (void* d_ptr = &vbobuff[0])
                 {
-                    Context.gl_context.BufferData(GLEnum.ArrayBuffer, (uint)vbobuff.Length, d_ptr, GLEnum.StaticDraw);
+                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)vbobuff.Length, d_ptr, GLEnum.StaticDraw);
                 }
             };
-            Context.gl_context.BindBuffer(GLEnum.ArrayBuffer, 0);
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
             return tmp;
         }
         private void Destroy()
         {
             if(this.handle != 0)
             {
-                Context.gl_context.DeleteBuffer(this.handle);
+                Context.GLContext.DeleteBuffer(this.handle);
                 this.handle = 0;
             }
             

@@ -15,19 +15,28 @@ namespace Leviathan.Core.Windowing
         public bool w_hasfocus;
         public bool w_isIconified;
 
-        public GraphicsContext graphics_context;
         public AudioContext audio_context;
 
         public unsafe WindowHandle* w_handle;
         public unsafe GlfwNativeWindow n_window;
         public IntPtr _hwinst;
 
+        public Glfw _glfwcontext;
+        public GL _glcontext;
+
 
         public static unsafe NativeWindow CreateWindow(uint width, uint height, string title, WindowMode mode)
         {
             NativeWindow output = new NativeWindow();
-            output.graphics_context = GraphicsContext.Init();
-            
+            output._glfwcontext = Glfw.GetApi();
+
+
+            bool init = output._glfwcontext.Init();
+            if (!init)
+            {
+                throw new Exception("Error while creating GLFW context");
+            }
+
             //output.graphics_context.glfw_context = Glfw.GetApi();
             //bool init = output.graphics_context.glfw_context.Init();
             //if (!init)
@@ -36,14 +45,14 @@ namespace Leviathan.Core.Windowing
             //}
 
 
-            output.graphics_context.glfw_context.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
-            output.graphics_context.glfw_context.WindowHint(WindowHintInt.ContextVersionMajor, 4);
-            output.graphics_context.glfw_context.WindowHint(WindowHintInt.ContextVersionMinor, 3);
-            output.graphics_context.glfw_context.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
-            output.graphics_context.glfw_context.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
-            output.graphics_context.glfw_context.WindowHint(WindowHintBool.Resizable, true);
-            output.graphics_context.glfw_context.WindowHint(WindowHintBool.DoubleBuffer, true);
-            output.graphics_context.glfw_context.SetErrorCallback(OnGLFWError);
+            output._glfwcontext.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
+            output._glfwcontext.WindowHint(WindowHintInt.ContextVersionMajor, 4);
+            output._glfwcontext.WindowHint(WindowHintInt.ContextVersionMinor, 3);
+            output._glfwcontext.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
+            output._glfwcontext.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
+            output._glfwcontext.WindowHint(WindowHintBool.Resizable, true);
+            output._glfwcontext.WindowHint(WindowHintBool.DoubleBuffer, true);
+            output._glfwcontext.SetErrorCallback(OnGLFWError);
 
             switch (mode)
             {
@@ -62,16 +71,25 @@ namespace Leviathan.Core.Windowing
                 throw new Exception("Failed to create window");
             }
 
-            output.graphics_context.InitOpenGL(ref output);
+
+            output._glfwcontext.ShowWindow(output.w_handle);
+            output._glfwcontext.MakeContextCurrent(output.w_handle);
+            output._glcontext = GL.GetApi(output._glfwcontext.GetProcAddress);
+            if (output._glcontext == null)
+            {
+                throw new Exception("Could not bind to GLFW PROC");
+            }
+
+
             string[] devices = AudioContext.EnumSoundDevices();
             output.audio_context = AudioContext.Init("");
 
             output.w_size = new Vector2d((int)width, (int)height);
             output.w_title = title;
-            output.graphics_context.glfw_context.GetWindowPos(output.w_handle, out int x_pos, out int y_pos);
+            output._glfwcontext.GetWindowPos(output.w_handle, out int x_pos, out int y_pos);
             output.w_position = new Vector2d(x_pos, y_pos);
 
-            output.n_window = new GlfwNativeWindow(output.graphics_context.glfw_context, output.w_handle);
+            output.n_window = new GlfwNativeWindow(output._glfwcontext, output.w_handle);
             if (output.n_window.Win32.HasValue)
             {
                 output._hwinst = output.n_window.Win32.Value.Hwnd;
@@ -81,54 +99,57 @@ namespace Leviathan.Core.Windowing
                 throw new Exception("Could not capture native window ptr");
             }
 
-            
 
             return output;
 
         }
 
+        #region Window_Creation
         private static unsafe void CreateWindowWindowed(ref NativeWindow wnd, String title, int width, int height)
         {
-            wnd.w_handle = wnd.graphics_context.glfw_context.CreateWindow(width, height, title, null, null);
+            wnd.w_handle = wnd._glfwcontext.CreateWindow(width, height, title, null, null);
         }
 
         private static unsafe void CreateWindowFull(ref NativeWindow wnd, String title, int width, int height)
         {
-            Monitor* mon = wnd.graphics_context.glfw_context.GetPrimaryMonitor();
-            wnd.w_handle = wnd.graphics_context.glfw_context.CreateWindow(width, height, title, mon, null);
+            Monitor* mon = wnd._glfwcontext.GetPrimaryMonitor();
+            wnd.w_handle = wnd._glfwcontext.CreateWindow(width, height, title, mon, null);
         }
 
         private static unsafe void CreateWindowFullW(ref NativeWindow wnd, String title, int width, int height)
         {
-            Monitor* mon = wnd.graphics_context.glfw_context.GetPrimaryMonitor();
-            VideoMode* vidmode = wnd.graphics_context.glfw_context.GetVideoMode(mon);
+            Monitor* mon = wnd._glfwcontext.GetPrimaryMonitor();
+            VideoMode* vidmode = wnd._glfwcontext.GetVideoMode(mon);
 
-            wnd.graphics_context.glfw_context.WindowHint(WindowHintInt.RedBits, vidmode->RedBits);
-            wnd.graphics_context.glfw_context.WindowHint(WindowHintInt.GreenBits, vidmode->GreenBits);
-            wnd.graphics_context.glfw_context.WindowHint(WindowHintInt.BlueBits, vidmode->BlueBits);
-            wnd.graphics_context.glfw_context.WindowHint(WindowHintInt.RefreshRate, vidmode->RefreshRate);
-            wnd.w_handle = wnd.graphics_context.glfw_context.CreateWindow(width, height, title, mon, null);
+            wnd._glfwcontext.WindowHint(WindowHintInt.RedBits, vidmode->RedBits);
+            wnd._glfwcontext.WindowHint(WindowHintInt.GreenBits, vidmode->GreenBits);
+            wnd._glfwcontext.WindowHint(WindowHintInt.BlueBits, vidmode->BlueBits);
+            wnd._glfwcontext.WindowHint(WindowHintInt.RefreshRate, vidmode->RefreshRate);
+            wnd.w_handle = wnd._glfwcontext.CreateWindow(width, height, title, mon, null);
             
         }
 
+
+        #endregion
+        
         public unsafe void SetDrawArea(uint x, uint y, uint width, uint height)
         {
-            graphics_context.gl_context.Viewport((int)x, (int)y, width, height);
+            _glcontext.Viewport((int)x, (int)y, width, height);
         }
 
         public unsafe void SwapBuffers()
         {
-            graphics_context.glfw_context.SwapBuffers(w_handle);
+            _glfwcontext.SwapBuffers(w_handle);
         }
 
         public unsafe void ClearBuffer(ClearBufferMask mask)
         {
-            graphics_context.gl_context.Clear((uint)mask);
+            _glcontext.Clear((uint)mask);
         }
 
         public unsafe void PollEvents()
         {
-            graphics_context.glfw_context.PollEvents();
+            _glfwcontext.PollEvents();
         }
 
         public static unsafe void OnGLFWError(Silk.NET.GLFW.ErrorCode error, string description)
@@ -138,60 +159,8 @@ namespace Leviathan.Core.Windowing
 
         public unsafe void Destroy()
         {
-            graphics_context.Destroy();
+            _glfwcontext.Terminate();
             audio_context.Destroy();
-        }
-
-        
-
-
-    }
-
-    public class GraphicsContext : IDisposable
-    {
-        public Glfw glfw_context;
-        public GL gl_context;
-
-        private GraphicsContext()
-        {
-            glfw_context = null;
-            gl_context = null;
-        }
-
-        public static unsafe GraphicsContext Init()
-        {
-            GraphicsContext output = new GraphicsContext();
-            output.glfw_context = Glfw.GetApi();
-            bool init = output.glfw_context.Init();
-            if (!init)
-            {
-                throw new Exception("Error while creating GLFW context");
-            }
-            return output;
-        }
-
-        public unsafe void InitOpenGL(ref NativeWindow wnd)
-        {
-            glfw_context.ShowWindow(wnd.w_handle);
-            glfw_context.MakeContextCurrent(wnd.w_handle);
-            if (gl_context == null)
-            {
-                gl_context = GL.GetApi(glfw_context.GetProcAddress);
-                if (gl_context == null)
-                {
-                    throw new Exception("Could not bind to GLFW PROC");
-                }
-            }
-        }
-
-        public void Destroy()
-        {
-            glfw_context.Terminate();
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
         }
     }
 

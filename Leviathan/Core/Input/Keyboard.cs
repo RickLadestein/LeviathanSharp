@@ -38,8 +38,8 @@ namespace Leviathan.Core.Input
             }
 
 
-            Context.glfw_context.SetKeyCallback(wnd.w_handle, OnKeyAction);
-            Context.glfw_context.SetCharCallback(wnd.w_handle, OnKeyboardChar);
+            Context.GLFWContext.SetKeyCallback(wnd.w_handle, OnKeyAction);
+            Context.GLFWContext.SetCharCallback(wnd.w_handle, OnKeyboardChar);
         }
 
         public List<KeyboardKey> GetPressedKeys()

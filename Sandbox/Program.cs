@@ -27,6 +27,7 @@ namespace Sandbox
 
         static void Main(string[] args)
         {
+
             keys = new List<KeyboardKey>();
             w = new Window(1080, 720, WindowMode.WINDOWED);
             InitResources();
@@ -120,9 +121,9 @@ namespace Sandbox
             //Entity modification
 
 
-            Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.Blend);
-            Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
-            Context.gl_context.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
+            Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.Blend);
+            Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
+            Context.GLContext.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
             //Context.gl_context.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
             //Context.gl_context.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
         }
