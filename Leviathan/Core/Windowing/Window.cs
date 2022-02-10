@@ -60,7 +60,7 @@ namespace Leviathan.Core.Windowing
 
 
         private unsafe void Run() {
-           Context.GLContext.ClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+            Context.GLContext.ClearColor(0.25f, 0.25f, 0.25f, 1.0f);
             Context.GLContext.Enable(EnableCap.DepthTest);
             double curr_frametime;
             while(!this.ShutdownRequested)
