@@ -58,7 +58,7 @@ namespace Leviathan.Core.Graphics
 
             ParseMeshData(mesh, a_mesh);
             mesh.BuildBuffers();
-            MeshResourceManager.Instance.AddResource(identifier, mesh);
+            Context.MeshManager.AddResource(identifier, mesh);
         }
 
         public static void Import(string identifier, string path, ElementType prim_type, out Mesh mesh)
@@ -88,7 +88,7 @@ namespace Leviathan.Core.Graphics
 
             ParseMeshData(mesh, a_mesh);
             mesh.BuildBuffers();
-            MeshResourceManager.Instance.AddResource(identifier, mesh);
+            Context.MeshManager.AddResource(identifier, mesh);
         }
 
         private static String ImportMeshFromFile(string path, out Assimp.Mesh mesh)

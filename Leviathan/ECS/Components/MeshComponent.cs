@@ -1,4 +1,5 @@
-﻿using Leviathan.Core.Graphics;
+﻿using Leviathan.Core;
+using Leviathan.Core.Graphics;
 using Leviathan.Core.Graphics.Buffers;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace Leviathan.ECS
                 Vbuffer.PurgeBuffer();
             }
 
-            Mesh mesh = Util.MeshResourceManager.Instance.GetResource(identifier);
+            Mesh mesh = Context.MeshManager.GetResource(identifier);
             if (mesh == null)
             {
                 throw new Exception($"Could not find mesh resource with identifier: {identifier}");

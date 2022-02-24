@@ -153,7 +153,7 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception("Shaderfile was not complete: please fix");
             }
-            ShaderResourceManager.Instance.AddResource(shader_identifier, sp);
+            Context.Shadermanager.AddResource(shader_identifier, sp);
         }
 
         public override void Dispose()
@@ -320,8 +320,169 @@ namespace Leviathan.Core.Graphics
                 Context.GLContext.UniformMatrix4(loc, 1, false, (float*)&matrix);
             }
         }
+        #endregion
 
-        
+        #region Uniforms_Struct
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="value">Boolean value</param>
+        public void SetUniformStruct(string structname, string location, bool value)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                int rep = value ? 255 : 0;
+                Context.GLContext.Uniform1(loc, rep);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="value">Integer value</param>
+        public void SetUniformStruct(string structname, string location, int value)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform1(loc, value);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="value">Unsigned Integer value</param>
+        public void SetUniformStruct(string structname, string location, uint value)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform1(loc, value);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="value">Float value</param>
+        public void SetUniformStruct(string structname, string location, float value)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform1(loc, value);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="value">Double value</param>
+        public void SetUniformStruct(string structname, string location, double value)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform1(loc, value);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="vec">Vector2 value</param>
+        public unsafe void SetUniformStruct(string structname, string location, Vector2f vec)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform2(loc, vec.X, vec.Y);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="vec">Vector3 value</param>
+        public unsafe void SetUniformStruct(string structname, string location, Vector3f vec)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform3(loc, vec.X, vec.Y, vec.Z);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="vec">Vector4 value</param>
+        public unsafe void SetUniformStruct(string structname, string location, Vector4f vec)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.Uniform4(loc, vec.X, vec.Y, vec.Z, vec.W);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="matrix">Matrix3 value</param>
+        public unsafe void SetUniformStruct(string structname, string location, Mat2 matrix)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.UniformMatrix3(loc, 1, false, (float*)&matrix);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="matrix">Matrix3 value</param>
+        public unsafe void SetUniformStruct(string structname, string location, Mat3 matrix)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.UniformMatrix3(loc, 1, false, (float*)&matrix);
+            }
+        }
+
+        /// <summary>
+        /// Sets a shader specific global variable in the GPU
+        /// </summary>
+        /// <param name="location">The uniform name in the shader program</param>
+        /// <param name="matrix">Matrix4 value</param>
+        public unsafe void SetUniformStruct(string structname, string location, Mat4 matrix)
+        {
+            int loc = Context.GLContext.GetUniformLocation(this.Handle, $"{structname}.{location}");
+            if (loc != -1)
+            {
+                Context.GLContext.UniformMatrix4(loc, 1, false, (float*)&matrix);
+            }
+        }
+
+        public unsafe void SetUniformStruct(ValueType vt)
+        {
+
+        }
         #endregion
     }
 
@@ -548,39 +709,38 @@ namespace Leviathan.Core.Graphics
             if(shader.Vertex_src != null)
             {
                 writer.Write(cat_marker + v_marker);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
                 writer.Write(shader.Vertex_src);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
             }
 
             if(shader.Geometry_src != null)
             {
                 writer.Write(cat_marker + g_marker);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
                 writer.Write(shader.Geometry_src);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
             }
 
             if(shader.Fragment_src != null)
             {
                 writer.Write(cat_marker + f_marker);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
                 writer.Write(shader.Fragment_src);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
             }
 
             if (shader.Compute_src != null)
             {
                 writer.Write(cat_marker + c_marker);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
                 writer.Write(shader.Compute_src);
-                writer.Write('\n');
+                writer.Write(Environment.NewLine);
             }
             writer.Flush();
             writer.Close();
         }
     }
-
 
     public enum ShaderType
     {

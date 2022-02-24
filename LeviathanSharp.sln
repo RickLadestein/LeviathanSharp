@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Math", "Leviathan.Math\Leviathan.Math.csproj", "{3F2FC171-4362-4CD0-8E7E-A31B28CC085F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leviathan.Util", "Leviathan.Util\Leviathan.Util.csproj", "{711B4C89-C604-4462-BC84-A1062EAD48C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Util", "Leviathan.Util\Leviathan.Util.csproj", "{711B4C89-C604-4462-BC84-A1062EAD48C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

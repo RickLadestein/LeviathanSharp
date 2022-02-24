@@ -1,10 +1,9 @@
-﻿using Leviathan.Core.Graphics;
-using Leviathan.Core.Graphics.Buffers;
-using Leviathan.Core.Sound;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Leviathan.Util
 {
@@ -22,7 +21,7 @@ namespace Leviathan.Util
             access_mutex = new Mutex();
         }
 
-        public static void Init()
+        public static void InitDefaultResources()
         {
             if (!System.IO.Directory.Exists("./assets"))
             {
@@ -56,12 +55,6 @@ namespace Leviathan.Util
                     stream.Close();
                 }
             }
-
-            
-
-            TextureResourceManager trm = TextureResourceManager.Instance;
-            MeshResourceManager mrm = MeshResourceManager.Instance;
-            ShaderResourceManager srm = ShaderResourceManager.Instance;
         }
 
         /// <summary>
@@ -186,155 +179,4 @@ namespace Leviathan.Util
         }
     }
 
-
-
-    public class MeshResourceManager : ResourceManager<Mesh>
-    {
-        private static MeshResourceManager instance;
-        private static object _lck = new object();
-
-        /// <summary>
-        /// The current instance of MeshResourceManager
-        /// </summary>
-        public static MeshResourceManager Instance
-        {
-            get
-            {
-                lock (_lck)
-                {
-                    if (instance == null)
-                    {
-                        instance = new MeshResourceManager();
-                    }
-                }
-                return instance;
-            }
-        }
-
-        private MeshResourceManager() : base()
-        {
-            IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
-            foreach(string file in eFiles)
-            {
-                if(file.EndsWith(".obj"))
-                {
-                    String[] tokens = file.Split("\\");
-                    string full_name = tokens[tokens.Length - 1];
-                    string name = full_name.Remove(full_name.Length - 4);
-                    Mesh.Import(name, file, ElementType.TRIANGLES, out Mesh mesh);
-                    this.AddResource(name, mesh);
-                }
-            }
-
-        }
-
-    }
-
-    public class ShaderResourceManager : ResourceManager<ShaderProgram>
-    {
-        private static ShaderResourceManager instance;
-        private static object _lck = new object();
-
-        /// <summary>
-        /// The current instance of ShaderResourceManager
-        /// </summary>
-        public static ShaderResourceManager Instance
-        {
-            get
-            {
-                lock (_lck)
-                {
-                    if (instance == null)
-                    {
-                        instance = new ShaderResourceManager();
-                    }
-                }
-                return instance;
-            }
-        }
-
-        private ShaderResourceManager() : base()
-        {
-            IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
-            foreach (string file in eFiles)
-            {
-                if (file.EndsWith(".glsl"))
-                {
-                    String[] tokens = file.Split("\\");
-                    string full_name = tokens[tokens.Length - 1];
-                    string name = full_name.Remove(full_name.Length - 5);
-                    ShaderFile sfile = ShaderFile.Import(file);
-                    ShaderProgram sp = null;
-
-                    if (sfile.HasVertex && sfile.HasFragment)
-                    {
-                        VertexShader vshader = new VertexShader(sfile.Vertex_src);
-                        FragmentShader fshader = new FragmentShader(sfile.Fragment_src);
-                        if (sfile.HasGeometry)
-                        {
-                            GeometryShader gshader = new GeometryShader(sfile.Geometry_src);
-                            sp = new ShaderProgram(vshader, gshader, fshader);
-                        }
-                        sp = new ShaderProgram(vshader, fshader);
-                    }
-                    else if (sfile.HasCompute)
-                    {
-                        ComputeShader cshader = new ComputeShader(sfile.Compute_src);
-                        sp = new ShaderProgram(cshader);
-                    }
-                    else
-                    {
-                        throw new Exception("Shaderfile was not complete: please fix");
-                    }
-                    AddResource(name, sp);
-                }
-            }
-        }
-    }
-
-    public class TextureResourceManager : ResourceManager<Texture>
-    {
-        private static TextureResourceManager instance;
-        private static object _lck = new object();
-
-        /// <summary>
-        /// The current instance of ShaderResourceManager
-        /// </summary>
-        public static TextureResourceManager Instance
-        {
-            get
-            {
-                lock (_lck)
-                {
-                    if (instance == null)
-                    {
-                        instance = new TextureResourceManager();
-                    }
-                }
-                return instance;
-            }
-        }
-
-        public TextureResourceManager() : base()
-        {
-            IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
-            foreach (string file in eFiles)
-            {
-                if (file.EndsWith(".jpeg"))
-                {
-                    String[] tokens = file.Split("\\");
-                    string full_name = tokens[tokens.Length - 1];
-                    string name = full_name.Remove(full_name.Length - 4);
-                    Leviathan.Core.ImageResource image = Leviathan.Core.ImageResource.Load(file, true);
-                    Texture2D tex = new Texture2D(image);
-                    AddResource(name, tex);
-                }
-            }
-        }
-    }
-
-    public class AudioResourceManager : ResourceManager<AudioSample>
-    {
-
-    } 
 }

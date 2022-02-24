@@ -1,4 +1,5 @@
-﻿using Leviathan.Core.Graphics;
+﻿using Leviathan.Core;
+using Leviathan.Core.Graphics;
 using Leviathan.Core.Graphics.Buffers;
 using Leviathan.Util;
 using System;
@@ -22,7 +23,8 @@ namespace Leviathan.ECS
 
         public void SetShader(string shader_id)
         {
-            ShaderProgram sp = ShaderResourceManager.Instance.GetResource(shader_id);
+            ShaderProgram sp = Context.Shadermanager.GetResource(shader_id);
+
             if (sp == null)
             {
                 throw new Exception($"ShaderProgram resource was not found for identifier: {shader_id}");
@@ -46,7 +48,7 @@ namespace Leviathan.ECS
 
         public void SetTextureUnit(String tex_id, int index)
         {
-            Texture tex = TextureResourceManager.Instance.GetResource(tex_id);
+            Texture tex = Context.TextureManager.GetResource(tex_id);
             if(tex == null)
             {
                 throw new Exception($"Texture resource was not found for identifier: {tex_id}");

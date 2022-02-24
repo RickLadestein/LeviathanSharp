@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Leviathan.Util
 {
+    /// <summary>
+    /// LinkedList container that stores items in a non contiguous way by linking them together at the pointer level
+    /// </summary>
+    /// <typeparam name="T">The value that should be contained in the LinkedList</typeparam>
     public class LinkedList<T> : IEnumerable<T>
     {
         private class LinkedListItem<T>
@@ -22,10 +26,32 @@ namespace Leviathan.Util
         }
 
         private LinkedListItem<T> first;
+
+        /// <summary>
+        /// The number of items contained in the LinkedList
+        /// </summary>
         public uint Length { get; private set; }
+        
+        /// <summary>
+        /// Instantiates a new instance of an empty LinkedList 
+        /// </summary>
         public LinkedList()
         {
             first = null;
+        }
+
+        /// <summary>
+        /// Instantiates a new instance of a LinkedList that imports items from a collection
+        /// </summary>
+        /// <param name="collection"></param>
+        public LinkedList(IEnumerable<T> collection)
+        {
+            first = null;
+
+            foreach(T item in collection)
+            {
+                Add(item);
+            }
         }
 
         /// <summary>
@@ -143,6 +169,11 @@ namespace Leviathan.Util
             Length -= 1;
         }
 
+        /// <summary>
+        /// Swaps an index's value in the linked list with another index's value 
+        /// </summary>
+        /// <param name="index_1">The left index</param>
+        /// <param name="index_2">The right index</param>
         public void Swap(int index_1, int index_2)
         {
             LinkedListItem<T> item1 = GetListItemAtIndex(index_1);
@@ -154,7 +185,6 @@ namespace Leviathan.Util
             item2.data = item1_data;
 
         }
-
 
         /// <summary>
         /// Converts the LinkedList to an Array
@@ -177,6 +207,11 @@ namespace Leviathan.Util
             return output;
         }
 
+        /// <summary>
+        /// Retrieves a ListItem at given index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         private LinkedListItem<T> GetListItemAtIndex(int index)
         {
             if (index < 0)
@@ -223,7 +258,4 @@ namespace Leviathan.Util
             throw new NotImplementedException();
         }
     }
-
-
-    
 }

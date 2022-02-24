@@ -23,7 +23,6 @@ namespace Sandbox
         public static Entity en2;
         public static World world;
         public static List<KeyboardKey> keys;
-        public static DataGlove driver;
 
         static void Main(string[] args)
         {
@@ -32,22 +31,12 @@ namespace Sandbox
             w = new Window(1080, 720, WindowMode.WINDOWED);
             InitResources();
             world = World.Instance;
-            //driver = new DataGlove("COM3", 9600);
-            w.refresh += W_refresh;
             Window.Start(w);
             return;
         }
 
-        private static void W_refresh()
-        {
-            //en.Transform.Orientation = driver.Received_Quat;
-            //en2.Transform.Orientation = driver.Received_Quat2;
-        }
-
         private static void InitResources()
         {
-            ResourceManager<Texture>.Init(); //TODO Add a more pretty way to initialise default resources
-
             ShaderFile sf = ShaderFile.Import("./assets/plane.glsl");
             ShaderProgram.Import(sf, "plane");
 
