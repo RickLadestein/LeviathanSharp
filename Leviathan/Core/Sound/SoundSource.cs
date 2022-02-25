@@ -7,7 +7,7 @@ namespace Leviathan.Core.Sound
 {
     public class SoundSource : IDisposable
     {
-        public int Handle { get; private set; }
+        public uint Handle { get; private set; }
 
         #region floats
         /// <summary>
@@ -17,7 +17,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.ConeInnerAngle, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ConeInnerAngle, out float value);
                 return value;
             }
             set
@@ -26,7 +26,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("ConeInnerAngle value must be within the [0 <-> 360] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.ConeInnerAngle, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ConeInnerAngle, value);
             }
         }
 
@@ -37,7 +37,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.ConeOuterAngle, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ConeInnerAngle, out float value);
                 return value;
             }
             set
@@ -46,7 +46,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("ConeOuterAngle value must be within the [0 <-> 360] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.ConeOuterAngle, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ConeOuterAngle, value);
             }
         }
 
@@ -57,7 +57,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.ConeOuterGain, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ConeOuterGain, out float value);
                 return value;
             }
             set
@@ -66,7 +66,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("ConeOuterGain value must be within the [0.0 <-> 1.0] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.ConeOuterGain, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ConeOuterGain, value);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.Gain, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.Gain, out float value);
                 return value;
             }
             set
@@ -90,7 +90,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("Gain value must be within the [0.0 <-> float.PositiveInfinity] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.Gain, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.Gain, value);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.MaxDistance, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.MaxDistance, out float value);
                 return value;
             }
             set
@@ -111,7 +111,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("MaxDistance value must be within the [0.0 <-> float.PositiveInfinity] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.MaxDistance, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.MaxDistance, value);
             }
         }
 
@@ -122,7 +122,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.MaxGain, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.MaxGain, out float value);
                 return value;
             }
             set
@@ -131,7 +131,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("MaxGain value must be within the [0.0 <-> 1.0] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.MaxGain, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.MaxGain, value);
             }
         }
 
@@ -142,7 +142,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.MinGain, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.MinGain, out float value);
                 return value;
             }
             set
@@ -151,7 +151,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("MinGain value must be within the [0.0 <-> 1.0] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.MinGain, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.MinGain, value);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.Pitch, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.Pitch, out float value);
                 return value;
             }
             set
@@ -172,7 +172,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("Pitch value must be within the [0.5 <-> 2.0] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.Pitch, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.Pitch, value);
             }
         }
 
@@ -184,7 +184,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.ReferenceDistance, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ReferenceDistance, out float value);
                 return value;
             }
             set
@@ -193,7 +193,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("ReferenceDistance value must be within the [0.0 <-> float.PositiveInfinity] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.ReferenceDistance, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.ReferenceDistance, value);
             }
         }
 
@@ -204,7 +204,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.RolloffFactor, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.RolloffFactor, out float value);
                 return value;
             }
             set
@@ -213,7 +213,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("RolloffFactor value must be within the [0.0 <-> float.PositiveInfinity] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.RolloffFactor, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.RolloffFactor, value);
             }
         }
 
@@ -224,7 +224,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourcef.SecOffset, out float value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.SecOffset, out float value);
                 return value;
             }
             set
@@ -233,7 +233,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("SecOffset value must be within the [0.0 <-> sample_duration] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcef.SecOffset, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceFloat.SecOffset, value);
             }
         }
         #endregion
@@ -246,7 +246,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALGetSourcei.ByteOffset, out int value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.GetSourceInteger.ByteOffset, out int value);
                 return value;
             }
             set
@@ -255,7 +255,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("ByteOffset value must be within the [0.0 <-> amount_of_sample_bytes] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcei.ByteOffset, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceInteger.ByteOffset, value);
             }
         }
 
@@ -266,7 +266,7 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALGetSourcei.SampleOffset, out int value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.GetSourceInteger.SampleOffset, out int value);
                 return value;
             }
             set
@@ -275,7 +275,7 @@ namespace Leviathan.Core.Sound
                 {
                     throw new ArgumentException("SampleOffset value must be within the [0.0 <-> amount_of_sample_bytes] range");
                 }
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcei.SampleOffset, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceInteger.SampleOffset, value);
             }
         }
         #endregion
@@ -289,12 +289,12 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourceb.Looping, out bool value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceBoolean.Looping, out bool value);
                 return value;
             }
             set
             {
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourceb.Looping, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceBoolean.Looping, value);
             }
         }
 
@@ -306,12 +306,12 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSourceb.SourceRelative, out bool value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceBoolean.SourceRelative, out bool value);
                 return value;
             }
             set
             {
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourceb.SourceRelative, value);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceBoolean.SourceRelative, value);
             }
         }
         #endregion
@@ -328,13 +328,13 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSource3f.Position, out float X, out float Y, out float Z);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceVector3.Position, out float X, out float Y, out float Z);
                 return new Vector3f(X, Y, Z);
             }
 
             set
             {
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSource3f.Position, value.X, value.Y, value.Z);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceVector3.Position, value.X, value.Y, value.Z);
             }
         }
 
@@ -345,13 +345,13 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSource3f.Direction, out float X, out float Y, out float Z);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceVector3.Direction, out float X, out float Y, out float Z);
                 return new Vector3f(X, Y, Z);
             }
 
             set
             {
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSource3f.Direction, value.X, value.Y, value.Z);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceVector3.Direction, value.X, value.Y, value.Z);
             }
         }
 
@@ -362,13 +362,13 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALSource3f.Velocity, out float X, out float Y, out float Z);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.SourceVector3.Velocity, out float X, out float Y, out float Z);
                 return new Vector3f(X, Y, Z);
             }
 
             set
             {
-                OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSource3f.Velocity, value.X, value.Y, value.Z);
+                Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceVector3.Velocity, value.X, value.Y, value.Z);
             }
         }
 
@@ -378,14 +378,16 @@ namespace Leviathan.Core.Sound
         {
             get
             {
-                OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALGetSourcei.SourceState, out int value);
+                Context.ALApi.GetSourceProperty(Handle, Silk.NET.OpenAL.GetSourceInteger.SourceState, out int value);
+                //OpenTK.Audio.OpenAL.AL.GetSource(Handle, OpenTK.Audio.OpenAL.ALGetSourcei.SourceState, out int value);
                 return (Silk.NET.OpenAL.SourceState)value;
             }
         }
 
         public SoundSource()
         {
-            this.Handle = OpenTK.Audio.OpenAL.AL.GenSource();
+            this.Handle = Context.ALApi.GenSource();
+            //this.Handle = OpenTK.Audio.OpenAL.AL.GenSource();
         }
 
         public void Play(AudioSample sample)
@@ -396,8 +398,10 @@ namespace Leviathan.Core.Sound
             }
 
             this.Stop();
-            OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcei.Buffer, sample.Handle);
-            OpenTK.Audio.OpenAL.AL.SourcePlay(Handle);
+            Context.ALApi.SetSourceProperty(Handle, Silk.NET.OpenAL.SourceInteger.Buffer, sample.Handle);
+            Context.ALApi.SourcePlay(Handle);
+            //OpenTK.Audio.OpenAL.AL.Source(Handle, OpenTK.Audio.OpenAL.ALSourcei.Buffer, sample.Handle);
+            //OpenTK.Audio.OpenAL.AL.SourcePlay(Handle);
         }
 
         public void Pause()
@@ -405,7 +409,8 @@ namespace Leviathan.Core.Sound
             var state = this.State;
             if (state == Silk.NET.OpenAL.SourceState.Playing)
             {
-                OpenTK.Audio.OpenAL.AL.SourcePause(Handle);
+                Context.ALApi.SourcePause(Handle);
+                //OpenTK.Audio.OpenAL.AL.SourcePause(Handle);
             }
         }
 
@@ -414,7 +419,8 @@ namespace Leviathan.Core.Sound
             var state = this.State;
             if (state == Silk.NET.OpenAL.SourceState.Playing || state == Silk.NET.OpenAL.SourceState.Paused)
             {
-                OpenTK.Audio.OpenAL.AL.SourceStop(Handle);
+                Context.ALApi.SourceStop(Handle);
+                //OpenTK.Audio.OpenAL.AL.SourceStop(Handle);
             }
         }
 
@@ -422,7 +428,8 @@ namespace Leviathan.Core.Sound
         {
             if(this.Handle != 0)
             {
-                OpenTK.Audio.OpenAL.AL.DeleteSource(this.Handle);
+                Context.ALApi.DeleteSource(Handle);
+                //OpenTK.Audio.OpenAL.AL.DeleteSource(this.Handle);
                 this.Handle = 0;
             }
         }

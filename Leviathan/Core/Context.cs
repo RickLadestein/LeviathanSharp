@@ -1,23 +1,23 @@
 ﻿using Silk.NET.OpenGL;
 using Silk.NET.GLFW;
+using Silk.NET.OpenAL;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Leviathan.Core.Windowing;
-using OpenTK.Audio.OpenAL;
 using System.Threading.Tasks;
 using Leviathan.Util;
-using Leviathan.Core.Graphics;
 using Leviathan.Core.Sound;
+using Leviathan.Core.Graphics;
+using Leviathan.Core.Windowing;
 
 namespace Leviathan.Core
 {
     public class Context : IDisposable
     {
-        private GL gl_context;
-        private Glfw glfw_context;
-        private ALDevice sound_device;
-        private ALContext al_context;
+
+        private LGraphicsContext graphics_context;
+        private LAudioContext audio_context;
+
         private Window parent_window;
 
         private MeshResourceManager m_manager;
@@ -27,40 +27,23 @@ namespace Leviathan.Core
 
         private static Context current;
 
-        public Context(GL glc, Glfw glfwc, ALDevice aldevice, ALContext alcontext)
+        public unsafe Context(LGraphicsContext g_context, LAudioContext a_context)
         {
-            if(glc == null)
+            if(g_context != null && g_context.IsValid())
             {
-                throw new ArgumentNullException(nameof(glc));
+                graphics_context = g_context;
             } else
             {
-                gl_context = glc;
+                throw new Exception("Supplied graphics context was invalid or null");
             }
 
-            if(glfwc == null)
+            if(a_context != null && a_context.IsValid())
             {
-                throw new ArgumentNullException(nameof(glc));
+                audio_context = a_context;
             }
             else
             {
-                glfw_context = glfwc;
-            }
-
-            if(aldevice == ALDevice.Null)
-            {
-                throw new ArgumentException("Cannot initialise ALDevice with null");
-            } else
-            {
-                sound_device = aldevice;
-            }
-
-            if(alcontext == ALContext.Null)
-            {
-                throw new ArgumentException("Cannot initialise ALContext with null");
-            }
-            else
-            {
-                al_context = alcontext;
+                throw new Exception("Supplied audio context was invalid or null");
             }
         }
 
@@ -88,21 +71,14 @@ namespace Leviathan.Core
 
         public void Dispose()
         {
-            if (gl_context != null)
+            if(graphics_context != null)
             {
-                gl_context.Dispose();
+                graphics_context.Destroy();
             }
 
-            if (glfw_context != null)
+            if(audio_context != null)
             {
-                glfw_context.Terminate();
-                glfw_context.Dispose();
-            }
-
-            if (al_context != ALContext.Null && sound_device != ALDevice.Null)
-            {
-                ALC.DestroyContext(al_context);
-                ALC.CloseDevice(sound_device);
+                audio_context.Destroy();
             }
         }
 
@@ -112,7 +88,7 @@ namespace Leviathan.Core
                 {
                     throw new InvalidContextException();
                 }
-                return current.gl_context;
+                return current.graphics_context.gl_context;
             }
         }
 
@@ -123,18 +99,18 @@ namespace Leviathan.Core
                 {
                     throw new InvalidContextException();
                 }
-                return current.glfw_context;
+                return current.graphics_context.glfw_context;
             }
         }
 
-        public static ALDevice SoundDevice { 
+        public static AL ALApi { 
             get
             {
                 if (!CheckContext())
                 {
                     throw new InvalidContextException();
                 }
-                return current.sound_device;
+                return current.audio_context.al_api;
             }
         }
 
@@ -145,7 +121,31 @@ namespace Leviathan.Core
                 {
                     throw new InvalidContextException();
                 }
-                return current.al_context;
+                return current.audio_context.al_context;
+            }
+        }
+
+        public static unsafe Device* AudioDevicePtr
+        {
+            get
+            {
+                if(!CheckContext())
+                {
+                    throw new InvalidContextException();
+                }
+                return current.audio_context.device_ptr;
+            }
+        }
+
+        public static unsafe Silk.NET.OpenAL.Context* AudioContextPtr
+        {
+            get
+            {
+                if (!CheckContext())
+                {
+                    throw new InvalidContextException();
+                }
+                return current.audio_context.context_ptr;
             }
         }
 
@@ -230,6 +230,81 @@ namespace Leviathan.Core
     public class InvalidContextException : Exception
     {
         public InvalidContextException() : base("Tried to access an invalid or NULL context") {}
+    }
+
+    public unsafe abstract class LContextBase
+    {
+        public abstract bool IsValid();
+        public abstract void Destroy();
+    }
+
+    public unsafe class LAudioContext : LContextBase
+    {
+        public Silk.NET.OpenAL.AL al_api;
+        public Silk.NET.OpenAL.ALContext al_context;
+        public Silk.NET.OpenAL.Context* context_ptr;
+        public Silk.NET.OpenAL.Device* device_ptr;
+
+        public LAudioContext() { }
+
+        public LAudioContext(AL al_api, ALContext al_context, Silk.NET.OpenAL.Context* context_ptr, Device* device_ptr)
+        {
+            this.al_api = al_api;
+            this.al_context = al_context;
+            this.context_ptr = context_ptr;
+            this.device_ptr = device_ptr;
+        }
+
+        public override void Destroy()
+        {
+            if (al_context != null)
+            {
+                al_context.DestroyContext(context_ptr);
+                al_context.CloseDevice(device_ptr);
+                al_context.Dispose();
+            }
+
+            if(al_api != null)
+            {
+                al_api.Dispose();
+            }
+        }
+
+        public override bool IsValid()
+        {
+            return al_api != null && al_context != null;
+        }
+    }
+
+    public unsafe class LGraphicsContext : LContextBase
+    {
+        public Silk.NET.OpenGL.GL gl_context;
+        public Silk.NET.GLFW.Glfw glfw_context;
+
+        public LGraphicsContext(GL gl_context, Glfw glfw_context)
+        {
+            this.gl_context = gl_context;
+            this.glfw_context = glfw_context;
+        }
+
+        public override void Destroy()
+        {
+            if (gl_context != null)
+            {
+                gl_context.Dispose();
+            }
+
+            if (glfw_context != null)
+            {
+                glfw_context.Terminate();
+                glfw_context.Dispose();
+            }
+        }
+
+        public override bool IsValid()
+        {
+            return gl_context != null && glfw_context != null;
+        }
     }
 
 

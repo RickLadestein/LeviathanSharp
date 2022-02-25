@@ -220,7 +220,7 @@ namespace Leviathan.Core.Sound
 
         }
 
-        public OpenTK.Audio.OpenAL.ALFormat GetSoundFormat()
+        public Silk.NET.OpenAL.BufferFormat GetSoundFormat()
         {
             if (num_channels == 0 || num_channels > 2)
             {
@@ -236,27 +236,28 @@ namespace Leviathan.Core.Sound
             }
         }
 
-        private OpenTK.Audio.OpenAL.ALFormat GetSoundFormatPCM()
+        private Silk.NET.OpenAL.BufferFormat GetSoundFormatPCM()
         {
-            if(num_channels == 1)
-            {
-                switch(bits_per_sample)
-                {
-                    case 8:
-                        return OpenTK.Audio.OpenAL.ALFormat.Mono8;
-                    case 16:
-                        return OpenTK.Audio.OpenAL.ALFormat.Mono16;
-                    default:
-                        throw new NotSupportedException("PCM format cannot contain more than 16 bits");
-                }
-            } else
+            if (num_channels == 1)
             {
                 switch (bits_per_sample)
                 {
                     case 8:
-                        return OpenTK.Audio.OpenAL.ALFormat.Stereo8;
+                        return Silk.NET.OpenAL.BufferFormat.Mono8;
                     case 16:
-                        return OpenTK.Audio.OpenAL.ALFormat.Stereo16;
+                        return Silk.NET.OpenAL.BufferFormat.Mono16;
+                    default:
+                        throw new NotSupportedException("PCM format cannot contain more than 16 bits");
+                }
+            }
+            else
+            {
+                switch (bits_per_sample)
+                {
+                    case 8:
+                        return Silk.NET.OpenAL.BufferFormat.Stereo8;
+                    case 16:
+                        return Silk.NET.OpenAL.BufferFormat.Stereo16;
                     default:
                         throw new NotSupportedException("PCM format cannot contain more than 16 bits");
                 }

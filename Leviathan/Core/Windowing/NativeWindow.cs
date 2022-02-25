@@ -4,7 +4,6 @@ using System.Text;
 using Leviathan.Math;
 using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
-using OpenTK.Audio.OpenAL;
 namespace Leviathan.Core.Windowing
 {
     public unsafe class NativeWindow
@@ -71,8 +70,8 @@ namespace Leviathan.Core.Windowing
             _glfwcontext.MakeContextCurrent(w_handle);
             
             CreateGLcontext(_glfwcontext, out GL _glcontext);
-            CreateOpenALcontext("", out ALDevice aldevice, out ALContext alcontext);
-
+            //CreateOpenALcontext("", out ALDevice aldevice, out ALContext alcontext);
+            CreateOpenAlcontext("", out LAudioContext a_context);
 
             w_size = new Vector2i((int)width, (int)height);
             w_title = title;
@@ -91,7 +90,7 @@ namespace Leviathan.Core.Windowing
                 throw new Exception("Could not capture native window ptr");
             }
 
-            w_context = new Context(_glcontext, _glfwcontext, aldevice, alcontext);
+            w_context = new Context(new LGraphicsContext(_glcontext, _glfwcontext), a_context);
             Context.MakeContextCurrent(w_context);
         }
 
@@ -139,27 +138,24 @@ namespace Leviathan.Core.Windowing
             }
         }
 
-        private unsafe void CreateOpenALcontext(string device_id, out ALDevice sound_device, out ALContext context)
+        private unsafe void CreateOpenAlcontext(string device_id, out LAudioContext a_context)
         {
-            sound_device = ALC.OpenDevice(device_id);
-            if (sound_device.Handle == IntPtr.Zero)
+            a_context = new LAudioContext();
+            a_context.al_context = Silk.NET.OpenAL.ALContext.GetApi();
+            a_context.al_api = Silk.NET.OpenAL.AL.GetApi();
+            a_context.device_ptr = a_context.al_context.OpenDevice(device_id);
+            if(a_context.device_ptr == null)
             {
-                throw new Exception("Could not create OpenAL audio device");
+                throw new Exception("Sound device opening failed");
             }
 
-            context = ALC.CreateContext(sound_device, (int*)null);
-            if (context.Handle == IntPtr.Zero)
+            a_context.context_ptr = a_context.al_context.CreateContext(a_context.device_ptr, null);
+            a_context.al_context.MakeContextCurrent(a_context.context_ptr);
+            
+            var error = a_context.al_api.GetError();
+            if(error != Silk.NET.OpenAL.AudioError.NoError)
             {
-                ALC.CloseDevice(sound_device);
-                throw new Exception("Could not create OpenAL context");
-            }
-
-            bool succes = ALC.MakeContextCurrent(context);
-            if (!succes)
-            {
-                ALC.DestroyContext(context);
-                ALC.CloseDevice(sound_device);
-                throw new Exception("Could not enable OpenAL context");
+                throw new Exception($"OpenAL has encountered an exception: {error}");
             }
         }
 
@@ -265,4 +261,6 @@ namespace Leviathan.Core.Windowing
             w_context.Dispose();
         }
     }
+
+    
 }

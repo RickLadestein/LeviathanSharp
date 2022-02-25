@@ -10,24 +10,24 @@ namespace Leviathan.Core.Sound
         public float Duration { get; private set; }
         public int Frequency { get; private set; }
 
-
         public unsafe AudioSample(WaveFile file)
         {
-            this.Handle = OpenTK.Audio.OpenAL.AL.GenBuffer();
-            OpenTK.Audio.OpenAL.ALFormat bformat = file.Format.GetSoundFormat();
+            this.Handle = Context.ALApi.GenBuffer();
+            Silk.NET.OpenAL.BufferFormat bformat = (Silk.NET.OpenAL.BufferFormat)file.Format.GetSoundFormat();
             Frequency = (int)file.Format.sample_rate;
             Duration = (float)file.Data.data.Length / (float)(Frequency * (file.Format.bits_per_sample / 8) * file.Format.num_channels);
             GCHandle pinnedArray = GCHandle.Alloc(file.Data.data, GCHandleType.Pinned);
             IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-            OpenTK.Audio.OpenAL.AL.BufferData(this.Handle, bformat, pointer.ToPointer(), file.Data.data.Length, Frequency);
+            Context.ALApi.BufferData(Handle, bformat, pointer.ToPointer(), file.Data.data.Length, Frequency);
             pinnedArray.Free();
+
         }
 
         public override void Dispose()
         {
             if (this.Handle != 0)
             {
-                OpenTK.Audio.OpenAL.AL.DeleteBuffer(Handle);
+                Context.ALApi.DeleteBuffer(Handle);
                 this.Handle = 0;
             }
         }

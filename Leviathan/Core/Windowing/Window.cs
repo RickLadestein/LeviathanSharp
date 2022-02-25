@@ -1,7 +1,6 @@
 ﻿using Leviathan.Core.Input;
 using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
-using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
 using System.Text;

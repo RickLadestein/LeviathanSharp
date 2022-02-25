@@ -1,9 +1,9 @@
-﻿using Leviathan.Core;
-using Leviathan.Math;
-using OpenTK.Audio.OpenAL;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Text;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Leviathan.Core;
+using Leviathan.Math;
 
 namespace Leviathan.ECS
 {
@@ -13,12 +13,12 @@ namespace Leviathan.ECS
         {
             get
             {
-                AL.GetListener(ALListener3f.Position, out float X, out float Y, out float Z);
+                Context.ALApi.GetListenerProperty(Silk.NET.OpenAL.ListenerVector3.Position, out float X, out float Y, out float Z);
                 return new Vector3f(X, Y, Z);
             }
             set
             {
-                AL.Listener(ALListener3f.Position, value.X, value.Y, value.Z);
+                Context.ALApi.SetListenerProperty(Silk.NET.OpenAL.ListenerVector3.Position, value.X, value.Y, value.Z);
             }
         }
 
@@ -26,12 +26,12 @@ namespace Leviathan.ECS
         {
             get
             {
-                AL.GetListener(ALListener3f.Velocity, out float X, out float Y, out float Z);
+                Context.ALApi.GetListenerProperty(Silk.NET.OpenAL.ListenerVector3.Velocity, out float X, out float Y, out float Z);
                 return new Vector3f(X, Y, Z);
             }
             set
             {
-                AL.Listener(ALListener3f.Velocity, value.X, value.Y, value.Z);
+                Context.ALApi.SetListenerProperty(Silk.NET.OpenAL.ListenerVector3.Velocity, value.X, value.Y, value.Z);
             }
         }
 
@@ -39,13 +39,26 @@ namespace Leviathan.ECS
         {
             get
             {
-                AL.GetListener(ALListenerfv.Orientation, out OpenTK.Mathematics.Vector3 at, out OpenTK.Mathematics.Vector3 up);
-                return new Tuple<Vector3f, Vector3f>(new Vector3f(at.X, at.Y, at.Z), new Vector3f(up.X, up.Y, up.Z));
+                float[] orientation = new float[3 * 2];
+                GCHandle pinnedArray = GCHandle.Alloc(orientation, GCHandleType.Pinned);
+                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
+                unsafe
+                {
+                    Context.ALApi.GetListenerProperty(Silk.NET.OpenAL.ListenerFloatArray.Orientation, (float*)pointer.ToPointer());
+                }
+                pinnedArray.Free();
+                return new Tuple<Vector3f, Vector3f>(new Vector3f(orientation[0], orientation[1], orientation[2]), new Vector3f(orientation[3], orientation[4], orientation[5]));
             }
             set
             {
                 float[] orientation = new float[] { value.Item1.X, value.Item1.Y, value.Item1.Z, value.Item2.X, value.Item2.Y, value.Item2.Z };
-                AL.Listener(ALListenerfv.Orientation, orientation);
+                GCHandle pinnedArray = GCHandle.Alloc(orientation, GCHandleType.Pinned);
+                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
+                unsafe
+                {
+                    Context.ALApi.SetListenerProperty(Silk.NET.OpenAL.ListenerFloatArray.Orientation, (float*)pointer.ToPointer());
+                }
+                pinnedArray.Free();
             }
         }
 
@@ -53,7 +66,7 @@ namespace Leviathan.ECS
         {
             get
             {
-                AL.GetListener(ALListenerf.Gain, out float value);
+                Context.ALApi.GetListenerProperty(Silk.NET.OpenAL.ListenerFloat.Gain, out float value);
                 return value;
             }
             set
@@ -62,20 +75,7 @@ namespace Leviathan.ECS
                 {
                     throw new ArgumentException("Gain value cannot be below zero [0.0f <-> float.PositiveInfinity]");
                 }
-                AL.Listener(ALListenerf.Gain, value);
-            }
-        }
-
-        public float EFXMetersPerUnit
-        {
-            get
-            {
-                AL.GetListener(ALListenerf.EfxMetersPerUnit, out float value);
-                return value;
-            }
-            set
-            {
-                AL.Listener(ALListenerf.EfxMetersPerUnit, value);
+                Context.ALApi.SetListenerProperty(Silk.NET.OpenAL.ListenerFloat.Gain, value);
             }
         }
         public SoundListenerComponent()
