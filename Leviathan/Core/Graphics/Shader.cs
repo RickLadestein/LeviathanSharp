@@ -11,6 +11,8 @@ namespace Leviathan.Core.Graphics
     {
         public static uint BoundProgram { get; private set; }
 
+        public Dictionary<int, KeyValuePair<String, String>> dict;
+
         public ShaderProgram(VertexShader vshader, FragmentShader fshader)
         {
             if(vshader.HasError || fshader.HasError)
@@ -115,6 +117,13 @@ namespace Leviathan.Core.Graphics
             }
         }
 
+        private void RetrieveUniforms()
+        {
+            dict = new Dictionary<int, KeyValuePair<string, string>>();
+            List<int> ids = new List<int>();
+            //TODO: FIX
+        }
+
         private String GetProgramInfoLog()
         {
             if (Handle == 0)
@@ -123,6 +132,7 @@ namespace Leviathan.Core.Graphics
             }
 
             String log = Context.GLContext.GetProgramInfoLog(this.Handle);
+            //Context.GLContext.GetProgramInterface(Handle, Silk.NET.OpenGL.ProgramInterface.BufferVariable, Silk.NET.OpenGL.ProgramInterfacePName.)
             if (log.Length > 0)
             {
                 return $"ShaderProgram linking failed: \n {log}";

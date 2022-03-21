@@ -19,7 +19,7 @@ namespace Leviathan.Core.Graphics.Buffers
         /// 0 = switch to next instance of data every vertex
         /// 1 = switch to next instance of data every new draw instance
         /// 2 = switch to next instance of data every 2nd draw instance
-        /// N = switch to next instance of data every Nnd draw instance
+        /// N = switch to next instance of data every Nth draw instance
         /// </summary>
         public uint mode;
 

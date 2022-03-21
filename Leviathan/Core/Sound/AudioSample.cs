@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Silk.NET.OpenAL;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Leviathan.Core.Sound
     {
         public float Duration { get; private set; }
         public int Frequency { get; private set; }
+        public BufferFormat Format { get; private set; }
 
         public unsafe AudioSample(WaveFile file)
         {
@@ -20,7 +22,6 @@ namespace Leviathan.Core.Sound
             IntPtr pointer = pinnedArray.AddrOfPinnedObject();
             Context.ALApi.BufferData(Handle, bformat, pointer.ToPointer(), file.Data.data.Length, Frequency);
             pinnedArray.Free();
-
         }
 
         public override void Dispose()

@@ -28,7 +28,8 @@ namespace Sandbox
         {
 
             keys = new List<KeyboardKey>();
-            w = new Window(1080, 720, WindowMode.WINDOWED);
+            //w = new Window(1080, 720, WindowMode.FULLSCREEN);
+            w = new Window(2560, 1440, WindowMode.WINDOWED_FULLSCREEN);
             InitResources();
             world = World.Instance;
             Window.Start(w);

@@ -25,8 +25,5 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         VEC2 = 2U,
         VEC3 = 3U,
         VEC4 = 4U,
-        MAT2 = 4U,
-        MAT3 = 9U,
-        MAT4 = 16U
     }
 }

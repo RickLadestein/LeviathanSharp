@@ -111,18 +111,19 @@ namespace Sandbox
                     case KeyboardKey.ShiftLeft:
                         entity.Transform.LocalPosition += (-entity.Transform.Up * Time.FrameDelta * 5.0f);
                         break;
-                    case KeyboardKey.Keypad4:
-                        rotate_boy.Transform.Rotate(Vector3f.UnitY, 20.0f * Time.FrameDelta);
-                        break;
-                    case KeyboardKey.Keypad6:
-                        rotate_boy.Transform.Rotate(-Vector3f.UnitY, 20.0f * Time.FrameDelta);
-                        break;
                     case KeyboardKey.Keypad8:
                         camera.Transform.LocalPosition += (Vector3f.Forward * 20.0f * Time.FrameDelta);
                         break;
                     case KeyboardKey.Keypad2:
                         camera.Transform.LocalPosition += (-Vector3f.Forward * 20.0f * Time.FrameDelta);
                         break;
+                    case KeyboardKey.Keypad4:
+                        entity.Transform.Rotate(Vector3f.UnitY, 50.0f * Time.FrameDelta);
+                        break;
+                    case KeyboardKey.Keypad6:
+                        entity.Transform.Rotate(Vector3f.UnitY, -50.0f * Time.FrameDelta);
+                        break;
+
                 }
             }
         }

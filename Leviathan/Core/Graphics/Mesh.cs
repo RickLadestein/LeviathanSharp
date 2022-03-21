@@ -200,16 +200,16 @@ namespace Leviathan.Core.Graphics
             }
             obj.VertexCount = (uint)vertex_data.Count;
 
-            FloatAttribute vertex_attrib = new FloatAttribute(DataCollectionType.VEC3);
+            Float3Attribute vertex_attrib = new Float3Attribute();
             vertex_attrib.AddData(vertex_data.ToArray());
 
-            FloatAttribute normal_attrib = new FloatAttribute(DataCollectionType.VEC3);
+            Float3Attribute normal_attrib = new Float3Attribute();
             normal_attrib.AddData(normal_data.ToArray());
 
-            FloatAttribute texture_attrib = new FloatAttribute(DataCollectionType.VEC3);
+            Float3Attribute texture_attrib = new Float3Attribute();
             texture_attrib.AddData(texture_data.ToArray());
 
-            FloatAttribute tangent_attrib = new FloatAttribute(DataCollectionType.VEC3);
+            Float3Attribute tangent_attrib = new Float3Attribute();
             tangent_attrib.AddData(tangent_data.ToArray());
 
 
