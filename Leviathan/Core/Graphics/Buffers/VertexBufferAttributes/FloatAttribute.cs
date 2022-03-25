@@ -8,7 +8,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing float values
     /// </summary>
-    public class FloatAttribute : Attribute
+    public class FloatAttribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of FloatAttribute with specified segments reserved
@@ -41,7 +41,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector2f values
     /// </summary>
-    public class Float2Attribute : Attribute
+    public class Float2Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Float2Attribute with specified segments reserved
@@ -74,7 +74,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector3f values
     /// </summary>
-    public class Float3Attribute : Attribute
+    public class Float3Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Float3Attribute with specified segments reserved
@@ -107,7 +107,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector4f values
     /// </summary>
-    public class Float4Attribute : Attribute
+    public class Float4Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Float4Attribute with specified segments reserved

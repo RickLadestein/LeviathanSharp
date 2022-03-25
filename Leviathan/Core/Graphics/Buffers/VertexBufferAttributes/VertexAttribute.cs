@@ -9,22 +9,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Storage class for storing attribute data
     /// </summary>
-    public abstract class Attribute : IDisposable
+    public abstract class VertexAttribute : IDisposable
     {
-        /// <summary>
-        /// The type of segments stored in this attribute
-        /// </summary>
-        public AttributeDataType valuetype;
-
-        /// <summary>
-        /// The amount of native data types per segment (SINGLE = 1, VEC2 = 2, etc)
-        /// </summary>
-        public DataCollectionType coll_type;
-
-        /// <summary>
-        /// The byte size of a segment stored in this attribute
-        /// </summary>
-        public uint value_size;
+        public VertexAttributeDescriptor Descriptor { get; private set; }
 
         /// <summary>
         /// The byte data stored in this attribute
@@ -42,12 +29,10 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// <param name="_type">The native data type that is stored in this attribute</param>
         /// <param name="_coll_type">The amount of native data types per segment</param>
         /// <param name="_reserve">The amount of segments to reserve in the internal storage</param>
-        public Attribute(AttributeDataType _type, DataCollectionType _coll_type = DataCollectionType.SINGULAR, uint _reserve = 0)
+        public VertexAttribute(AttributeDataType _type, DataCollectionType _coll_type = DataCollectionType.SINGULAR, uint _reserve = 0)
         {
-            this.valuetype = _type;
-            this.coll_type = _coll_type;
-            DecodeDataType();
-            data = new List<byte>((int)(_reserve * value_size * ((uint)_coll_type)));
+            Descriptor = new VertexAttributeDescriptor(_type, _coll_type);
+            data = new List<byte>((int)_reserve * Descriptor.segment_byte_size);
         }
 
         /// <summary>
@@ -56,6 +41,10 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// <param name="_data">Bytes to add to this attribute</param>
         protected void AddByteData(byte[] _data)
         {
+            if(_data.Length % Descriptor.segment_byte_size != 0)
+            {
+                throw new Exception("data to be pushed in the VertexAttribute does not match data segment properties described in the Attribute Descriptor.");
+            }
             data.AddRange(_data);
         }
 
@@ -65,6 +54,10 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// <param name="_data">Bytes to add to this attribute</param>
         protected void AddByteData(List<byte> _data)
         {
+            if (_data.Count % Descriptor.segment_byte_size != 0)
+            {
+                throw new Exception("data to be pushed in the VertexAttribute does not match data segment properties described in the Attribute Descriptor.");
+            }
             data.AddRange(_data);
         }
 
@@ -120,25 +113,68 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             return structure;
         }
 
-        private void DecodeDataType()
-        {
-            switch (this.valuetype)
-            {
-                case AttributeDataType.DOUBLE:
-                    value_size = 8;
-                    break;
-                default:
-                    value_size = 4;
-                    break;
-            }
-        }
-
         [DllImport("msvcrt.dll", SetLastError = false)]
         private static extern IntPtr memcpy(IntPtr dest, IntPtr src, int count);
 
         public void Dispose()
         {
             data.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Descriptor that provides information on what kind of data is contained in the VertexAttribute
+    /// </summary>
+    public struct VertexAttributeDescriptor
+    {
+        /// <summary>
+        /// The name of the VertexAttribute in the shader program
+        /// </summary>
+        public String name;
+
+        /// <summary>
+        /// The value type stored inside a single segment
+        /// </summary>
+        public AttributeDataType value_type;
+
+        /// <summary>
+        /// The collection type that the data in the vertex attribute contains
+        /// </summary>
+        public DataCollectionType collection_type;
+
+        /// <summary>
+        /// The amount of bytes of a single value in a segment
+        /// </summary>
+        public int value_byte_size;
+
+        /// <summary>
+        /// The amount of bytes stored in a single segment i.e(VEC2, VEC3, VEC4 etc)
+        /// </summary>
+        public int segment_byte_size;
+
+        /// <summary>
+        /// Instantiates a new instance of VertexAttributeDescriptor given specified AttributeDataType and DataCollectionType
+        /// </summary>
+        /// <param name="value_type">The value type stored inside a single segment</param>
+        /// <param name="collection_type">The collection type that the data in the vertex attribute contains</param>
+        public VertexAttributeDescriptor(AttributeDataType value_type, DataCollectionType collection_type) : this()
+        {
+            this.value_type = value_type;
+            this.collection_type = collection_type;
+
+            switch (value_type)
+            {
+                case AttributeDataType.INT:
+                case AttributeDataType.FLOAT:
+                    value_byte_size = 4;
+                    break;
+                case AttributeDataType.DOUBLE:
+                    value_byte_size = 8;
+                    break;
+                default:
+                    throw new NotSupportedException($"AttributeDataType: {value_type} not yet supported!");
+            }
+            segment_byte_size = ((int)collection_type) * value_byte_size;
         }
     }
 }

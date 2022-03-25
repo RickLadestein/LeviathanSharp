@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Leviathan.Util;
 using Leviathan.Math;
+using Leviathan.Core.Graphics.Buffers;
 using Assimp;
 using Assimp.Configs;
 
@@ -14,81 +15,81 @@ namespace Leviathan.Core.Graphics
     public class Mesh
     {
         public String Name { get; private set; }
-        public ElementType PrimitiveType { get; private set; }
-        public uint VertexCount { get; private set; }
-        //TODO add Material support
-        public AttributeCollection Attribs { get; private set; }
-        public VBO[] vbos;
+        public VertexBuffer Vbuffer { get; private set; }
         public Mesh(string name)
         {
             Name = name;
-            Attribs = new AttributeCollection();
-            vbos = new VBO[0];
-            this.PrimitiveType = ElementType.POINTS;
-        }
-
-        public void BuildBuffers()
-        {
-            if(vbos.Length > 0)
-            {
-                foreach(VBO vbo in vbos)
-                {
-                    vbo.Dispose();
-                }
-            }
-            vbos = new VBO[Attribs.Count];
-            int index = 0;
-            foreach (KeyValuePair<Buffers.VertexBufferAttributes.AttributeType, Buffers.VertexBufferAttributes.Attribute> at in Attribs)
-            {
-                VBO tmp = VBO.Create(at.Key, at.Value);
-                vbos[index] = tmp;
-                index++;
-            }
+            Vbuffer = new VertexBuffer();
         }
 
         public static void Import(string identifier, string path, ElementType prim_type)
         {
             Mesh mesh = new Mesh(identifier);
-            mesh.PrimitiveType = prim_type;
             String error = ImportMeshFromFile(path, out Assimp.Mesh a_mesh);
             if(error.Length > 0)
             {
                 throw new Exception($"Mesh import failed: {error}");
             }
 
-            ParseMeshData(mesh, a_mesh);
-            mesh.BuildBuffers();
+            AttributeCollection attrib_coll = new AttributeCollection();
+            int vertices = ParseMeshData(attrib_coll, a_mesh);
+            mesh.Vbuffer.LoadDataBuffers(attrib_coll, prim_type);
+
             Context.MeshManager.AddResource(identifier, mesh);
         }
 
         public static void Import(string identifier, string path, ElementType prim_type, out Mesh mesh)
         {
             mesh = new Mesh(identifier);
-            mesh.PrimitiveType = prim_type;
             String error = ImportMeshFromFile(path, out Assimp.Mesh a_mesh);
             if (error.Length > 0)
             {
                 throw new Exception($"Mesh import failed: {error}");
             }
-
-            ParseMeshData(mesh, a_mesh);
-            mesh.BuildBuffers();
+            AttributeCollection attrib_coll = new AttributeCollection();
+            int vertices = ParseMeshData(attrib_coll, a_mesh);
+            mesh.Vbuffer.LoadDataBuffers(attrib_coll, prim_type);
         }
 
-        //TODO add Material support
         public static void Import(string identifier, System.IO.Stream stream, ElementType prim_type)
         {
             Mesh mesh = new Mesh(identifier);
-            mesh.PrimitiveType = prim_type;
+
             String error = ImportMeshFromStream(stream, out Assimp.Mesh a_mesh);
             if (error.Length > 0)
             {
                 throw new Exception($"Mesh import failed: {error}");
             }
+            AttributeCollection attrib_coll = new AttributeCollection();
+            int vertices = ParseMeshData(attrib_coll, a_mesh);
+            mesh.Vbuffer.LoadDataBuffers(attrib_coll, prim_type);
 
-            ParseMeshData(mesh, a_mesh);
-            mesh.BuildBuffers();
             Context.MeshManager.AddResource(identifier, mesh);
+        }
+
+        public static void Import(string identifier, AttributeCollection attributes, ElementType prim_type)
+        {
+            Mesh mesh = new Mesh(identifier);
+
+            int vcount = 0;
+            bool first = true;
+            foreach(KeyValuePair<Leviathan.Core.Graphics.Buffers.VertexBufferAttributes.AttributeType, VertexAttribute> kp in attributes)
+            {
+                if(first)
+                {
+                    vcount = kp.Value.SegmentCount;
+                    first = false;
+                }
+
+                if(kp.Value.SegmentCount != vcount)
+                {
+                    throw new Exception("Custom Attribute buffer misalignment detected: please ensure that each attribute buffer has the same attribute count");
+                }
+            }
+            mesh.Vbuffer.LoadDataBuffers(attributes, prim_type);
+            
+            Context.MeshManager.AddResource(identifier, mesh);
+
         }
 
         private static String ImportMeshFromFile(string path, out Assimp.Mesh mesh)
@@ -147,13 +148,13 @@ namespace Leviathan.Core.Graphics
             }
         }
 
-        private static void ParseMeshData(Mesh obj, Assimp.Mesh mesh)
+        private static int ParseMeshData(AttributeCollection obj, Assimp.Mesh mesh)
         {
-            obj.Attribs.ClearAttributes();
-            List<Vector3f> vertex_data =    new List<Vector3f>();
-            List<Vector3f> normal_data =    new List<Vector3f>();
-            List<Vector3f> texture_data =   new List<Vector3f>();
-            List<Vector3f> tangent_data =   new List<Vector3f>();
+            obj.ClearAttributes();
+            List<Vector3f> vertex_data = new List<Vector3f>();
+            List<Vector3f> normal_data = new List<Vector3f>();
+            List<Vector3f> texture_data = new List<Vector3f>();
+            List<Vector3f> tangent_data = new List<Vector3f>();
 
             bool hastex = mesh.HasTextureCoords(0);
 
@@ -198,7 +199,8 @@ namespace Leviathan.Core.Graphics
                 tangent_data.Add(tangent);
 
             }
-            obj.VertexCount = (uint)vertex_data.Count;
+
+            
 
             Float3Attribute vertex_attrib = new Float3Attribute();
             vertex_attrib.AddData(vertex_data.ToArray());
@@ -213,58 +215,11 @@ namespace Leviathan.Core.Graphics
             tangent_attrib.AddData(tangent_data.ToArray());
 
 
-            obj.Attribs.AddAttribute(vertex_attrib, Buffers.VertexBufferAttributes.AttributeType.POSITION);
-            obj.Attribs.AddAttribute(normal_attrib, Buffers.VertexBufferAttributes.AttributeType.NORMAL);
-            obj.Attribs.AddAttribute(texture_attrib, Buffers.VertexBufferAttributes.AttributeType.TEXTURE);
-            obj.Attribs.AddAttribute(tangent_attrib, Buffers.VertexBufferAttributes.AttributeType.TANGENT);
-        }
-    }
-
-    public class VBO : IDisposable
-    {
-        public uint handle;
-        public uint value_size;
-        public Buffers.VertexBufferAttributes.AttributeDataType value_type;
-        public Buffers.VertexBufferAttributes.AttributeType attrib_type;
-        public DataCollectionType coll_type;
-
-        public static VBO Create(Buffers.VertexBufferAttributes.AttributeType attribtype, Buffers.VertexBufferAttributes.Attribute attrib)
-        {
-            byte[] vbobuff = attrib.data.ToArray();
-            VBO tmp = new VBO()
-            {
-                handle = Context.GLContext.GenBuffer(),
-                attrib_type = attribtype,
-                value_type = attrib.valuetype,
-                coll_type = attrib.coll_type,
-                value_size = attrib.value_size
-            };
-
-
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, tmp.handle);
-            unsafe
-            {
-                fixed (void* d_ptr = &vbobuff[0])
-                {
-                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)vbobuff.Length, d_ptr, GLEnum.StaticDraw);
-                }
-            };
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
-            return tmp;
-        }
-        private void Destroy()
-        {
-            if(this.handle != 0)
-            {
-                Context.GLContext.DeleteBuffer(this.handle);
-                this.handle = 0;
-            }
-            
-        }
-
-        public void Dispose()
-        {
-            Destroy();
+            obj.AddAttribute(vertex_attrib, Buffers.VertexBufferAttributes.AttributeType.POSITION);
+            obj.AddAttribute(normal_attrib, Buffers.VertexBufferAttributes.AttributeType.NORMAL);
+            obj.AddAttribute(texture_attrib, Buffers.VertexBufferAttributes.AttributeType.TEXTURE);
+            obj.AddAttribute(tangent_attrib, Buffers.VertexBufferAttributes.AttributeType.TANGENT);
+            return vertex_data.Count;
         }
     }
 

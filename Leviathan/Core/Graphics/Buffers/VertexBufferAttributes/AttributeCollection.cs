@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
 {
-    public class AttributeCollection : IEnumerable<KeyValuePair<AttributeType, Attribute>>
+    public class AttributeCollection : IEnumerable<KeyValuePair<AttributeType, VertexAttribute>>
     {
-        Dictionary<AttributeType, Attribute> dict;
+        Dictionary<AttributeType, VertexAttribute> dict;
 
         public int Count
         {
@@ -19,7 +19,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
 
         public AttributeCollection()
         {
-            dict = new Dictionary<AttributeType, Attribute>();
+            dict = new Dictionary<AttributeType, VertexAttribute>();
         }
 
         public void ClearAttributes()
@@ -27,7 +27,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             this.dict.Clear();
         }
 
-        public void AddAttribute(Attribute attrib, AttributeType type, bool force_replace = true)
+        public void AddAttribute(VertexAttribute attrib, AttributeType type, bool force_replace = true)
         {
             if (HasAttribute(type) && !force_replace)
             {
@@ -38,7 +38,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
 
         public void RemoveAttribute(AttributeType type)
         {
-            Attribute found;
+            VertexAttribute found;
             bool success = dict.TryGetValue(type, out found);
             if (success)
             {
@@ -52,7 +52,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             return dict.ContainsKey(type);
         }
 
-        public IEnumerator<KeyValuePair<AttributeType, Attribute>> GetEnumerator()
+        public IEnumerator<KeyValuePair<AttributeType, VertexAttribute>> GetEnumerator()
         {
             return dict.GetEnumerator();
         }

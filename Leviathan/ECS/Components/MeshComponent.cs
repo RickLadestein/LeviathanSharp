@@ -9,28 +9,24 @@ namespace Leviathan.ECS
 {
     public class MeshComponent : Component
     {
-        public VertexBuffer Vbuffer;
+        public Mesh Mesh { get; private set; }
 
         public MeshComponent() : base()
         {
-            Vbuffer = new VertexBuffer();
             SetMesh("Cube");
         }
 
         public void SetMesh(string identifier)
         {
-            if(Vbuffer.handle != 0)
-            {
-                Vbuffer.PurgeBuffer();
-            }
+            //if(Vbuffer.handle != 0)
+            //{
+            //    Vbuffer.PurgeBuffer();
+            //}
 
-            Mesh mesh = Context.MeshManager.GetResource(identifier);
-            if (mesh == null)
+            Mesh = Context.MeshManager.GetResource(identifier);
+            if (Mesh == null)
             {
                 throw new Exception($"Could not find mesh resource with identifier: {identifier}");
-            } else
-            {
-                Vbuffer.LoadDataBuffers(mesh);
             }
         }
 

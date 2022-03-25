@@ -26,4 +26,6 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         VEC3 = 3U,
         VEC4 = 4U,
     }
+
+    
 }

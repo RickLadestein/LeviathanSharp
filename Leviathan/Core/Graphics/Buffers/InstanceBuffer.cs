@@ -28,14 +28,14 @@ namespace Leviathan.Core.Graphics.Buffers
         {
         }
 
-        public static InstanceBuffer FromAttribute(VertexBufferAttributes.Attribute attribute, uint mode)
+        public static InstanceBuffer FromAttribute(VertexBufferAttributes.VertexAttribute attribute, uint mode)
         {
             InstanceBuffer ret = new InstanceBuffer
             {
                 data = attribute.data.ToArray(),
-                valuetype = attribute.valuetype,
-                coll_type = attribute.coll_type,
-                value_size = attribute.value_size,
+                valuetype = attribute.Descriptor.value_type,
+                coll_type = attribute.Descriptor.collection_type,
+                value_size = (uint)attribute.Descriptor.value_byte_size,
                 mode = mode
             };
             return ret;

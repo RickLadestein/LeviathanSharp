@@ -8,7 +8,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing int values
     /// </summary>
-    public class IntAttribute : Attribute
+    public class IntAttribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of IntAttribute with specified segments reserved
@@ -39,7 +39,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector2i values
     /// </summary>
-    public class Int2Attribute : Attribute
+    public class Int2Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Int2Attribute with specified segments reserved
@@ -70,7 +70,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector3i values
     /// </summary>
-    public class Int3Attribute : Attribute
+    public class Int3Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Int3Attribute with specified segments reserved
@@ -101,7 +101,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector4i values
     /// </summary>
-    public class Int4Attribute : Attribute
+    public class Int4Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Int4Attribute with specified segments reserved

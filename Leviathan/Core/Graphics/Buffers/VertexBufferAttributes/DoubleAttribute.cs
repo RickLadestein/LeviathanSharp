@@ -8,7 +8,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing double values
     /// </summary>
-    public class DoubleAttribute : Attribute
+    public class DoubleAttribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of DoubleAttribute with specified segments reserved
@@ -41,7 +41,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector2d values
     /// </summary>
-    public class Double2Attribute : Attribute
+    public class Double2Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Double2Attribute with specified segments reserved
@@ -74,7 +74,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector3d values
     /// </summary>
-    public class Double3Attribute : Attribute
+    public class Double3Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Double3Attribute with specified segments reserved
@@ -107,7 +107,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Attribute class for storing Vector4d values
     /// </summary>
-    public class Double4Attribute : Attribute
+    public class Double4Attribute : VertexAttribute
     {
         /// <summary>
         /// Instantiates a new instance of Double4Attribute with specified segments reserved

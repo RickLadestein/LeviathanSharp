@@ -92,7 +92,7 @@ namespace Leviathan.ECS
                 sh.SetUniform($"texture_{i}", i);
             }
 
-            VertexBuffer vbuf = meshcomp.Vbuffer;
+            VertexBuffer vbuf = meshcomp.Mesh.Vbuffer;
             vbuf.Bind();
 
             //sh.SetUniform("model", parent.Transform.ModelMat);
