@@ -11,6 +11,7 @@ namespace Leviathan.ECS
 {
     public class RenderComponent : Component
     {
+        public override string FriendlyName => "RenderComponent";
 
         protected override void AddDependencies()
         {

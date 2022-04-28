@@ -8,13 +8,14 @@ using Leviathan.Core.Graphics;
 using Leviathan.Core.Input;
 using Leviathan.Core.Windowing;
 using Leviathan.ECS;
+using Leviathan.ECS.Systems;
 
 namespace Leviathan.Core
 {
-    public class World
+    public class World : IWorldEntityProvider, IWorldEntityListener
     {
         private static World _instance;
-        public static World Instance
+        public static World Current
         {
             get
             {
@@ -26,114 +27,275 @@ namespace Leviathan.Core
             }
         }
 
-        private Mutex entitymutex;
-        private List<Entity> entities;
+        private List<Entity> all_entities;
+        private List<Entity> scripted_entities;
+        private ComponentRegistry component_registry;
 
-        //public Camera PrimaryCam { get; private set; }
+        RenderSystem renderSystem;
+        ScriptingSystem scriptingSystem;
         public CameraComponent PrimaryCam { get; set; }
 
         private World()
         {
-            entitymutex = new Mutex();
-            entities = new List<Entity>();
-            //PrimaryCam = new Camera();
+            renderSystem = new RenderSystem();
+            scriptingSystem = new ScriptingSystem();
+            all_entities = new List<Entity>();
+            ConstructRegistries();
             Context.ParentWindow.refresh += Parent_window_refresh;
         }
 
-        public bool AddEntity(Entity entity)
+        private void ConstructRegistries()
         {
-            if(entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
 
-            entitymutex.WaitOne();
-            try
-            {
-                entities.Add(entity);
-                return true;
-            }
-            catch (Exception ex) { 
-                Console.WriteLine($"An error ocurred while removing an entity: {ex}");
-                return false;
-            }
-            finally
-            {
-                entitymutex.ReleaseMutex();
-            }
-        }
+            scripted_entities = new List<Entity>();
+            component_registry = new ComponentRegistry();
 
-        public bool RemoveEntity(Predicate<Entity> predicate)
-        {
-            entitymutex.WaitOne();
-            try
+            if(all_entities.Count != 0)
             {
-                int removed = entities.RemoveAll(predicate);
-                return removed != 0 ? true : false;
-            }
-            catch (Exception ex) 
-            { 
-                Console.WriteLine($"An error ocurred while removing an entity: {ex}");
-                return false;
-            }
-            finally
-            {
-                entitymutex.ReleaseMutex();
-            }
-        }
-
-        public List<Entity> FindEntity(Predicate<Entity> predicate)
-        {
-            entitymutex.WaitOne();
-            List<Entity> results = new List<Entity>();
-            try
-            {
-                foreach (Entity en in entities)
+                foreach(Entity entity in all_entities)
                 {
-                    if (predicate.Invoke(en))
+                    if(entity.Scripts.Count != 0)
                     {
-                        results.Add(en);
+                        scripted_entities.Add(entity);
+                    }
+
+                    foreach(Component comp in entity.Components)
+                    {
+                        component_registry.OnComponentAdded(entity, comp);
                     }
                 }
-                return results;
-            } catch (Exception ex) 
-            { 
-                Console.WriteLine($"An error ocurred while finding an entity: {ex}");
-                return results;
             }
-            finally
+        }
+
+
+        public void AddEntity(Entity entity)
+        {
+            all_entities.Add(entity);
+            if (entity.Scripts.Count != 0)
             {
-                entitymutex.ReleaseMutex();
+                scripted_entities.Add(entity);
             }
-            
+
+            foreach (Component comp in entity.Components)
+            {
+                component_registry.OnComponentAdded(entity, comp);
+            }
         }
         private void Parent_window_refresh()
         {
-            entitymutex.WaitOne();
-            try
-            {
-                foreach (Entity en in entities)
-                {
-                    foreach (MonoScript ms in en.Scripts)
-                    {
-                        ms.Update();
-                    }
-                }
-
-                foreach (Entity en in entities)
-                {
-                    if(en.HasComponent<RenderComponent>())
-                    {
-                        en.GetComponent<RenderComponent>().Render(PrimaryCam);
-                    }
-                }
-
-                
-            } finally
-            {
-                entitymutex.ReleaseMutex();
-            }
+            scriptingSystem.Execute();
+            renderSystem.Execute();
             
+        }
+        #region Interfaces
+        public List<Entity> QueryEntitiesByIds(IEnumerable<Guid> ids)
+        {
+            List<Entity> retval = all_entities.FindAll(new Predicate<Entity>((e) => 
+            { 
+                foreach(Guid id in ids)
+                {
+                    if(e.Id.Equals(id))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }));
+            return retval;
+        }
+
+        public List<Entity> QueryEntitiesByIds(IEnumerable<string> ids)
+        {
+            List<Guid> tofind = new List<Guid>();
+            foreach(string id in ids)
+            {
+                tofind.Add(new Guid(id));
+            }
+            List<Entity> retval = all_entities.FindAll(new Predicate<Entity>((e) =>
+            {
+                foreach (Guid id in tofind)
+                {
+                    if (e.Id.Equals(ids))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }));
+            return retval;
+        }
+
+        public Entity QueryEntityById(Guid id)
+        {
+            Entity retval = all_entities.Find(new Predicate<Entity>((e) =>
+            {
+                if (e.Id.Equals(id))
+                {
+                    return true;
+                }
+                return false;
+            }));
+            return retval;
+        }
+
+        public Entity QueryEntityById(string id)
+        {
+            Guid compare = new Guid(id);
+            Entity retval = all_entities.Find(new Predicate<Entity>((e) =>
+            {
+                if (e.Id.Equals(compare))
+                {
+                    return true;
+                }
+                return false;
+            }));
+            return retval;
+        }
+
+        
+        public List<Entity> QueryEntityByPredicate(Predicate<Entity> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Entity QueryFirstEntityMatchByPredicate(Predicate<Entity> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Entity> QueryEntityByComponent<T>() where T : Component
+        {
+            string component_name = typeof(T).Name;
+            if(component_registry.componenthashes.Contains(component_name))
+            {
+                return new List<Entity>(component_registry.collected_entities[component_name].Values);
+            } else
+            {
+                return new List<Entity>();
+            }
+
+        }
+
+        public IEnumerator<Entity> GetEntityEnumerator()
+        {
+            return this.all_entities.GetEnumerator();
+        }
+
+        public IEnumerator<Entity> GetScriptableEntityEnumerator()
+        {
+            return this.scripted_entities.GetEnumerator();
+        }
+
+        public void OnComponentAdded(Entity caller, Component comp)
+        {
+            if(all_entities.Contains(caller))
+            {
+                component_registry.OnComponentAdded(caller, comp);
+            }
+        }
+
+        public void OnComponentRemoved(Entity caller, Component comp)
+        {
+            if (all_entities.Contains(caller))
+            {
+                component_registry.OnComponentRemoved(caller, comp);
+            }
+        }
+
+        public void OnScriptAdded(Entity caller, MonoScript script)
+        {
+            if(!scripted_entities.Contains(caller))
+            {
+                scripted_entities.Add(caller);
+            }
+        }
+
+        public void OnScriptRemoved(Entity caller, MonoScript script)
+        {
+            if (scripted_entities.Contains(caller))
+            {
+                scripted_entities.Remove(caller);
+            }
+        }
+        #endregion
+    }
+
+    public interface IWorldEntityProvider
+    {
+        public List<Entity> QueryEntitiesByIds(IEnumerable<Guid> ids);
+        public List<Entity> QueryEntitiesByIds(IEnumerable<string> ids);
+        public Entity QueryEntityById(Guid id);
+        public Entity QueryEntityById(string id);
+
+        public List<Entity> QueryEntityByComponent<T>() where T : Component;
+
+        public List<Entity> QueryEntityByPredicate(Predicate<Entity> predicate);
+        public Entity QueryFirstEntityMatchByPredicate(Predicate<Entity> predicate);
+    }
+
+    public interface IWorldEntityListener
+    {
+        public void OnComponentAdded(Entity caller, Component comp);
+        public void OnComponentRemoved(Entity caller, Component comp);
+
+        public void OnScriptAdded(Entity caller, MonoScript script);
+
+        public void OnScriptRemoved(Entity caller, MonoScript script);
+    }
+
+    public class ComponentRegistry
+    {
+        public HashSet<string> componenthashes;
+        public Dictionary<string, Dictionary<Guid, Entity>> collected_entities;
+
+        public ComponentRegistry()
+        {
+            componenthashes = new HashSet<string>();
+            collected_entities = new Dictionary<string, Dictionary<Guid, Entity>>();
+        }
+
+        public void OnComponentAdded(Entity caller, Component comp)
+        {
+            if(!componenthashes.Contains(comp.FriendlyName))
+            {
+                componenthashes.Add(comp.FriendlyName);
+
+                Dictionary<Guid, Entity> toadd = new Dictionary<Guid, Entity>();
+                toadd.Add(caller.Id, caller);
+                collected_entities.Add(comp.FriendlyName, toadd);
+            }
+            else
+            {
+                collected_entities[comp.FriendlyName].Add(caller.Id, caller);
+            }
+        }
+
+        public void OnComponentRemoved(Entity caller, Component comp)
+        {
+            if (componenthashes.Contains(comp.FriendlyName))
+            {
+                collected_entities[comp.FriendlyName].Remove(caller.Id);
+            }
+        }
+    }
+
+    public class SystemRegistry
+    {
+        public Dictionary<SystemPriority, List<ECSystem>> Systems;
+
+        public void AddSystem()
+        {
+
+        }
+
+        public ECSystem GetSystem<T>() where T : ECSystem
+        {
+            return default(ECSystem);
+        }
+
+        public void RemoveSystem()
+        {
+
         }
     }
 }

@@ -8,13 +8,15 @@ using System.Text;
 
 namespace Leviathan.Core.Graphics.Buffers
 {
-    public class VertexBuffer
+    public class VertexBuffer : IDisposable, IVBODataListener
     {
         public static uint Bound_vbuffer;
         public uint handle;
         public uint current_attrib;
         public ElementType prim_type;
         public uint vertex_count;
+
+        public bool validation_needed;
 
         public IBO[] ibos;
 
@@ -24,6 +26,7 @@ namespace Leviathan.Core.Graphics.Buffers
         public VertexBuffer()
         {
             Vbuffers = new List<VertexBufferObject>();
+            validation_needed = false;
 
             handle = Context.GLContext.GenVertexArray();
             current_attrib = 0;
@@ -74,7 +77,7 @@ namespace Leviathan.Core.Graphics.Buffers
                 }
 
 
-                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value);
+                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, current_attrib, this);
                 vbo.Bind();
                 unsafe
                 {
@@ -105,60 +108,82 @@ namespace Leviathan.Core.Graphics.Buffers
             }
         }
 
-        public void PurgeBuffer()
+        public void Destroy()
         {
-            Context.GLContext.DeleteVertexArray(handle);
-            this.handle = Context.GLContext.GenVertexArray();
-            this.current_attrib = 0;
+            if(this.handle != 0)
+            {
+                Context.GLContext.DeleteVertexArray(handle);
+                foreach (VertexBufferObject obj in Vbuffers)
+                {
+                    obj.Dispose();
+                }
+                Vbuffers.Clear();
+            }
+        }
+
+        public void Dispose()
+        {
+            Destroy();
+        }
+
+        public void OnVBODataChanged()
+        {
+            throw new NotImplementedException();
         }
     }
 
-    public class VertexBufferObject : IDisposable
+    public class VertexBufferObject : VertexAttribute, IDisposable
     {
-        public uint handle;
-        public byte[] BufferedData { get; private set; }
-        public int Vertices { get; private set; }
-        public VertexAttributeDescriptor Descriptor { get; private set; }
-        
-        public int attribute_index;
+        public uint Handle;
+        public uint Attribute_index { get; set; }
 
-        private VertexBufferObjectListener listener;
+        private IVBODataListener datalistener;
 
-        public static VertexBufferObject Create(VertexAttribute attrib, VertexBufferObjectUsageHint usagehint = VertexBufferObjectUsageHint.STATIC)
+        private VertexBufferObject(VertexAttribute attrib, uint vao_index, IVBODataListener listener) : base(attrib.Descriptor, (uint)attrib.SegmentCount)
         {
-            VertexBufferObject tmp = new VertexBufferObject()
-            {
-                handle = Context.GLContext.GenBuffer(),
-                BufferedData = attrib.data.ToArray(),
-                Descriptor = attrib.Descriptor
-            };
+            Handle = Context.GLContext.GenBuffer();
+            VertexAttribute.CopyTo(attrib, this);
+            Attribute_index = vao_index;
+            this.datalistener = listener;
+        }
+
+        public static VertexBufferObject Create(VertexAttribute attrib, uint vao_index, IVBODataListener listener ,VertexBufferObjectUsageHint usagehint = VertexBufferObjectUsageHint.STATIC)
+        {
+            VertexBufferObject tmp = new VertexBufferObject(attrib, vao_index, listener);
+
+            tmp.data = new byte[attrib.data.Length];
+            Array.Copy(attrib.data, tmp.data, attrib.data.Length);
             
             //Guard against not complete data in the BufferedData array
-            if((tmp.BufferedData.Length % tmp.Descriptor.segment_byte_size) != 0)
+            if(!tmp.RevalidateDescriptor())
             {
                 throw new Exception("Buffered data size does not fit with segment byte size in the Descriptor");
             }
-            tmp.Vertices = tmp.BufferedData.Length / tmp.Descriptor.segment_byte_size;
 
-            tmp.WriteDataToGPU(tmp.BufferedData, usagehint);
+            tmp.WriteDataToGPU(usagehint);
 
             return tmp;
         }
 
-        /// <summary>
-        /// Loads byte data into the buffer located on the GPU
-        /// </summary>
-        /// <param name="data"></param>
-        public void WriteDataToGPU(byte[] data, VertexBufferObjectUsageHint usagehint)
+        public void LoadNewData(VertexAttribute attrib)
         {
-            BufferedData = data;
+            this.Descriptor = attrib.Descriptor;
+            if(attrib.data.Length != data.Length)
+            {
+                data = new byte[attrib.data.Length];
+            }
+            Array.Copy(data, attrib.data, attrib.data.Length);
+            datalistener.OnVBODataChanged();
+        }
+
+        public void WriteDataToGPU(VertexBufferObjectUsageHint usagehint = VertexBufferObjectUsageHint.STATIC)
+        {
             Bind();
             unsafe
             {
-                fixed (void* d_ptr = &BufferedData[0])
+                fixed (void* d_ptr = &this.data[0])
                 {
-                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)BufferedData.Length, d_ptr, (GLEnum)usagehint);
-                    //Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)BufferedData.Length, d_ptr, GLEnum.StaticDraw);
+                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)data.Length, d_ptr, (GLEnum)usagehint);
                 }
             };
             Unbind();
@@ -167,17 +192,22 @@ namespace Leviathan.Core.Graphics.Buffers
         /// <summary>
         /// Loads data from the GPU in the local DataBuffer
         /// </summary>
-        public void RetrieveDataFromGPU()
+        private void RetrieveDataFromGPU()
         {
-            this.BufferedData = new byte[Vertices * Descriptor.segment_byte_size];
+            if(this.data.Length != (SegmentCount * Descriptor.segment_byte_size))
+            {
+                this.data = new byte[SegmentCount * Descriptor.segment_byte_size];
+            }
+
             Bind();
             unsafe
             {
-                fixed (void* d_ptr = &BufferedData[0])
+                fixed (void* d_ptr = &this.data[0])
                 {
-                    Context.GLContext.GetBufferSubData(GLEnum.ArrayBuffer, 0, (uint)BufferedData.Length, d_ptr);
+                    Context.GLContext.GetBufferSubData(GLEnum.ArrayBuffer, 0, (uint)this.data.Length, d_ptr);
                 }
             }
+            Unbind();
         }
 
         /// <summary>
@@ -185,7 +215,7 @@ namespace Leviathan.Core.Graphics.Buffers
         /// </summary>
         public void PurgeLocalBuffer()
         {
-            BufferedData = Array.Empty<byte>();
+            this.data = Array.Empty<byte>();
         }
 
         /// <summary>
@@ -193,7 +223,7 @@ namespace Leviathan.Core.Graphics.Buffers
         /// </summary>
         public void Bind()
         {
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, handle);
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, Handle);
         }
 
         /// <summary>
@@ -209,10 +239,10 @@ namespace Leviathan.Core.Graphics.Buffers
         /// </summary>
         private void Destroy()
         {
-            if (this.handle != 0)
+            if (this.Handle != 0)
             {
-                Context.GLContext.DeleteBuffer(this.handle);
-                this.handle = 0;
+                Context.GLContext.DeleteBuffer(this.Handle);
+                this.Handle = 0;
             }
 
         }
@@ -239,9 +269,9 @@ namespace Leviathan.Core.Graphics.Buffers
         DYNAMIC = GLEnum.DynamicDraw
     }
 
-    public interface VertexBufferObjectListener
+    public interface IVBODataListener
     {
-        void OnBufferDataChanged(VertexBufferObject obj);
+        void OnVBODataChanged();
     }
 
 

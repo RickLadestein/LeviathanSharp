@@ -7,7 +7,7 @@ namespace Leviathan.ECS
 {
     public class Transform : Component
     {
-
+        public override string FriendlyName => "Transform";
         public Transform()
         {
             Parent = null;

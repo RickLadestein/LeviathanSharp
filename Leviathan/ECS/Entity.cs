@@ -7,7 +7,7 @@ namespace Leviathan.ECS
 {
     public class Entity
     {
-        private List<Component> components;
+        public List<Component> Components { get; private set; }
 
         /// <summary>
         /// The scripts that are bound to the entity
@@ -41,7 +41,7 @@ namespace Leviathan.ECS
         /// </summary>
         public Entity()
         {
-            components = new List<Component>();
+            Components = new List<Component>();
             Scripts = new List<MonoScript>();
             Id = Guid.NewGuid();
             Name = "Entity";
@@ -64,7 +64,7 @@ namespace Leviathan.ECS
             }
             else
             {
-                components = new List<Component>();
+                Components = new List<Component>();
                 Id = Guid.NewGuid();
                 Name = name;
                 Transform = new Transform();
@@ -131,7 +131,8 @@ namespace Leviathan.ECS
             {
                 c.Parent = this;
                 c.Initialise();
-                components.Add(c);
+                Components.Add(c);
+                Core.World.Current.OnComponentAdded(this, c);
             }
         }
 
@@ -157,7 +158,7 @@ namespace Leviathan.ECS
         /// <returns>Found component, if not found returns <c>null</c></returns>
         public T GetComponent<T>() where T : Component
         {
-            foreach (Component c in components)
+            foreach (Component c in Components)
             {
                 if (c != null && c is T t)
                 {
@@ -174,7 +175,7 @@ namespace Leviathan.ECS
         /// <param name="comps">A list where found c</param>
         public void GetComponents<T>(ref List<T> comps) where T : Component
         {
-            foreach (Component c in components)
+            foreach (Component c in Components)
             {
                 if (c != null && c is T t)
                 {
@@ -190,7 +191,7 @@ namespace Leviathan.ECS
         /// <returns>A boolean depending on the result</returns>
         public bool HasComponent<T>() where T : Component
         {
-            foreach (Component c in components)
+            foreach (Component c in Components)
             {
                 if (c != null && c is T t)
                 {
@@ -243,7 +244,7 @@ namespace Leviathan.ECS
         /// <param name="comps">A list where found scripts are stored</param>
         public void GetScripts<T>(ref List<T> comps) where T : MonoScript
         {
-            foreach (Component c in components)
+            foreach (Component c in Components)
             {
                 if (c != null && c is T t)
                 {

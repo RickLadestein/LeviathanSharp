@@ -30,7 +30,7 @@ namespace Sandbox
             w = new Window(1080, 720, WindowMode.WINDOWED);
             //w = new Window(2560, 1440, WindowMode.WINDOWED);
             InitResources();
-            world = World.Instance;
+            world = World.Current;
             Window.Start(w);
             return;
         }
@@ -51,7 +51,7 @@ namespace Sandbox
             en.GetComponent<MeshComponent>().SetMesh("Plane");
             en.GetComponent<MaterialComponent>().SetShader("plane");
             en.AddComponent(new SoundSourceComponent());
-            World.Instance.AddEntity(en);
+            World.Current.AddEntity(en);
 
             Entity camera = new Entity("camera");
             camera.AddComponent(new CameraComponent());
@@ -70,7 +70,7 @@ namespace Sandbox
             };
             player.AddScript(ps);
             player.AddComponent(new SoundListenerComponent());
-            World.Instance.AddEntity(player);
+            World.Current.AddEntity(player);
 
             //Entity modification
 

@@ -27,9 +27,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             this.dict.Clear();
         }
 
-        public void AddAttribute(VertexAttribute attrib, AttributeType type, bool force_replace = true)
+        public void AddAttribute(VertexAttribute attrib, AttributeType type)
         {
-            if (HasAttribute(type) && !force_replace)
+            if (HasAttribute(type))
             {
                 throw new Exception($"AttributeCollection already contains entry of type {type}");
             }
@@ -45,6 +45,14 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
                 dict.Remove(type);
                 found.Dispose();
             }
+        }
+
+        public void ReplaceAttribute(VertexAttribute new_attrib, AttributeType type)
+        {
+            if(!HasAttribute(type)) {
+                throw new Exception($"Cannot replace attribute: AttributeCollection does not contain entry of type {type}");
+            }
+            dict[type] = new_attrib;
         }
 
         public bool HasAttribute(AttributeType type)

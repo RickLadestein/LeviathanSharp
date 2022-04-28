@@ -9,6 +9,7 @@ namespace Leviathan.ECS
 {
     public class SoundSourceComponent : Component
     {
+        public override string FriendlyName => "SoundSourceComponent";
         public List<SoundSource> sources;
         public Mutex sources_mutex;
         public SoundSourceComponent()

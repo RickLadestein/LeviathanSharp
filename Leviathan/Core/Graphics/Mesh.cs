@@ -215,10 +215,10 @@ namespace Leviathan.Core.Graphics
             tangent_attrib.AddData(tangent_data.ToArray());
 
 
-            obj.AddAttribute(vertex_attrib, Buffers.VertexBufferAttributes.AttributeType.POSITION);
-            obj.AddAttribute(normal_attrib, Buffers.VertexBufferAttributes.AttributeType.NORMAL);
-            obj.AddAttribute(texture_attrib, Buffers.VertexBufferAttributes.AttributeType.TEXTURE);
-            obj.AddAttribute(tangent_attrib, Buffers.VertexBufferAttributes.AttributeType.TANGENT);
+            obj.AddAttribute(vertex_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.POSITION);
+            obj.AddAttribute(normal_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.NORMAL);
+            obj.AddAttribute(texture_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.TEXTURECOORD1);
+            obj.AddAttribute(tangent_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.TANGENT);
             return vertex_data.Count;
         }
     }

@@ -9,6 +9,7 @@ namespace Leviathan.ECS
 {
     public class SoundListenerComponent : Component
     {
+        public override string FriendlyName => "SoundListenerComponent";
         public Vector3f Position
         {
             get
@@ -86,7 +87,7 @@ namespace Leviathan.ECS
         public override void Initialise()
         {
             base.Initialise();
-            Parent.AddScript(new SoundListenerScript(this));
+            //Parent.AddScript(new SoundListenerScript(this));
         }
 
         public override string ToString()

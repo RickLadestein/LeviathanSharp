@@ -10,6 +10,7 @@ namespace Leviathan.ECS
 {
     public class MaterialComponent : Component
     {
+        public override string FriendlyName => "MaterialComponent";
         public ShaderProgram Shader { get; private set; }
 
         public MultiTexture Texture { get; private set; }

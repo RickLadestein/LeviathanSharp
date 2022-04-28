@@ -2,13 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Rick Ladestein</Authors>
     <Product>Leviathan Engine</Product>
     <Description>Leviathan rendering framework based on Silk.NET</Description>
     <Copyright>MIT licence</Copyright>
     <PackageProjectUrl>https://github.com/RickLadestein/LeviathanSharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RickLadestein/LeviathanSharp</RepositoryUrl>
+    <SignAssembly>false</SignAssembly>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -9,19 +9,19 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Storage class for storing attribute data
     /// </summary>
-    public abstract class VertexAttribute : IDisposable
+    public class VertexAttribute : IDisposable
     {
-        public VertexAttributeDescriptor Descriptor { get; private set; }
+        public VertexAttributeDescriptor Descriptor { get; protected set; }
 
         /// <summary>
         /// The byte data stored in this attribute
         /// </summary>
-        public List<byte> data;
+        public byte[] data;
 
         /// <summary>
         /// The amount of data segments stored in the attribute
         /// </summary>
-        public int SegmentCount { get; protected set; }
+        public int SegmentCount { get; private set; }
 
         /// <summary>
         /// Instantiates a new instance of Attribute with specified parameters
@@ -32,33 +32,20 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         public VertexAttribute(AttributeDataType _type, DataCollectionType _coll_type = DataCollectionType.SINGULAR, uint _reserve = 0)
         {
             Descriptor = new VertexAttributeDescriptor(_type, _coll_type);
-            data = new List<byte>((int)_reserve * Descriptor.segment_byte_size);
+            data = new byte[(int)_reserve * Descriptor.segment_byte_size];
         }
 
-        /// <summary>
-        /// Adds amount of bytes to this attribute
-        /// </summary>
-        /// <param name="_data">Bytes to add to this attribute</param>
-        protected void AddByteData(byte[] _data)
+        public VertexAttribute(VertexAttributeDescriptor descriptor, uint _reserve = 0)
         {
-            if(_data.Length % Descriptor.segment_byte_size != 0)
-            {
-                throw new Exception("data to be pushed in the VertexAttribute does not match data segment properties described in the Attribute Descriptor.");
-            }
-            data.AddRange(_data);
+            Descriptor = descriptor;
+            data = new byte[((int)_reserve * Descriptor.segment_byte_size)];
         }
 
-        /// <summary>
-        /// Adds amount of bytes to this attribute
-        /// </summary>
-        /// <param name="_data">Bytes to add to this attribute</param>
-        protected void AddByteData(List<byte> _data)
+        public static void CopyTo(VertexAttribute attrib_src, VertexAttribute attrib_dst)
         {
-            if (_data.Count % Descriptor.segment_byte_size != 0)
-            {
-                throw new Exception("data to be pushed in the VertexAttribute does not match data segment properties described in the Attribute Descriptor.");
-            }
-            data.AddRange(_data);
+            attrib_dst.Descriptor = attrib_src.Descriptor;
+            attrib_dst.data = new byte[attrib_src.data.Length];
+            Array.Copy(attrib_src.data, attrib_dst.data, attrib_src.data.Length);
         }
 
         /// <summary>
@@ -85,7 +72,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// </summary>
         /// <typeparam name="T">The struct/valuetype to add to this attribute (only unmanaged types!)</typeparam>
         /// <param name="datapoints">The datapoint segments to add to this attribute</param>
-        protected void AddDataColl<T>(T[] datapoints) where T : unmanaged
+        public void SetDataColl<T>(T[] datapoints) where T : unmanaged
         {
             byte[] result = new byte[datapoints.Length * Marshal.SizeOf<T>()];
             unsafe
@@ -94,7 +81,7 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
                 {
                     IntPtr ptr = new IntPtr(dp);
                     Marshal.Copy(ptr, result, 0, result.Length);
-                    this.data.AddRange(result);
+                    this.data = result;
                 }
             }
         }
@@ -113,12 +100,24 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             return structure;
         }
 
-        [DllImport("msvcrt.dll", SetLastError = false)]
-        private static extern IntPtr memcpy(IntPtr dest, IntPtr src, int count);
+        /// <summary>
+        /// Validates and reloads the VertexAttributeDescriptor to adjust to new data contained in the VertexAttribute
+        /// </summary>
+        /// <returns>True if revalidation was succesfull, False if the descriptor did not match contained data</returns>
+        public bool RevalidateDescriptor()
+        {
+            this.Descriptor.Reload();
+            bool succes = (this.data.Length % this.Descriptor.segment_byte_size) == 0;
+            if(succes)
+            {
+                this.SegmentCount = this.data.Length / this.Descriptor.segment_byte_size;
+            }
+            return succes;
+        }
 
         public void Dispose()
         {
-            data.Clear();
+            //data.Clear();
         }
     }
 
@@ -163,6 +162,23 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             this.collection_type = collection_type;
 
             switch (value_type)
+            {
+                case AttributeDataType.INT:
+                case AttributeDataType.FLOAT:
+                    value_byte_size = 4;
+                    break;
+                case AttributeDataType.DOUBLE:
+                    value_byte_size = 8;
+                    break;
+                default:
+                    throw new NotSupportedException($"AttributeDataType: {value_type} not yet supported!");
+            }
+            segment_byte_size = ((int)collection_type) * value_byte_size;
+        }
+
+        public void Reload()
+        {
+            switch (this.value_type)
             {
                 case AttributeDataType.INT:
                 case AttributeDataType.FLOAT:

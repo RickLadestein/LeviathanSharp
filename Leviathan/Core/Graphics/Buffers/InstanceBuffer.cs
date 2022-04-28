@@ -32,7 +32,7 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             InstanceBuffer ret = new InstanceBuffer
             {
-                data = attribute.data.ToArray(),
+                data = attribute.data,
                 valuetype = attribute.Descriptor.value_type,
                 coll_type = attribute.Descriptor.collection_type,
                 value_size = (uint)attribute.Descriptor.value_byte_size,

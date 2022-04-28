@@ -16,6 +16,8 @@ namespace Leviathan.ECS
         /// </summary>
         public Entity Parent { get; set; }
 
+        public abstract string FriendlyName { get; }
+
         /// <summary>
         /// Creates a new instance of Component with default parameters
         /// </summary>

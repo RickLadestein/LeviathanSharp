@@ -9,7 +9,16 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         POSITION,
         NORMAL,
         TANGENT,
-        TEXTURE
+        COLOR,
+        TEXTURECOORD0,
+        TEXTURECOORD1,
+        TEXTURECOORD2,
+        TEXTURECOORD3,
+        TEXTURECOORD4,
+        TEXTURECOORD5,
+        TEXTURECOORD6,
+        TEXTURECOORD7,
+        CUSTOM
     }
 
     public enum AttributeDataType

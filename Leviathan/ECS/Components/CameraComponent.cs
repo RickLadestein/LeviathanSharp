@@ -9,6 +9,7 @@ namespace Leviathan.ECS
 {
     public class CameraComponent : Component
     {
+        public override string FriendlyName => "CameraComponent";
         public CameraComponent()
         {
             _projection = Mat4.Identity;
@@ -20,11 +21,11 @@ namespace Leviathan.ECS
         {
             get
             {
-                return World.Instance.PrimaryCam == this;
+                return World.Current.PrimaryCam == this;
             }
             set
             {
-                World.Instance.PrimaryCam = this;
+                World.Current.PrimaryCam = this;
             }
         }
 
@@ -73,6 +74,7 @@ namespace Leviathan.ECS
                 _view = value;
             }
         }
+
 
         private void UpdateViewmatrix()
         {

@@ -9,6 +9,7 @@ namespace Leviathan.ECS
 {
     public class MeshComponent : Component
     {
+        public override string FriendlyName => "MeshComponent";
         public Mesh Mesh { get; private set; }
 
         public MeshComponent() : base()
