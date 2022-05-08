@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan", "Leviathan\Leviathan.csproj", "{A48A673A-D7A3-4BE3-9242-2D6BCE0A2AC5}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Math", "Leviathan.Math\Leviathan.Math.csproj", "{3F2FC171-4362-4CD0-8E7E-A31B28CC085F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Util", "Leviathan.Util\Leviathan.Util.csproj", "{711B4C89-C604-4462-BC84-A1062EAD48C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeviathanEditor", "LeviathanEditor\LeviathanEditor.csproj", "{FABF725E-EDA6-40D2-877B-00DE017B8B70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{711B4C89-C604-4462-BC84-A1062EAD48C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{711B4C89-C604-4462-BC84-A1062EAD48C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{711B4C89-C604-4462-BC84-A1062EAD48C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

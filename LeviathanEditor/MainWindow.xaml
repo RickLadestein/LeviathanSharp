@@ -1,0 +1,125 @@
+﻿<Window x:Class="LeviathanEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LeviathanEditor"
+        xmlns:ProjectView="clr-namespace:LeviathanEditor.Controls.ProjectView"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        MinHeight="480"
+        MinWidth="720"
+        ResizeMode="CanResizeWithGrip" 
+        WindowStyle="None"
+        Icon="pack://application:,,,/Resources/Icons/HQ/003-unlimited.png"
+        Background="{StaticResource ApplicationBackground}"
+        >
+    <DockPanel VerticalAlignment="Stretch">
+        <Grid DockPanel.Dock="Top">
+            <Menu Background="{StaticResource ApplicationBackground}" Height="35" Padding="0 5 0 0">
+
+                <MenuItem Padding="0, 0, 0, 0" Height="30" Width="30" IsEnabled="False">
+                    <MenuItem.Header>
+                        <Image Source="pack://application:,,,/Resources/Icons/HQ/003-unlimited.png" Stretch="Fill"></Image>
+                    </MenuItem.Header>
+                </MenuItem>
+
+                <MenuItem Header="File"         Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+                <MenuItem Header="Edit"         Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+                <MenuItem Header="Assets"       Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+                <MenuItem Header="Entity"       Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+                <MenuItem Header="Component"    Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+                <MenuItem Header="Window"       Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+                <MenuItem Header="Help"         Foreground="{StaticResource TextColor}" HorizontalAlignment="Center" Height="20" FontSize="14"/>
+            </Menu>
+
+            <WrapPanel HorizontalAlignment="Right">
+
+                <Button x:Name="IconifyButton" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Left" Width="40" Height="35" Click="IconifyButton_Click">
+                    <Button.Content>
+                        <Image Source="./Resources/Icons/HQ/001-substract.png" Width="15" Visibility="Visible"></Image>
+                    </Button.Content>
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Background" Value="{StaticResource ApplicationBackground}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource ControlBackground}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button x:Name="MinMaxButton" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Left"  Width="40" Height="35" Click="MinMaxButton_Click">
+                    <Button.Content>
+                        <Image Source="./Resources/Icons/HQ/002-menu.png" Width="15" Visibility="Visible"></Image>
+                    </Button.Content>
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Background" Value="{StaticResource ApplicationBackground}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource ControlBackground}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button x:Name="ExitButton" HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Left"  Width="40" Height="35" Click="ExitButton_Click">
+                    <Button.Content>
+                        <Image Source="/Resources/Icons/HQ/004-close.png" Width="13" Visibility="Visible"></Image>
+                    </Button.Content>
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Background" Value="{StaticResource ApplicationBackground}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource ControlBackground}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </WrapPanel>
+        </Grid>
+        
+        <Border BorderBrush="Gray" BorderThickness="1" DockPanel.Dock="Left">
+            <StackPanel VerticalAlignment="Stretch">
+                <Button Width="20"></Button>
+        </StackPanel>
+        </Border>
+        <StackPanel Height="450" DockPanel.Dock="Right" Width="100"></StackPanel>
+        <ProjectView:ProjectViewer DockPanel.Dock="Bottom" Height="200"></ProjectView:ProjectViewer>
+        <StackPanel Height="300" Width="250"></StackPanel>
+    </DockPanel>
+
+</Window>
