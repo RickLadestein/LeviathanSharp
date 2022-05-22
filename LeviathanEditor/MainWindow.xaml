@@ -6,13 +6,15 @@
         xmlns:local="clr-namespace:LeviathanEditor"
         xmlns:ProjectView="clr-namespace:LeviathanEditor.Controls.ProjectView"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
         MinHeight="480"
         MinWidth="720"
+        Title="MainWindow" Height="720" Width="1080"
+        
         ResizeMode="CanResizeWithGrip" 
         WindowStyle="None"
         Icon="pack://application:,,,/Resources/Icons/HQ/003-unlimited.png"
         Background="{StaticResource ApplicationBackground}"
+        MouseDown="Window_MouseDown"
         >
     <DockPanel VerticalAlignment="Stretch">
         <Grid DockPanel.Dock="Top">

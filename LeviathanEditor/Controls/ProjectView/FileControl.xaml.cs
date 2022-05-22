@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,6 +60,15 @@ namespace LeviathanEditor.Controls.ProjectView
                 builder.Append(s);
             }
             this.FileNameLabel.Text = builder.ToString();
+        }
+
+        private void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Process process = new Process();
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.FileName = "explorer";
+            process.StartInfo.Arguments = $"{this.path}";
+            process.Start();
         }
     }
 }
