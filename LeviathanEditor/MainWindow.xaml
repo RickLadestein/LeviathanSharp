@@ -10,14 +10,26 @@
         MinWidth="720"
         Title="MainWindow" Height="720" Width="1080"
         
-        ResizeMode="CanResizeWithGrip" 
+        ResizeMode="CanResize" 
         WindowStyle="None"
         Icon="pack://application:,,,/Resources/Icons/HQ/003-unlimited.png"
         Background="{StaticResource ApplicationBackground}"
         MouseDown="Window_MouseDown"
         >
-    <DockPanel VerticalAlignment="Stretch">
-        <Grid DockPanel.Dock="Top">
+    <Grid VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="0.25*" MinHeight="150" MaxHeight="500"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top">
             <Menu Background="{StaticResource ApplicationBackground}" Height="35" Padding="0 5 0 0">
 
                 <MenuItem Padding="0, 0, 0, 0" Height="30" Width="30" IsEnabled="False">
@@ -113,15 +125,11 @@
                 </Button>
             </WrapPanel>
         </Grid>
+
+        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"></StackPanel>
         
-        <Border BorderBrush="Gray" BorderThickness="1" DockPanel.Dock="Left">
-            <StackPanel VerticalAlignment="Stretch">
-                <Button Width="20"></Button>
-        </StackPanel>
-        </Border>
-        <StackPanel Height="450" DockPanel.Dock="Right" Width="100"></StackPanel>
-        <ProjectView:ProjectViewer DockPanel.Dock="Bottom" Height="200"></ProjectView:ProjectViewer>
-        <StackPanel Height="300" Width="250"></StackPanel>
-    </DockPanel>
+        <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="Red" HorizontalAlignment="Stretch"></GridSplitter>
+        <ProjectView:ProjectViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"></ProjectView:ProjectViewer>
+    </Grid>
 
 </Window>
