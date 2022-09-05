@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
 {
-    public enum AttributeType
+    public enum LAttributeType
     {
         POSITION,
         NORMAL,
@@ -21,14 +21,15 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         CUSTOM
     }
 
-    public enum AttributeDataType
+    public enum LAttributeDataType
     {
         INT = Silk.NET.OpenGL.GLEnum.Int,
+        UINT = Silk.NET.OpenGL.GLEnum.UnsignedInt,
         FLOAT = Silk.NET.OpenGL.GLEnum.Float,
         DOUBLE = Silk.NET.OpenGL.GLEnum.Double
     }
 
-    public enum DataCollectionType : uint
+    public enum LDataCollectionType : uint
     {
         SINGULAR = 1U,
         VEC2 = 2U,

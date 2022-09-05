@@ -14,10 +14,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of DoubleAttribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Double valuetype spaces that are reserved</param>
-        public DoubleAttribute(uint reserve = 0)
+        public DoubleAttribute(uint reserve = 0) : base(LAttributeDataType.DOUBLE, LDataCollectionType.SINGULAR)
         {
             attribute_data = new List<double>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.DOUBLE, DataCollectionType.SINGULAR);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -42,10 +41,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Double2Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector2d spaces that are reserved</param>
-        public Double2Attribute(uint reserve = 0)
+        public Double2Attribute(uint reserve = 0) : base(LAttributeDataType.DOUBLE, LDataCollectionType.VEC2)
         {
             attribute_data = new List<Vector2d>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.DOUBLE, DataCollectionType.VEC2);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -70,10 +68,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Double3Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector3d spaces that are reserved</param>
-        public Double3Attribute(uint reserve = 0)
+        public Double3Attribute(uint reserve = 0) : base(LAttributeDataType.DOUBLE, LDataCollectionType.VEC3)
         {
             attribute_data = new List<Vector3d>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.DOUBLE, DataCollectionType.VEC3);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -98,10 +95,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Double4Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector4d spaces that are reserved</param>
-        public Double4Attribute(uint reserve = 0)
+        public Double4Attribute(uint reserve = 0) : base(LAttributeDataType.DOUBLE, LDataCollectionType.VEC4)
         {
             attribute_data = new List<Vector4d>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.DOUBLE, DataCollectionType.VEC4);
         }
 
         public override VertexAttribute CompileToVertexAttribute()

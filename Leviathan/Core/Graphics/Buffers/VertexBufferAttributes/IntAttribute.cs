@@ -14,10 +14,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of IntAttribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of int valuetype spaces that are reserved</param>
-        public IntAttribute(uint reserve = 0)
+        public IntAttribute(uint reserve = 0) : base(LAttributeDataType.INT, LDataCollectionType.SINGULAR)
         {
             attribute_data = new List<int>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.INT, DataCollectionType.SINGULAR);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -42,10 +41,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Int2Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector2i spaces that are reserved</param>
-        public Int2Attribute(uint reserve = 0)
+        public Int2Attribute(uint reserve = 0) : base(LAttributeDataType.INT, LDataCollectionType.VEC2)
         {
             attribute_data = new List<Vector2i>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.INT, DataCollectionType.VEC2);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -70,10 +68,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Int3Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector3i spaces that are reserved</param>
-        public Int3Attribute(uint reserve = 0)
+        public Int3Attribute(uint reserve = 0) : base(LAttributeDataType.INT, LDataCollectionType.VEC3)
         {
             attribute_data = new List<Vector3i>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.INT, DataCollectionType.VEC3);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -98,10 +95,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Int4Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector4i spaces that are reserved</param>
-        public Int4Attribute(uint reserve = 0)
+        public Int4Attribute(uint reserve = 0) : base(LAttributeDataType.INT, LDataCollectionType.VEC4)
         {
             attribute_data = new List<Vector4i>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.INT, DataCollectionType.VEC4);
         }
 
         public override VertexAttribute CompileToVertexAttribute()

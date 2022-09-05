@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Silk.NET.OpenGL.Extensions.ImGui;
 namespace Leviathan.ECS
 {
     public abstract class Component

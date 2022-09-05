@@ -134,7 +134,7 @@ namespace Leviathan.Core.Windowing
             gl = GL.GetApi(glfw.GetProcAddress);
             if (gl == null)
             {
-                throw new Exception("Could not bind to GLFW PROC");
+                throw new Exception("Failed to get OpenGL process address");
             }
         }
 
@@ -184,7 +184,7 @@ namespace Leviathan.Core.Windowing
 
         public static unsafe void OnGLFWError(Silk.NET.GLFW.ErrorCode error, string description)
         {
-            Console.WriteLine($"GLFW encountered an error: {description}");
+            throw new Exception($"GLFW encountered error code {error}:{description}");
         }
 
 

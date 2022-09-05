@@ -8,12 +8,11 @@ using System.Text;
 
 namespace Leviathan.Core.Graphics.Buffers
 {
-    public class VertexBuffer : IDisposable, IVBODataListener
+    public class VertexBuffer : GraphicsResource, IDisposable
     {
-        public static uint Bound_vbuffer;
-        public uint handle;
-        public uint current_attrib;
-        public ElementType prim_type;
+        public uint DataHandle { get; private set; }
+
+        public LPrimitiveType prim_type;
         public uint vertex_count;
 
         public bool validation_needed;
@@ -22,29 +21,29 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public List<VertexBufferObject> Vbuffers;
 
+        private static uint Bound_vbuffer;
 
         public VertexBuffer()
         {
             Vbuffers = new List<VertexBufferObject>();
             validation_needed = false;
 
-            handle = Context.GLContext.GenVertexArray();
-            current_attrib = 0;
-            ibos = new IBO[0];
+            Handle = Context.GLContext.GenVertexArray();
+            DataHandle = Context.GLContext.GenBuffer();
         }
 
         public void Bind()
         {
-            if(Bound_vbuffer != handle)
+            if(Bound_vbuffer != Handle)
             {
-                Context.GLContext.BindVertexArray(handle);
-                Bound_vbuffer = handle;
+                Context.GLContext.BindVertexArray(Handle);
+                Bound_vbuffer = Handle;
             }
         }
 
         public void Unbind()
         {
-            if (Bound_vbuffer == handle)
+            if (Bound_vbuffer == Handle)
             {
                 Context.GLContext.BindVertexArray(0);
                 Bound_vbuffer = 0;
@@ -54,114 +53,55 @@ namespace Leviathan.Core.Graphics.Buffers
             }
         }
 
-        public void LoadDataBuffers(AttributeCollection attrib_col, ElementType primitive)
+        public void PurgeLocalVBOS()
         {
-            this.prim_type = primitive;
-
-            int vcount = 0;
-            bool first = true;
-
-            Bind();
-            foreach (KeyValuePair<Leviathan.Core.Graphics.Buffers.VertexBufferAttributes.AttributeType, VertexAttribute> kp in attrib_col)
+            foreach(VertexBufferObject vbo in this.Vbuffers)
             {
-                if (first)
-                {
-                    vcount = kp.Value.SegmentCount;
-                    first = false;
-                    this.vertex_count = (uint)vcount;
-                }
-
-                if (kp.Value.SegmentCount != vcount)
-                {
-                    throw new Exception("Attribute buffer misalignment detected: please ensure that each attribute buffer has the same attribute count");
-                }
-
-
-                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, current_attrib, this);
-                vbo.Bind();
-                unsafe
-                {
-                    Context.GLContext.VertexAttribPointer(current_attrib, (int)vbo.Descriptor.collection_type, (GLEnum)vbo.Descriptor.value_type, false, 0, (void*)0);
-                    Context.GLContext.EnableVertexAttribArray(current_attrib);
-                    current_attrib += 1;
-                }
-
-                VertexBufferObject.Unbind();
-                Vbuffers.Add(vbo);
-            }
-            Unbind();
-            return;
-        }
-
-        public void LoadInstanceBuffers(InstanceBuffer[] ibufs)
-        {
-            Context.GLContext.BindVertexArray(handle);
-            ibos = new IBO[ibufs.Length];
-            int index = 0;
-            foreach (InstanceBuffer ib in ibufs)
-            {
-                IBO tmp = IBO.Create(ib, current_attrib);
-                
-                this.current_attrib += 1;
-                ibos[index] = tmp;
-                index++;
+                vbo.PurgeLocalBuffer();
             }
         }
 
-        public void Destroy()
+        public new void Dispose()
         {
-            if(this.handle != 0)
+            if (this.Handle != 0)
             {
-                Context.GLContext.DeleteVertexArray(handle);
+                Context.GLContext.DeleteVertexArray(Handle);
                 foreach (VertexBufferObject obj in Vbuffers)
                 {
                     obj.Dispose();
                 }
                 Vbuffers.Clear();
             }
-        }
 
-        public void Dispose()
-        {
-            Destroy();
-        }
-
-        public void OnVBODataChanged()
-        {
-            throw new NotImplementedException();
+            if (this.DataHandle != 0)
+            {
+                Context.GLContext.DeleteBuffer(this.DataHandle);
+            }
         }
     }
 
     public class VertexBufferObject : VertexAttribute, IDisposable
     {
-        public uint Handle;
-        public uint Attribute_index { get; set; }
+        public uint Attribute_index { get; private set; }
 
-        private IVBODataListener datalistener;
+        public uint Data_Offset { get; private set; }
 
-        private VertexBufferObject(VertexAttribute attrib, uint vao_index, IVBODataListener listener) : base(attrib.Descriptor, (uint)attrib.SegmentCount)
+        private VertexBufferObject(VertexAttribute attrib, uint vao_index, uint byte_offset) : base(attrib.Descriptor, (uint)attrib.SegmentCount)
         {
-            Handle = Context.GLContext.GenBuffer();
             VertexAttribute.CopyTo(attrib, this);
             Attribute_index = vao_index;
-            this.datalistener = listener;
+            Data_Offset = byte_offset;
         }
 
-        public static VertexBufferObject Create(VertexAttribute attrib, uint vao_index, IVBODataListener listener ,VertexBufferObjectUsageHint usagehint = VertexBufferObjectUsageHint.STATIC)
+        public static VertexBufferObject Create(VertexAttribute attrib, uint vao_index, uint byte_offset)
         {
-            VertexBufferObject tmp = new VertexBufferObject(attrib, vao_index, listener);
-
-            tmp.data = new byte[attrib.data.Length];
-            Array.Copy(attrib.data, tmp.data, attrib.data.Length);
+            VertexBufferObject tmp = new VertexBufferObject(attrib, vao_index, byte_offset);
             
             //Guard against not complete data in the BufferedData array
             if(!tmp.RevalidateDescriptor())
             {
                 throw new Exception("Buffered data size does not fit with segment byte size in the Descriptor");
             }
-
-            tmp.WriteDataToGPU(usagehint);
-
             return tmp;
         }
 
@@ -173,12 +113,12 @@ namespace Leviathan.Core.Graphics.Buffers
                 data = new byte[attrib.data.Length];
             }
             Array.Copy(data, attrib.data, attrib.data.Length);
-            datalistener.OnVBODataChanged();
+            //datalistener.OnVBODataChanged();
         }
 
         public void WriteDataToGPU(VertexBufferObjectUsageHint usagehint = VertexBufferObjectUsageHint.STATIC)
         {
-            Bind();
+            //Bind();
             unsafe
             {
                 fixed (void* d_ptr = &this.data[0])
@@ -186,7 +126,7 @@ namespace Leviathan.Core.Graphics.Buffers
                     Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)data.Length, d_ptr, (GLEnum)usagehint);
                 }
             };
-            Unbind();
+            //Unbind();
         }
 
         /// <summary>
@@ -199,7 +139,7 @@ namespace Leviathan.Core.Graphics.Buffers
                 this.data = new byte[SegmentCount * Descriptor.segment_byte_size];
             }
 
-            Bind();
+            //Bind();
             unsafe
             {
                 fixed (void* d_ptr = &this.data[0])
@@ -207,7 +147,7 @@ namespace Leviathan.Core.Graphics.Buffers
                     Context.GLContext.GetBufferSubData(GLEnum.ArrayBuffer, 0, (uint)this.data.Length, d_ptr);
                 }
             }
-            Unbind();
+            //Unbind();
         }
 
         /// <summary>
@@ -216,40 +156,6 @@ namespace Leviathan.Core.Graphics.Buffers
         public void PurgeLocalBuffer()
         {
             this.data = Array.Empty<byte>();
-        }
-
-        /// <summary>
-        /// Binds this VertexBufferObject as the selected buffer
-        /// </summary>
-        public void Bind()
-        {
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, Handle);
-        }
-
-        /// <summary>
-        /// Binds the default buffer as the selected buffer
-        /// </summary>
-        public static void Unbind()
-        {
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
-        }
-
-        /// <summary>
-        /// Destroys the VertexBufferObject CPU&GPU sided and releases all resources contained in it
-        /// </summary>
-        private void Destroy()
-        {
-            if (this.Handle != 0)
-            {
-                Context.GLContext.DeleteBuffer(this.Handle);
-                this.Handle = 0;
-            }
-
-        }
-
-        public void Dispose()
-        {
-            Destroy();
         }
     }
 
@@ -269,21 +175,14 @@ namespace Leviathan.Core.Graphics.Buffers
         DYNAMIC = GLEnum.DynamicDraw
     }
 
-    public interface IVBODataListener
-    {
-        void OnVBODataChanged();
-    }
-
-
-
     public class IBO : IDisposable
     {
         public uint handle;
         public uint mode;
         public uint vao_index;
         public uint value_size;
-        public VertexBufferAttributes.AttributeDataType value_type;
-        public DataCollectionType coll_type;
+        public VertexBufferAttributes.LAttributeDataType value_type;
+        public LDataCollectionType coll_type;
 
         public static IBO Create(InstanceBuffer ibuf, uint current_attrib)
         {
@@ -322,6 +221,134 @@ namespace Leviathan.Core.Graphics.Buffers
         public void Dispose()
         {
             Destroy();
+        }
+    }
+
+
+    public class VertexBufferFactory
+    {
+        private VertexBuffer outputbuffer;
+        private LPrimitiveType ptype;
+        private VertexBufferObjectUsageHint usage;
+        private List<KeyValuePair<LAttributeType, VertexAttribute>> buildlist;
+        private List<uint> byte_offsets;
+        private uint total_byte_size;
+
+
+        public VertexBufferFactory()
+        {
+            ptype = LPrimitiveType.POINTS;
+            usage = VertexBufferObjectUsageHint.STATIC;
+            byte_offsets = new List<uint>();
+            buildlist = new List<KeyValuePair<LAttributeType, VertexAttribute>>();
+            total_byte_size = 0;
+        }
+        public VertexBuffer Build()
+        {
+            outputbuffer = new VertexBuffer
+            {
+                prim_type = ptype
+            };
+
+            int vcount = 0;
+            bool first = true;
+            uint current_attrib = 0;
+            outputbuffer.Bind();
+           
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, outputbuffer.DataHandle);
+            
+            uint current_byte_offset = 0;
+            byte[] total_data = new byte[total_byte_size];
+            for(int i = 0; i < buildlist.Count; i++)
+            {
+                VertexAttribute kp = buildlist[i].Value;
+                Array.Copy(kp.data, 0, total_data, current_byte_offset, kp.data.Length);
+                current_byte_offset += byte_offsets[i];
+            }
+
+            unsafe
+            {
+                fixed (void* d_ptr = &total_data[0])
+                {
+                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)total_data.Length, d_ptr, (GLEnum)usage);
+                }
+            };
+
+
+            int index = 0;
+            current_byte_offset = 0;
+            foreach (KeyValuePair<LAttributeType, VertexAttribute> kp in buildlist)
+            {
+                if (first)
+                {
+                    vcount = kp.Value.SegmentCount;
+                    first = false;
+                    outputbuffer.vertex_count = (uint)vcount;
+                }
+
+                if (kp.Value.SegmentCount != vcount)
+                {
+                    throw new Exception("Attribute buffer misalignment detected: please ensure that each attribute buffer has the same attribute count");
+                }
+
+                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, current_attrib, byte_offsets[index]);
+                unsafe
+                {
+                    Context.GLContext.VertexAttribPointer(current_attrib, (int)vbo.Descriptor.collection_type, (GLEnum)vbo.Descriptor.value_type, false, 0, (void*)current_byte_offset);
+                    Context.GLContext.EnableVertexAttribArray(current_attrib);
+                }
+                current_byte_offset += byte_offsets[index];
+                current_attrib += 1;
+                index += 1;
+            }
+
+            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
+            outputbuffer.Unbind();
+            outputbuffer.PurgeLocalVBOS();
+            return outputbuffer;
+        }
+
+        public VertexBufferFactory SetPrimitiveType(LPrimitiveType _elementType)
+        {
+            this.ptype = _elementType;
+            return this;
+        }
+
+        public VertexBufferFactory SetUsageHint(VertexBufferObjectUsageHint usagehint)
+        {
+            this.usage = usagehint;
+            return this;
+        }
+
+        public VertexBufferFactory AddVertexAttribute(VertexAttribute attrib, LAttributeType type)
+        {
+            //Guard against misaligned buffers
+            if(buildlist.Count != 0)
+            {
+                if(buildlist[0].Value.SegmentCount != attrib.SegmentCount)
+                {
+                    throw new Exception("Buffer segment count misaligned with the segment count that was required by the first added buffer");
+                }
+            }
+
+            //Guard against double assigned data
+            foreach(KeyValuePair<LAttributeType, VertexAttribute> kvp in buildlist)
+            {
+                if(kvp.Key == type)
+                {
+                    throw new Exception("VertexAttribute type is already contained in the factory");
+                }
+            }
+            uint offset = (uint)(attrib.SegmentCount * attrib.Descriptor.segment_byte_size);
+            total_byte_size += offset;
+            byte_offsets.Add(offset);
+            buildlist.Add(new KeyValuePair<LAttributeType, VertexAttribute>(type, attrib));
+            return this;
+        }
+
+        public VertexBufferFactory AddIndexBuffer()
+        {
+            throw new NotImplementedException();
         }
     }
 

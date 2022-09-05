@@ -5,9 +5,8 @@ using System.Text;
 
 namespace Leviathan.Core.Sound
 {
-    public class SoundSource : IDisposable
+    public class SoundSource : SoundResource
     {
-        public uint Handle { get; private set; }
 
         #region floats
         /// <summary>
@@ -433,7 +432,7 @@ namespace Leviathan.Core.Sound
                 this.Handle = 0;
             }
         }
-        public void Dispose()
+        public override void Dispose()
         {
             Destroy();
         }

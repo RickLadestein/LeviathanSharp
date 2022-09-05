@@ -38,6 +38,7 @@ namespace Sandbox
             file = WaveFile.Import("./assets/SFX_01.wav");
             file.ConvertToMono();
             sample = new AudioSample(file);
+            file = null;
             src = new SoundSource();
         }
 
@@ -129,3 +130,4 @@ namespace Sandbox
         }
     }
 }
+

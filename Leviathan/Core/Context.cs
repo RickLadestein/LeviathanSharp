@@ -60,6 +60,7 @@ namespace Leviathan.Core
                 a_manager = new AudioResourceManager();
 
                 MeshResourceManager.InitDefaultResources();
+                m_manager.InitDefaultModels();
                 this.parent_window = w_parent;
             }
         }
@@ -313,8 +314,18 @@ namespace Leviathan.Core
 
     public class MeshResourceManager : ResourceManager<Mesh>
     {
+        private bool initialised;
         public MeshResourceManager() : base()
         {
+            initialised = false;
+        }
+        
+        public void InitDefaultModels()
+        {
+            if(initialised)
+            {
+                return;
+            }
             IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
             foreach (string file in eFiles)
             {
@@ -323,7 +334,7 @@ namespace Leviathan.Core
                     String[] tokens = file.Split("\\");
                     string full_name = tokens[tokens.Length - 1];
                     string name = full_name.Remove(full_name.Length - 4);
-                    Mesh.Import(name, file, ElementType.TRIANGLES, out Mesh mesh);
+                    Mesh.Import(name, file, LPrimitiveType.TRIANGLES, out Mesh mesh);
                     this.AddResource(name, mesh);
                 }
             }

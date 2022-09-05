@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Leviathan.Core.Input;
 using Leviathan.Core;
 using Leviathan.Util;
+using Leviathan.Util.Collections;
 using Leviathan.Core.Sound;
 using System.IO.Ports;
 
@@ -25,7 +26,6 @@ namespace Sandbox
 
         static void Main(string[] args)
         {
-
             keys = new List<KeyboardKey>();
             w = new Window(1080, 720, WindowMode.WINDOWED);
             //w = new Window(2560, 1440, WindowMode.WINDOWED);
@@ -39,7 +39,7 @@ namespace Sandbox
         {
             ShaderFile sf = ShaderFile.Import("./assets/plane.glsl");
             ShaderProgram.Import(sf, "plane");
-
+        
             //basic entity construction
             en = new Entity("platform");
             //en.AddComponent(new MaterialComponent());
@@ -52,12 +52,12 @@ namespace Sandbox
             en.GetComponent<MaterialComponent>().SetShader("plane");
             en.AddComponent(new SoundSourceComponent());
             World.Current.AddEntity(en);
-
+        
             Entity camera = new Entity("camera");
             camera.AddComponent(new CameraComponent());
             camera.GetComponent<CameraComponent>().Primary = true;
             camera.Transform.LocalPosition = Vector3f.Zero;
-
+        
             Entity player = new Entity("player");
             player.AddChild(camera);
             player.Transform.LocalPosition = new Vector3f(0.0f, 1.0f, 2.0f);
@@ -71,10 +71,10 @@ namespace Sandbox
             player.AddScript(ps);
             player.AddComponent(new SoundListenerComponent());
             World.Current.AddEntity(player);
-
+        
             //Entity modification
-
-
+        
+        
             Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.Blend);
             Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
             Context.GLContext.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);

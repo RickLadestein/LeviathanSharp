@@ -19,10 +19,10 @@ namespace Leviathan.Core.Graphics
         public Mesh(string name)
         {
             Name = name;
-            Vbuffer = new VertexBuffer();
+            //Vbuffer = new VertexBuffer();
         }
 
-        public static void Import(string identifier, string path, ElementType prim_type)
+        public static void Import(string identifier, string path, LPrimitiveType prim_type)
         {
             Mesh mesh = new Mesh(identifier);
             String error = ImportMeshFromFile(path, out Assimp.Mesh a_mesh);
@@ -31,14 +31,20 @@ namespace Leviathan.Core.Graphics
                 throw new Exception($"Mesh import failed: {error}");
             }
 
-            AttributeCollection attrib_coll = new AttributeCollection();
-            int vertices = ParseMeshData(attrib_coll, a_mesh);
-            mesh.Vbuffer.LoadDataBuffers(attrib_coll, prim_type);
+            List<KeyValuePair<LAttributeType, VertexAttribute>> attrib_coll = new();
+            ParseMeshData(attrib_coll, a_mesh);
 
+            VertexBufferFactory factory = new VertexBufferFactory();
+            factory.SetPrimitiveType(prim_type);
+            foreach(KeyValuePair<LAttributeType, VertexAttribute> kvp in attrib_coll)
+            {
+                factory.AddVertexAttribute(kvp.Value, kvp.Key);
+            }
+            mesh.Vbuffer = factory.Build();
             Context.MeshManager.AddResource(identifier, mesh);
         }
 
-        public static void Import(string identifier, string path, ElementType prim_type, out Mesh mesh)
+        public static void Import(string identifier, string path, LPrimitiveType prim_type, out Mesh mesh)
         {
             mesh = new Mesh(identifier);
             String error = ImportMeshFromFile(path, out Assimp.Mesh a_mesh);
@@ -46,12 +52,20 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception($"Mesh import failed: {error}");
             }
-            AttributeCollection attrib_coll = new AttributeCollection();
-            int vertices = ParseMeshData(attrib_coll, a_mesh);
-            mesh.Vbuffer.LoadDataBuffers(attrib_coll, prim_type);
+            List<KeyValuePair<LAttributeType, VertexAttribute>> attrib_coll = new();
+            ParseMeshData(attrib_coll, a_mesh);
+            
+            VertexBufferFactory factory = new VertexBufferFactory();
+            factory.SetPrimitiveType(prim_type);
+            foreach (KeyValuePair<LAttributeType, VertexAttribute> kvp in attrib_coll)
+            {
+                factory.AddVertexAttribute(kvp.Value, kvp.Key);
+            }
+            mesh.Vbuffer = factory.Build();
+            Context.MeshManager.AddResource(identifier, mesh);
         }
 
-        public static void Import(string identifier, System.IO.Stream stream, ElementType prim_type)
+        public static void Import(string identifier, System.IO.Stream stream, LPrimitiveType prim_type)
         {
             Mesh mesh = new Mesh(identifier);
 
@@ -60,36 +74,31 @@ namespace Leviathan.Core.Graphics
             {
                 throw new Exception($"Mesh import failed: {error}");
             }
-            AttributeCollection attrib_coll = new AttributeCollection();
-            int vertices = ParseMeshData(attrib_coll, a_mesh);
-            mesh.Vbuffer.LoadDataBuffers(attrib_coll, prim_type);
 
+            List<KeyValuePair<LAttributeType, VertexAttribute>> attrib_coll = new();
+            ParseMeshData(attrib_coll, a_mesh);
+            
+            VertexBufferFactory factory = new VertexBufferFactory();
+            factory.SetPrimitiveType(prim_type);
+            foreach (KeyValuePair<LAttributeType, VertexAttribute> kvp in attrib_coll)
+            {
+                factory.AddVertexAttribute(kvp.Value, kvp.Key);
+            }
+            mesh.Vbuffer = factory.Build();
             Context.MeshManager.AddResource(identifier, mesh);
         }
 
-        public static void Import(string identifier, AttributeCollection attributes, ElementType prim_type)
+        public static void Import(string identifier, List<KeyValuePair<LAttributeType, VertexAttribute>> attrib_coll, LPrimitiveType prim_type)
         {
             Mesh mesh = new Mesh(identifier);
-
-            int vcount = 0;
-            bool first = true;
-            foreach(KeyValuePair<Leviathan.Core.Graphics.Buffers.VertexBufferAttributes.AttributeType, VertexAttribute> kp in attributes)
+            VertexBufferFactory factory = new VertexBufferFactory();
+            factory.SetPrimitiveType(prim_type);
+            foreach (KeyValuePair<LAttributeType, VertexAttribute> kvp in attrib_coll)
             {
-                if(first)
-                {
-                    vcount = kp.Value.SegmentCount;
-                    first = false;
-                }
-
-                if(kp.Value.SegmentCount != vcount)
-                {
-                    throw new Exception("Custom Attribute buffer misalignment detected: please ensure that each attribute buffer has the same attribute count");
-                }
+                factory.AddVertexAttribute(kvp.Value, kvp.Key);
             }
-            mesh.Vbuffer.LoadDataBuffers(attributes, prim_type);
-            
+            mesh.Vbuffer = factory.Build();
             Context.MeshManager.AddResource(identifier, mesh);
-
         }
 
         private static String ImportMeshFromFile(string path, out Assimp.Mesh mesh)
@@ -148,9 +157,8 @@ namespace Leviathan.Core.Graphics
             }
         }
 
-        private static int ParseMeshData(AttributeCollection obj, Assimp.Mesh mesh)
+        private static void ParseMeshData(List<KeyValuePair<LAttributeType, VertexAttribute>> obj, Assimp.Mesh mesh)
         {
-            obj.ClearAttributes();
             List<Vector3f> vertex_data = new List<Vector3f>();
             List<Vector3f> normal_data = new List<Vector3f>();
             List<Vector3f> texture_data = new List<Vector3f>();
@@ -215,15 +223,14 @@ namespace Leviathan.Core.Graphics
             tangent_attrib.AddData(tangent_data.ToArray());
 
 
-            obj.AddAttribute(vertex_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.POSITION);
-            obj.AddAttribute(normal_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.NORMAL);
-            obj.AddAttribute(texture_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.TEXTURECOORD1);
-            obj.AddAttribute(tangent_attrib.CompileToVertexAttribute(), Buffers.VertexBufferAttributes.AttributeType.TANGENT);
-            return vertex_data.Count;
+            obj.Add(new KeyValuePair<LAttributeType, VertexAttribute>(LAttributeType.POSITION, vertex_attrib.CompileToVertexAttribute()));
+            obj.Add(new KeyValuePair<LAttributeType, VertexAttribute>(LAttributeType.NORMAL, normal_attrib.CompileToVertexAttribute()));
+            obj.Add(new KeyValuePair<LAttributeType, VertexAttribute>(LAttributeType.TEXTURECOORD1, texture_attrib.CompileToVertexAttribute()));
+            obj.Add(new KeyValuePair<LAttributeType, VertexAttribute>(LAttributeType.TANGENT, tangent_attrib.CompileToVertexAttribute()));
         }
     }
 
-    public enum ElementType
+    public enum LPrimitiveType
     {
         POINTS = Silk.NET.OpenGL.GLEnum.Points,
         LINES = Silk.NET.OpenGL.GLEnum.Lines,

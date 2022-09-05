@@ -10,5 +10,12 @@ namespace Leviathan.Core
         /// The frame delta 
         /// </summary>
         public static float FrameDelta { get; set; }
+
+        /// <summary>
+        /// The current time in UTC time stamp
+        /// </summary>
+        public static long UTCNow { get { return (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds; } }
+
+        public static DateTime Now { get { return DateTime.Now; } }
     }
 }

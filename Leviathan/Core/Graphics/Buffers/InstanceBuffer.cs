@@ -7,8 +7,8 @@ namespace Leviathan.Core.Graphics.Buffers
 {
     public class InstanceBuffer
     {
-        public AttributeDataType valuetype;
-        public DataCollectionType coll_type;
+        public LAttributeDataType valuetype;
+        public LDataCollectionType coll_type;
         public uint value_size;
 
         public byte[] data;

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Math", "Leviathan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Util", "Leviathan.Util\Leviathan.Util.csproj", "{711B4C89-C604-4462-BC84-A1062EAD48C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeviathanEditor", "LeviathanEditor\LeviathanEditor.csproj", "{FABF725E-EDA6-40D2-877B-00DE017B8B70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeviathanEditor", "LeviathanEditor\LeviathanEditor.csproj", "{FABF725E-EDA6-40D2-877B-00DE017B8B70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

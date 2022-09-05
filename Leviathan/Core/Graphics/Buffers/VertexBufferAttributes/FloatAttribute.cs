@@ -14,9 +14,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of FloatAttribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of float valuetype spaces that are reserved</param>
-        public FloatAttribute(uint reserve = 0){
+        public FloatAttribute(uint reserve = 0) : base(LAttributeDataType.FLOAT, LDataCollectionType.SINGULAR)
+        {
             attribute_data = new List<float>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.FLOAT, DataCollectionType.SINGULAR);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -41,10 +41,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Float2Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector2f spaces that are reserved</param>
-        public Float2Attribute(uint reserve = 0)
+        public Float2Attribute(uint reserve = 0) : base(LAttributeDataType.FLOAT, LDataCollectionType.VEC2)
         {
             attribute_data = new List<Vector2f>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.FLOAT, DataCollectionType.VEC2);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -69,10 +68,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Float3Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector3f spaces that are reserved</param>
-        public Float3Attribute(uint reserve = 0)
+        public Float3Attribute(uint reserve = 0) : base(LAttributeDataType.FLOAT, LDataCollectionType.VEC3)
         {
             attribute_data = new List<Vector3f>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.FLOAT, DataCollectionType.VEC3);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
@@ -98,10 +96,9 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Instantiates a new instance of Float4Attribute with specified segments reserved
         /// </summary>
         /// <param name="reserve">The amount of Vector4f spaces that are reserved</param>
-        public Float4Attribute(uint reserve = 0)
+        public Float4Attribute(uint reserve = 0) : base(LAttributeDataType.FLOAT, LDataCollectionType.VEC4)
         {
             attribute_data = new List<Vector4f>((int)reserve);
-            descriptor = new VertexAttributeDescriptor(AttributeDataType.FLOAT, DataCollectionType.VEC4);
         }
 
         public override VertexAttribute CompileToVertexAttribute()
