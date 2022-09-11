@@ -91,14 +91,6 @@ namespace Leviathan.Core.Graphics
 
         public void Bind()
         {
-            //DAFUQ ARE YOU THINKING: NOBODY WANTS TO REPLACE THEIR SHADER
-            if(NewHandle != 0 && Handle != NewHandle)
-            {
-                Context.GLContext.DeleteProgram(Handle);
-                Handle = NewHandle;
-                NewHandle = 0;
-            }
-
             if(BoundProgram != Handle)
             {
                 Context.GLContext.UseProgram(Handle);

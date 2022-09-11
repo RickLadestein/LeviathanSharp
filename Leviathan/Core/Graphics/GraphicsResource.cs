@@ -8,7 +8,6 @@ namespace Leviathan.Core.Graphics
     {
         public uint Handle { get; protected set; }
         
-        protected uint NewHandle;
         public static readonly uint EMPTY_HANDLE = 0;
 
         public GraphicsResource()
