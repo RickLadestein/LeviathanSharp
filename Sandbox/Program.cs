@@ -26,6 +26,10 @@ namespace Sandbox
 
         static void Main(string[] args)
         {
+            MaterialLoader loader = new MaterialLoader();
+            loader.ParseMaterialFromFile("./assets/Sponza/sponza.mtl");
+
+
             keys = new List<KeyboardKey>();
             w = new Window(1080, 720, WindowMode.WINDOWED);
             //w = new Window(2560, 1440, WindowMode.WINDOWED);

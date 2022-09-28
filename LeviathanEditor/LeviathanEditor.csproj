@@ -18,10 +18,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\GameWindow\" />
     <Folder Include="Controls\HierarchyView\" />
     <Folder Include="Controls\InspectorView\" />
     <Folder Include="Resources\Icons\LQ\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Lifeisforu.NodeGraph" Version="0.3.2">
+		  <NoWarn>NU1701</NoWarn>
+	  </PackageReference>
+	  <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>

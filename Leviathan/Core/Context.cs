@@ -24,6 +24,7 @@ namespace Leviathan.Core
         private ShaderResourceManager s_manager;
         private TextureResourceManager t_manager;
         private AudioResourceManager a_manager;
+        private MaterialResourceManager material_manager;
 
         private static Context current;
 
@@ -58,6 +59,7 @@ namespace Leviathan.Core
                 s_manager = new ShaderResourceManager();
                 t_manager = new TextureResourceManager();
                 a_manager = new AudioResourceManager();
+                material_manager = new MaterialResourceManager();
 
                 MeshResourceManager.InitDefaultResources();
                 m_manager.InitDefaultModels();
@@ -209,6 +211,14 @@ namespace Leviathan.Core
             }
         }
 
+        public static MaterialResourceManager MaterialManager
+        {
+            get
+            {
+                return current.material_manager;
+            }
+        }
+
         
 
         private static bool CheckContext()
@@ -327,6 +337,7 @@ namespace Leviathan.Core
                 return;
             }
             IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
+            MeshLoader loader = new MeshLoader();
             foreach (string file in eFiles)
             {
                 if (file.EndsWith(".obj"))
@@ -334,10 +345,12 @@ namespace Leviathan.Core
                     String[] tokens = file.Split("\\");
                     string full_name = tokens[tokens.Length - 1];
                     string name = full_name.Remove(full_name.Length - 4);
-                    Mesh.Import(name, file, LPrimitiveType.TRIANGLES, out Mesh mesh);
-                    this.AddResource(name, mesh);
+                    loader.Import(file, LPrimitiveType.TRIANGLES);
+                    //Mesh.Import(name, file, LPrimitiveType.TRIANGLES, out Mesh mesh);
+                    //this.AddResource(name, mesh);
                 }
             }
+            loader.PushToRenderContext();
         }
 
     }
@@ -403,9 +416,21 @@ namespace Leviathan.Core
         }
     }
 
+    public class MaterialResourceManager : ResourceManager<Material>
+    {
+        public MaterialResourceManager() : base()
+        {
+            Material defaultmaterial = Material.Default;
+            this.AddResource("default", defaultmaterial);
+        }
+    }
+
     public class AudioResourceManager : ResourceManager<AudioSample>
     {
+        public AudioResourceManager() : base()
+        {
 
+        }
     }
 
     #endregion

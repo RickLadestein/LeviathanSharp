@@ -15,9 +15,12 @@ namespace Leviathan.ECS
 
         public MultiTexture Texture { get; private set; }
 
+        public Material Material { get; private set; }
+
         public MaterialComponent()
         {
             Shader = null;
+            Material = Material.Default;
             Texture = new MultiTexture();
             SetShader("default");
         }
@@ -44,6 +47,30 @@ namespace Leviathan.ECS
             else
             {
                 this.Shader = prg;
+            }
+        }
+
+        public void SetShaderById(string shaderId)
+        {
+            ShaderProgram prog = Context.Shadermanager.GetResource(shaderId);
+            if(prog == null)
+            {
+                throw new Exception($"Cannot locate shader resource named: {shaderId}");
+            } else
+            {
+                this.Shader = prog;
+            }
+        }
+
+        public void SetMaterial(string materialId)
+        {
+            Material mat = Context.MaterialManager.GetResource(materialId);
+            if(mat == null)
+            {
+                throw new Exception($"Cannot locate material resource named: {materialId}");
+            } else
+            {
+                this.Material = mat;
             }
         }
 
