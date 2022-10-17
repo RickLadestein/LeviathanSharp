@@ -10,13 +10,13 @@ uniform mat4 view;
 uniform mat4 projection;
 
 layout (std140) uniform material {
-	vec4 one = vec4(0.0, 0.0, 0.0, 0.0);
-	vec4 two = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 one;
+	vec4 two;
 }
 
 void main()
 {
-	gl_Position = (projection * view * model * vec4(aPos, 1.0)) + material.one;
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 
 ??FRAGMENT

@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -94,6 +95,38 @@ namespace Leviathan.Math
         public static float Dot(Vector2i v1, Vector2i v2)
         {
             return (v1.X * v2.X) + (v1.Y * v2.Y);
+        }
+
+        public static Vector2i Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 2)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector2i: Expected >= 2 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector2i: Expected >= 2 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            int x, y;
+            if (format != null)
+            {
+                x = int.Parse(tokens[begin], format);
+                y = int.Parse(tokens[begin + 1], format);
+            }
+            else
+            {
+                x = int.Parse(tokens[begin]);
+                y = int.Parse(tokens[begin + 1]);
+            }
+            return new Vector2i(x, y);
+
+        }
+
+        public int[] ToArray()
+        {
+            return new int[2] { X, Y};
         }
         #endregion
 

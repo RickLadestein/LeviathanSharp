@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -18,6 +19,13 @@ namespace Leviathan.Math
         {
             X = _x;
             Y = _y;
+            Z = _z;
+        }
+
+        public Vector3f(Vector2f vec, float _z)
+        {
+            X = vec.X;
+            Y = vec.Y;
             Z = _z;
         }
 
@@ -126,6 +134,40 @@ namespace Leviathan.Math
             result.Y = (left.Z * right.X) - (left.X * right.Z);
             result.Z = (left.X * right.Y) - (left.Y * right.X);
             return result;
+        }
+
+        public static Vector3f Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 3)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector3f: Expected >= 3 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector3f: Expected >= 3 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            float x, y, z;
+            if (format != null)
+            {
+                x = float.Parse(tokens[begin], format);
+                y = float.Parse(tokens[begin + 1], format);
+                z = float.Parse(tokens[begin + 2], format);
+            }
+            else
+            {
+                x = float.Parse(tokens[begin]);
+                y = float.Parse(tokens[begin + 1]);
+                z = float.Parse(tokens[begin + 2]);
+            }
+            return new Vector3f(x, y, z);
+
+        }
+
+        public float[] ToArray()
+        {
+            return new float[3] { X, Y, Z };
         }
 
 

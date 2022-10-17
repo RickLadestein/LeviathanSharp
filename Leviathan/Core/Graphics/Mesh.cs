@@ -42,6 +42,11 @@ namespace Leviathan.Core.Graphics
             }
         }
 
+        public void PushToWorld()
+        {
+            //World.Current.AddEntity()
+        }
+
         public void Import(string path, LPrimitiveType prim_type)
         {
             List<Assimp.Mesh> loadedMeshes = ImportAssimpMeshes(path);
@@ -127,7 +132,7 @@ namespace Leviathan.Core.Graphics
         }
 
 
-        private  void ParseMeshData(List<KeyValuePair<LAttributeType, VertexAttribute>> obj, Assimp.Mesh mesh)
+        private void ParseMeshData(List<KeyValuePair<LAttributeType, VertexAttribute>> obj, Assimp.Mesh mesh)
         {
             List<Vector3f> vertex_data = new List<Vector3f>(mesh.VertexCount);
             List<Vector3f> normal_data = new List<Vector3f>(mesh.VertexCount);

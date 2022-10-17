@@ -19,25 +19,27 @@ namespace Leviathan.Core.Graphics
     public class Material
     {
         [JsonProperty("newmtl")]
+        [MaterialAttribute("name")]
         public string Name;
 
         /// <summary>
         /// Specifies the specular reflectivity using RGB values
         /// </summary>
         [JsonProperty("Ka")]
-        public Vector3f ColorAmbient;
+        [MaterialAttribute("ColorAmbient")]
+        public Vector4f ColorAmbient;
 
         /// <summary>
         /// Specifies the specular diffuse reflectivity using RGB values
         /// </summary>
         [JsonProperty("Kd")]
-        public Vector3f ColorDiffuse;
+        public Vector4f ColorDiffuse;
 
         /// <summary>
         /// Specifies the specular reflectivity using RGB values.
         /// </summary>
         [JsonProperty("Ks")]
-        public Vector3f ColorSpecular;
+        public Vector4f ColorSpecular;
 
         /// <summary>
         /// Specifies the specular exponent for the current material.  This defines 
@@ -91,9 +93,9 @@ namespace Leviathan.Core.Graphics
         public Material()
         {
             Name = "Default";
-            ColorAmbient = Vector3f.Zero;
-            ColorDiffuse = Vector3f.Zero;
-            ColorSpecular = Vector3f.Zero;
+            ColorAmbient = Vector4f.Zero;
+            ColorDiffuse = Vector4f.Zero;
+            ColorSpecular = Vector4f.Zero;
             SpecularExponent = 1.0f;
             RefractionIndex = 1.0f;
             Transperency = 0.0f;
@@ -240,10 +242,7 @@ namespace Leviathan.Core.Graphics
                     throw new Exception("Spectral or XYZ coordinates are not supported for Ambient Color Yet");
                 } else
                 {
-                    float x = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-                    float y = float.Parse(tokens[2], CultureInfo.InvariantCulture.NumberFormat);
-                    float z = float.Parse(tokens[3], CultureInfo.InvariantCulture.NumberFormat);
-                    mat.ColorAmbient = new Vector3f(x, y, z);
+                    mat.ColorAmbient = new Vector4f(Vector3f.Parse(tokens, 1, CultureInfo.InvariantCulture.NumberFormat), 0);
                 }
             }
             else
@@ -262,10 +261,7 @@ namespace Leviathan.Core.Graphics
                 }
                 else
                 {
-                    float x = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-                    float y = float.Parse(tokens[2], CultureInfo.InvariantCulture.NumberFormat);
-                    float z = float.Parse(tokens[3], CultureInfo.InvariantCulture.NumberFormat);
-                    mat.ColorDiffuse = new Vector3f(x, y, z);
+                    mat.ColorDiffuse = new Vector4f(Vector3f.Parse(tokens, 1, CultureInfo.InvariantCulture.NumberFormat), 0);
                 }
             }
             else
@@ -284,10 +280,7 @@ namespace Leviathan.Core.Graphics
                 }
                 else
                 {
-                    float x = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-                    float y = float.Parse(tokens[2], CultureInfo.InvariantCulture.NumberFormat);
-                    float z = float.Parse(tokens[3], CultureInfo.InvariantCulture.NumberFormat);
-                    mat.ColorSpecular = new Vector3f(x, y, z);
+                    mat.ColorSpecular = new Vector4f(Vector3f.Parse(tokens, 1, CultureInfo.InvariantCulture.NumberFormat), 0);
                 }
             }
             else
@@ -429,5 +422,16 @@ namespace Leviathan.Core.Graphics
         }
 
 
+    }
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class MaterialAttribute : Attribute
+    {
+        public string UniformName { get; private set; }
+
+        public MaterialAttribute(string nametag)
+        {
+            this.UniformName = nametag;
+        }
     }
 }

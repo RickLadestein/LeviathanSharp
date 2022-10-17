@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -14,20 +15,6 @@ namespace Leviathan.Math
         public float Y;
         public float Z;
         public float W;
-
-        public Vector3f Xyz
-        {
-            get
-            {
-                return new Vector3f(X, Y, Z);
-            }
-            set
-            {
-                X = value.X;
-                Y = value.Y;
-                Z = value.Z;
-            }
-        }
 
         public Vector4f(float _x, float _y, float _z, float _w)
         {
@@ -42,6 +29,22 @@ namespace Leviathan.Math
             Y = vec.Y;
             Z = vec.Z;
             W = _w;
+        }
+
+        public Vector4f(Vector2f vec, float _z, float _w)
+        {
+            X = vec.X;
+            Y = vec.Y;
+            Z = _z;
+            W = _w;
+        }
+
+        public Vector4f(Vector2f vec, Vector2f vec2)
+        {
+            X = vec.X;
+            Y = vec.Y;
+            Z = vec2.X;
+            W = vec2.Y;
         }
 
         public float this[int index]
@@ -62,6 +65,10 @@ namespace Leviathan.Math
                 {
                     return Z;
                 }
+                else if (index == 3)
+                {
+                    return W;
+                }
 
                 throw new IndexOutOfRangeException("Vector index out of range: " + index);
             }
@@ -80,6 +87,10 @@ namespace Leviathan.Math
                 {
                     Z = value;
                 }
+                else if (index == 3) 
+                {
+                    W = value;
+                }
                 else
                 {
                     throw new IndexOutOfRangeException("Vector index out of range: " + index);
@@ -93,6 +104,21 @@ namespace Leviathan.Math
         public static readonly Vector4f UnitW       = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
         public static readonly Vector4f One         = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly Vector4f Zero        = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+
+        public Vector3f Xyz
+        {
+            get
+            {
+                return new Vector3f(X, Y, Z);
+            }
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
+            }
+        }
+
 
         public void Set(float _x, float _y, float _z, float _w)
         {
@@ -189,6 +215,42 @@ namespace Leviathan.Math
                 (mat.Row1.X * vec.X) + (mat.Row1.Y * vec.Y) + (mat.Row1.Z * vec.Z) + (mat.Row1.W * vec.W),
                 (mat.Row2.X * vec.X) + (mat.Row2.Y * vec.Y) + (mat.Row2.Z * vec.Z) + (mat.Row2.W * vec.W),
                 (mat.Row3.X * vec.X) + (mat.Row3.Y * vec.Y) + (mat.Row3.Z * vec.Z) + (mat.Row3.W * vec.W));
+        }
+
+        public float[] ToArray()
+        {
+            return new float[4] {X, Y, Z, W};
+        }
+
+        public static Vector4f Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 4)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector4f: Expected >= 4 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector4f: Expected >= 4 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            float x, y, z, w;
+            if (format != null)
+            {
+                x = float.Parse(tokens[begin], format);
+                y = float.Parse(tokens[begin + 1], format);
+                z = float.Parse(tokens[begin + 2], format);
+                w = float.Parse(tokens[begin + 4], format);
+
+            }
+            else
+            {
+                x = float.Parse(tokens[begin]);
+                y = float.Parse(tokens[begin + 1]);
+                z = float.Parse(tokens[begin + 2]);
+                w = float.Parse(tokens[begin + 4]);
+            }
+            return new Vector4f(x, y, z, w);
         }
 
         #region Operators

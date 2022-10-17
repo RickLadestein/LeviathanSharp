@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -100,6 +101,38 @@ namespace Leviathan.Math
         public static Vector2f Lerp(Vector2f v1, Vector2f v2, float t)
         {
             return v1 + (v2 - v1) * t;
+        }
+
+        public static Vector2f Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 2)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector2f: Expected >= 2 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector2f: Expected >= 2 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            float x, y;
+            if (format != null)
+            {
+                x = float.Parse(tokens[begin], format);
+                y = float.Parse(tokens[begin + 1], format);
+            }
+            else
+            {
+                x = float.Parse(tokens[begin]);
+                y = float.Parse(tokens[begin + 1]);
+            }
+            return new Vector2f(x, y);
+
+        }
+
+        public float[] ToArray()
+        {
+            return new float[2] { X, Y };
         }
         #endregion
 

@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -116,6 +117,39 @@ namespace Leviathan.Math
             result.Y = (left.Z * right.X) - (left.X * right.Z);
             result.Z = (left.X * right.Y) - (left.Y * right.X);
             return result;
+        }
+
+        public static Vector3i Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 3)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector3i: Expected >= 3 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector3i: Expected >= 3 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            int x, y, z;
+            if (format != null)
+            {
+                x = int.Parse(tokens[begin], format);
+                y = int.Parse(tokens[begin + 1], format);
+                z = int.Parse(tokens[begin + 2], format);
+            }
+            else
+            {
+                x = int.Parse(tokens[begin]);
+                y = int.Parse(tokens[begin + 1]);
+                z = int.Parse(tokens[begin + 2]);
+            }
+            return new Vector3i(x, y, z);
+        }
+
+        public int[] ToArray()
+        {
+            return new int[3] { X, Y, Z };
         }
 
         #region Operators

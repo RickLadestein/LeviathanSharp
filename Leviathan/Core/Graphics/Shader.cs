@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using Leviathan.Math;
 using Leviathan.Util;
+using Leviathan.Core.Graphics.Buffers;
 
 namespace Leviathan.Core.Graphics
 {
@@ -36,6 +37,7 @@ namespace Leviathan.Core.Graphics
 
             vshader.Dispose();
             fshader.Dispose();
+            RetrieveUniforms();
         }
 
         public ShaderProgram(VertexShader vshader, GeometryShader gshader, FragmentShader fshader)
@@ -113,8 +115,16 @@ namespace Leviathan.Core.Graphics
         private void RetrieveUniforms()
         {
             dict = new Dictionary<int, KeyValuePair<string, string>>();
-            List<int> ids = new List<int>();
+            List<string> ids = new List<string>();
             //TODO: FIX
+            Context.GLContext.GetProgram(this.Handle, Silk.NET.OpenGL.ProgramPropertyARB.ActiveUniforms, out int id_count);
+            Context.GLContext.GetProgram(this.Handle, Silk.NET.OpenGL.ProgramPropertyARB.ActiveUniformBlocks, out int id_count2);
+            Console.WriteLine($"Amount of uniforms: {id_count}");
+            for(int i =0; i < id_count; i++)
+            {
+                string id = Context.GLContext.GetActiveUniform(this.Handle, (uint)i, out int name_size, out Silk.NET.OpenGL.UniformType utype);
+                ids.Add(id);
+            }
         }
 
         private String GetProgramInfoLog()

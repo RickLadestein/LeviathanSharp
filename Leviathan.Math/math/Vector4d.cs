@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -55,6 +56,10 @@ namespace Leviathan.Math
                 {
                     return Z;
                 }
+                else if (index == 3)
+                {
+                    return W;
+                }
 
                 throw new IndexOutOfRangeException("Vector index out of range: " + index);
             }
@@ -72,6 +77,10 @@ namespace Leviathan.Math
                 else if (index == 2)
                 {
                     Z = value;
+                }
+                else if (index == 3)
+                {
+                    W = value;
                 }
                 else
                 {
@@ -127,6 +136,41 @@ namespace Leviathan.Math
         public static double Dot(Vector4d v1, Vector4d v2)
         {
             return (v1.X * v2.X) + (v1.Y * v2.Y) + (v1.Z * v2.Z) + (v1.W * v2.W);
+        }
+
+        public static Vector4d Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 4)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector4d: Expected >= 4 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector4d: Expected >= 4 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            double x, y, z, w;
+            if (format != null)
+            {
+                x = double.Parse(tokens[begin], format);
+                y = double.Parse(tokens[begin + 1], format);
+                z = double.Parse(tokens[begin + 2], format);
+                w = double.Parse(tokens[begin + 4], format);
+            }
+            else
+            {
+                x = double.Parse(tokens[begin]);
+                y = double.Parse(tokens[begin + 1]);
+                z = double.Parse(tokens[begin + 2]);
+                w = double.Parse(tokens[begin + 4]);
+            }
+            return new Vector4d(x, y, z, w);
+        }
+
+        public double[] ToArray()
+        {
+            return new double[4] { X, Y, Z, W };
         }
 
         #region Operators

@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace Leviathan.Math
 {
@@ -18,6 +19,13 @@ namespace Leviathan.Math
             X = _x;
             Y = _y;
         }
+
+        public Vector2d(float _x, float _y)
+        {
+            X = (double)_x;
+            Y = (double)_y;
+        }
+
         public double this[int index]
         {
             get
@@ -95,6 +103,37 @@ namespace Leviathan.Math
             return v1 + (v2 - v1) * t;
         }
 
+        public static Vector2d Parse(string[] tokens, int begin, NumberFormatInfo format = null)
+        {
+            if (tokens.Length < 2)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector2i: Expected >= 2 and got {tokens.Length}");
+            }
+
+            if (tokens.Length - begin < 0)
+            {
+                throw new ArgumentException($"Too few arguments given to parse Vector2i: Expected >= 2 parseable tokens and got {tokens.Length - begin} accounting for start index");
+            }
+
+            double x, y;
+            if (format != null)
+            {
+                x = double.Parse(tokens[begin], format);
+                y = double.Parse(tokens[begin + 1], format);
+            }
+            else
+            {
+                x = double.Parse(tokens[begin]);
+                y = double.Parse(tokens[begin + 1]);
+            }
+            return new Vector2d(x, y);
+
+        }
+
+        public double[] ToArray()
+        {
+            return new double[2] { X, Y };
+        }
         #endregion
 
         #region Operators
