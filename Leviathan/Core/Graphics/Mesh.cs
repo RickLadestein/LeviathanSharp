@@ -143,7 +143,7 @@ namespace Leviathan.Core.Graphics
             if(mesh.TextureCoordinateChannelCount == 0)
             {
                 textures_data = new List<Vector3f>[1];
-                textures_data[0] = new List<Vector3f>(mesh.VertexCount);
+                textures_data[0] = new List<Vector3f>(mesh.VertexCount) { Vector3f.Zero };
                 hadnotexturechannels = true;
             } else
             {
@@ -168,19 +168,16 @@ namespace Leviathan.Core.Graphics
                 n.Z = mesh.Normals[i].Z;
                 normal_data.Add(n);
 
-                if(!hadnotexturechannels)
+                if (!hadnotexturechannels)
                 {
                     Vector3f texcoord = Vector3f.Zero;
-                    for(int j = 0; j < mesh.TextureCoordinateChannelCount; j++)
+                    for (int j = 0; j < mesh.TextureCoordinateChannelCount; j++)
                     {
-                        texcoord.X = mesh.TextureCoordinateChannels[0][i].X;
-                        texcoord.Y = mesh.TextureCoordinateChannels[0][i].Y;
-                        texcoord.Z = mesh.TextureCoordinateChannels[0][i].Z;
+                        texcoord.X = mesh.TextureCoordinateChannels[j][i].X;
+                        texcoord.Y = mesh.TextureCoordinateChannels[j][i].Y;
+                        texcoord.Z = mesh.TextureCoordinateChannels[j][i].Z;
                         textures_data[j].Add(texcoord);
                     }
-                } else
-                {
-                    textures_data[0].Add(Vector3f.Zero);
                 }
 
                 Vector3f tangent = new Vector3f();

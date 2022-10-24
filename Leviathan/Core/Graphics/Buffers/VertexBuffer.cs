@@ -17,8 +17,6 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public bool validation_needed;
 
-        public IBO[] ibos;
-
         public List<VertexBufferObject> Vbuffers;
 
         private static uint Bound_vbuffer;
@@ -96,37 +94,34 @@ namespace Leviathan.Core.Graphics.Buffers
         public static VertexBufferObject Create(VertexAttribute attrib, uint vao_index, uint byte_offset)
         {
             VertexBufferObject tmp = new VertexBufferObject(attrib, vao_index, byte_offset);
-            
-            //Guard against not complete data in the BufferedData array
-            if(!tmp.RevalidateDescriptor())
-            {
-                throw new Exception("Buffered data size does not fit with segment byte size in the Descriptor");
-            }
+            tmp.RevalidateDescriptor();
             return tmp;
         }
 
-        public void LoadNewData(VertexAttribute attrib)
+        public void LoadDataFromVertexAttribute(VertexAttribute attrib)
         {
-            this.Descriptor = attrib.Descriptor;
-            if(attrib.data.Length != data.Length)
+            if (this.Descriptor.Equals(attrib.Descriptor))
             {
-                data = new byte[attrib.data.Length];
+                throw new Exception("Could not load Attribute data, descriptor does not match");
             }
-            Array.Copy(data, attrib.data, attrib.data.Length);
-            //datalistener.OnVBODataChanged();
+
+            if (attrib.data.Length != data.Length)
+            {
+                throw new Exception("Cannot modify the size of the buffer, only modify buffer contents");
+            }
+
+            Array.Copy(attrib.data, data, attrib.data.Length);
         }
 
         public void WriteDataToGPU(VertexBufferObjectUsageHint usagehint = VertexBufferObjectUsageHint.STATIC)
         {
-            //Bind();
             unsafe
             {
                 fixed (void* d_ptr = &this.data[0])
                 {
-                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)data.Length, d_ptr, (GLEnum)usagehint);
+                    Context.GLContext.BufferSubData(GLEnum.ArrayBuffer, (int)this.Data_Offset, (uint)data.Length, d_ptr);
                 }
             };
-            //Unbind();
         }
 
         /// <summary>
@@ -134,20 +129,19 @@ namespace Leviathan.Core.Graphics.Buffers
         /// </summary>
         private void RetrieveDataFromGPU()
         {
-            if(this.data.Length != (SegmentCount * Descriptor.segment_byte_size))
+            int total_buffer_size = (SegmentCount * Descriptor.segment_byte_size);
+            if (this.data.Length != total_buffer_size)
             {
-                this.data = new byte[SegmentCount * Descriptor.segment_byte_size];
+                this.data = new byte[total_buffer_size];
             }
 
-            //Bind();
             unsafe
             {
-                fixed (void* d_ptr = &this.data[0])
+                fixed (void* d_ptr = &data[0])
                 {
-                    Context.GLContext.GetBufferSubData(GLEnum.ArrayBuffer, 0, (uint)this.data.Length, d_ptr);
+                    Context.GLContext.GetBufferSubData(GLEnum.ArrayBuffer, (int)Data_Offset, (uint)data.Length, d_ptr);
                 }
             }
-            //Unbind();
         }
 
         /// <summary>
@@ -175,55 +169,6 @@ namespace Leviathan.Core.Graphics.Buffers
         DYNAMIC = GLEnum.DynamicDraw
     }
 
-    public class IBO : IDisposable
-    {
-        public uint handle;
-        public uint mode;
-        public uint vao_index;
-        public uint value_size;
-        public VertexBufferAttributes.LAttributeDataType value_type;
-        public LDataCollectionType coll_type;
-
-        public static IBO Create(InstanceBuffer ibuf, uint current_attrib)
-        {
-            IBO tmp = new IBO()
-            {
-                handle = Context.GLContext.GenBuffer(),
-                vao_index = current_attrib,
-                value_type = ibuf.valuetype,
-                coll_type = ibuf.coll_type,
-                value_size = ibuf.value_size
-            };
-
-
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, tmp.handle);
-            unsafe
-            {
-                fixed (void* d_ptr = &ibuf.data[0])
-                {
-                    Context.GLContext.BufferData(GLEnum.ArrayBuffer, (uint)ibuf.data.Length, d_ptr, GLEnum.StaticDraw);
-                }
-
-                Context.GLContext.VertexAttribPointer(tmp.vao_index, (int)tmp.coll_type, (GLEnum)tmp.value_type, false, 0, (void*)0);
-                Context.GLContext.EnableVertexAttribArray(tmp.vao_index);
-                Context.GLContext.VertexAttribDivisor(current_attrib, ibuf.mode);
-            };
-            Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
-            return tmp;
-        }
-
-        private void Destroy()
-        {
-            Context.GLContext.DeleteBuffer(this.handle);
-            this.handle = 0;
-        }
-
-        public void Dispose()
-        {
-            Destroy();
-        }
-    }
-
 
     public class VertexBufferFactory
     {
@@ -245,18 +190,18 @@ namespace Leviathan.Core.Graphics.Buffers
         }
         public VertexBuffer Build()
         {
+            this.SetPrimitiveType(this.ptype);
             outputbuffer = new VertexBuffer
             {
                 prim_type = ptype
             };
 
-            int vcount = 0;
-            bool first = true;
-            uint current_attrib = 0;
+            
             outputbuffer.Bind();
            
             Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, outputbuffer.DataHandle);
             
+            //Merge all seperate data containers into one buffer
             uint current_byte_offset = 0;
             byte[] total_data = new byte[total_byte_size];
             for(int i = 0; i < buildlist.Count; i++)
@@ -266,6 +211,7 @@ namespace Leviathan.Core.Graphics.Buffers
                 current_byte_offset += byte_offsets[i];
             }
 
+            //Copy all the data to the buffer on the GPU
             unsafe
             {
                 fixed (void* d_ptr = &total_data[0])
@@ -274,8 +220,9 @@ namespace Leviathan.Core.Graphics.Buffers
                 }
             };
 
-
-            int index = 0;
+            int vcount = 0;
+            uint current_attrib = 0;
+            bool first = true;
             current_byte_offset = 0;
             foreach (KeyValuePair<LAttributeType, VertexAttribute> kp in buildlist)
             {
@@ -286,20 +233,14 @@ namespace Leviathan.Core.Graphics.Buffers
                     outputbuffer.vertex_count = (uint)vcount;
                 }
 
-                if (kp.Value.SegmentCount != vcount)
-                {
-                    throw new Exception("Attribute buffer misalignment detected: please ensure that each attribute buffer has the same attribute count");
-                }
-
-                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, current_attrib, byte_offsets[index]);
+                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, current_attrib, byte_offsets[(int)current_attrib]);
                 unsafe
                 {
                     Context.GLContext.VertexAttribPointer(current_attrib, (int)vbo.Descriptor.collection_type, (GLEnum)vbo.Descriptor.value_type, false, 0, (void*)current_byte_offset);
                     Context.GLContext.EnableVertexAttribArray(current_attrib);
                 }
-                current_byte_offset += byte_offsets[index];
+                current_byte_offset += byte_offsets[(int)current_attrib];
                 current_attrib += 1;
-                index += 1;
             }
 
             Context.GLContext.BindBuffer(GLEnum.ArrayBuffer, 0);
@@ -311,6 +252,21 @@ namespace Leviathan.Core.Graphics.Buffers
         public VertexBufferFactory SetPrimitiveType(LPrimitiveType _elementType)
         {
             this.ptype = _elementType;
+            switch(_elementType)
+            {
+                case LPrimitiveType.LINES:
+                    if(this.total_byte_size % 2 != 0)
+                    {
+                        throw new Exception($"Cannot apply LPrimitiveType:Lines, buffer element count is not divisible by line element count:2");
+                    }
+                    break;
+                case LPrimitiveType.TRIANGLES:
+                    if (this.total_byte_size % 3 != 0)
+                    {
+                        throw new Exception($"Cannot apply LPrimitiveType:Triangles, buffer element count is not divisible by triangle element count:3");
+                    }
+                    break;
+            }
             return this;
         }
 
@@ -332,13 +288,11 @@ namespace Leviathan.Core.Graphics.Buffers
             }
 
             //Guard against double assigned data
-            foreach(KeyValuePair<LAttributeType, VertexAttribute> kvp in buildlist)
+            if(buildlist.FindIndex(new Predicate<KeyValuePair<LAttributeType, VertexAttribute>>((e) => { return e.Key == type; })) != -1)
             {
-                if(kvp.Key == type)
-                {
-                    throw new Exception("VertexAttribute type is already contained in the factory");
-                }
+                throw new Exception("VertexAttribute type is already contained in the factory");
             }
+
             uint offset = (uint)(attrib.SegmentCount * attrib.Descriptor.segment_byte_size);
             total_byte_size += offset;
             byte_offsets.Add(offset);

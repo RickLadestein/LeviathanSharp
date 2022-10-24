@@ -1,6 +1,7 @@
 ﻿using Leviathan.Math;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
@@ -19,16 +20,40 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             attribute_data = new List<double>((int)reserve);
         }
 
+        public DoubleAttribute(double[] data) : base(LAttributeDataType.DOUBLE, LDataCollectionType.SINGULAR)
+        {
+            attribute_data = new List<double>(data);
+            this.SegmentCount = (uint)attribute_data.Count;
+        }
+
         public override VertexAttribute CompileToVertexAttribute()
         {
-            VertexAttribute attrib = new VertexAttribute(this.descriptor, (uint)attribute_data.Count);
+            VertexAttributeDescriptor descriptor = this.GenerateDescriptor();
+            VertexAttribute attrib = new VertexAttribute(descriptor, (uint)attribute_data.Count);
             attrib.SetDataColl<double>(attribute_data.ToArray());
+            attrib.RevalidateDescriptor();
             return attrib;
         }
 
-        public static DoubleAttribute FromVertexAttribute()
+        public static DoubleAttribute FromVertexAttribute(VertexAttribute attribute)
         {
-            throw new NotImplementedException();
+            if (!(attribute.Descriptor.value_type == LAttributeDataType.DOUBLE
+                && attribute.Descriptor.collection_type == LDataCollectionType.SINGULAR))
+            {
+                throw new Exception("Could not convert to Attribute: incorrect value or collection type");
+            }
+
+            double[] data = new double[attribute.SegmentCount];
+            unsafe
+            {
+                fixed (void* dest_raw_ptr = &data[0])
+                {
+                    IntPtr dest_ptr = new IntPtr(dest_raw_ptr);
+                    Marshal.Copy(attribute.data, 0, dest_ptr, attribute.data.Length);
+                }
+            }
+            DoubleAttribute output = new DoubleAttribute(data);
+            return output;
         }
     }
 
@@ -46,16 +71,40 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             attribute_data = new List<Vector2d>((int)reserve);
         }
 
+        public Double2Attribute(Vector2d[] data) : base(LAttributeDataType.DOUBLE, LDataCollectionType.VEC2)
+        {
+            attribute_data = new List<Vector2d>(data);
+            this.SegmentCount = (uint)attribute_data.Count;
+        }
+
         public override VertexAttribute CompileToVertexAttribute()
         {
-            VertexAttribute attrib = new VertexAttribute(this.descriptor, (uint)attribute_data.Count);
+            VertexAttributeDescriptor descriptor = this.GenerateDescriptor();
+            VertexAttribute attrib = new VertexAttribute(descriptor, (uint)attribute_data.Count);
             attrib.SetDataColl<Vector2d>(attribute_data.ToArray());
+            attrib.RevalidateDescriptor();
             return attrib;
         }
 
-        public static Double4Attribute FromVertexAttribute()
+        public static Double2Attribute FromVertexAttribute(VertexAttribute attribute)
         {
-            throw new NotImplementedException();
+            if (!(attribute.Descriptor.value_type == LAttributeDataType.DOUBLE
+                && attribute.Descriptor.collection_type == LDataCollectionType.VEC2))
+            {
+                throw new Exception("Could not convert to Attribute: incorrect value or collection type");
+            }
+
+            Vector2d[] data = new Vector2d[attribute.SegmentCount];
+            unsafe
+            {
+                fixed (void* dest_raw_ptr = &data[0])
+                {
+                    IntPtr dest_ptr = new IntPtr(dest_raw_ptr);
+                    Marshal.Copy(attribute.data, 0, dest_ptr, attribute.data.Length);
+                }
+            }
+            Double2Attribute output = new Double2Attribute(data);
+            return output;
         }
     }
 
@@ -73,16 +122,40 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             attribute_data = new List<Vector3d>((int)reserve);
         }
 
+        public Double3Attribute(Vector3d[] data) : base(LAttributeDataType.DOUBLE, LDataCollectionType.VEC3)
+        {
+            attribute_data = new List<Vector3d>(data);
+            this.SegmentCount = (uint)attribute_data.Count;
+        }
+
         public override VertexAttribute CompileToVertexAttribute()
         {
-            VertexAttribute attrib = new VertexAttribute(this.descriptor, (uint)attribute_data.Count);
+            VertexAttributeDescriptor descriptor = this.GenerateDescriptor();
+            VertexAttribute attrib = new VertexAttribute(descriptor, (uint)attribute_data.Count);
             attrib.SetDataColl<Vector3d>(attribute_data.ToArray());
+            attrib.RevalidateDescriptor();
             return attrib;
         }
 
-        public static Double4Attribute FromVertexAttribute()
+        public static Double3Attribute FromVertexAttribute(VertexAttribute attribute)
         {
-            throw new NotImplementedException();
+            if (!(attribute.Descriptor.value_type == LAttributeDataType.DOUBLE
+                && attribute.Descriptor.collection_type == LDataCollectionType.VEC3))
+            {
+                throw new Exception("Could not convert to Attribute: incorrect value or collection type");
+            }
+
+            Vector3d[] data = new Vector3d[attribute.SegmentCount];
+            unsafe
+            {
+                fixed (void* dest_raw_ptr = &data[0])
+                {
+                    IntPtr dest_ptr = new IntPtr(dest_raw_ptr);
+                    Marshal.Copy(attribute.data, 0, dest_ptr, attribute.data.Length);
+                }
+            }
+            Double3Attribute output = new Double3Attribute(data);
+            return output;
         }
     }
 
@@ -100,16 +173,40 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             attribute_data = new List<Vector4d>((int)reserve);
         }
 
+        public Double4Attribute(Vector4d[] data) : base(LAttributeDataType.DOUBLE, LDataCollectionType.VEC4)
+        {
+            attribute_data = new List<Vector4d>(data);
+            this.SegmentCount = (uint)attribute_data.Count;
+        }
+
         public override VertexAttribute CompileToVertexAttribute()
         {
-            VertexAttribute attrib = new VertexAttribute(this.descriptor, (uint)attribute_data.Count);
+            VertexAttributeDescriptor descriptor = this.GenerateDescriptor();
+            VertexAttribute attrib = new VertexAttribute(descriptor, (uint)attribute_data.Count);
             attrib.SetDataColl<Vector4d>(attribute_data.ToArray());
+            attrib.RevalidateDescriptor();
             return attrib;
         }
 
-        public static Double4Attribute FromVertexAttribute()
+        public static Double4Attribute FromVertexAttribute(VertexAttribute attribute)
         {
-            throw new NotImplementedException();
+            if (!(attribute.Descriptor.value_type == LAttributeDataType.DOUBLE
+                && attribute.Descriptor.collection_type == LDataCollectionType.VEC4))
+            {
+                throw new Exception("Could not convert to Attribute: incorrect value or collection type");
+            }
+
+            Vector4d[] data = new Vector4d[attribute.SegmentCount];
+            unsafe
+            {
+                fixed (void* dest_raw_ptr = &data[0])
+                {
+                    IntPtr dest_ptr = new IntPtr(dest_raw_ptr);
+                    Marshal.Copy(attribute.data, 0, dest_ptr, attribute.data.Length);
+                }
+            }
+            Double4Attribute output = new Double4Attribute(data);
+            return output;
         }
     }
 }

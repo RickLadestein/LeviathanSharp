@@ -115,16 +115,23 @@ namespace Leviathan.Core.Graphics
         private void RetrieveUniforms()
         {
             dict = new Dictionary<int, KeyValuePair<string, string>>();
-            List<string> ids = new List<string>();
+            List<string> uniform_ids = new List<string>();
+            List<string> uniform_block_ids = new List<string>();
             //TODO: FIX
             Context.GLContext.GetProgram(this.Handle, Silk.NET.OpenGL.ProgramPropertyARB.ActiveUniforms, out int id_count);
-            Context.GLContext.GetProgram(this.Handle, Silk.NET.OpenGL.ProgramPropertyARB.ActiveUniformBlocks, out int id_count2);
-            Console.WriteLine($"Amount of uniforms: {id_count}");
             for(int i =0; i < id_count; i++)
             {
                 string id = Context.GLContext.GetActiveUniform(this.Handle, (uint)i, out int name_size, out Silk.NET.OpenGL.UniformType utype);
-                ids.Add(id);
+                uniform_ids.Add(id);
             }
+
+            Context.GLContext.GetProgram(this.Handle, Silk.NET.OpenGL.ProgramPropertyARB.ActiveUniformBlocks, out int id_count2);
+            for(uint i = 0; i < id_count2; i++)
+            {
+                Context.GLContext.GetActiveUniformBlockName(this.Handle, i, 512, out uint length, out string blockname);
+                uniform_block_ids.Add(blockname);
+            }
+            return;
         }
 
         private String GetProgramInfoLog()

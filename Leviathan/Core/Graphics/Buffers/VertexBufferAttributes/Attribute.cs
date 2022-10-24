@@ -8,34 +8,17 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
 {
     public abstract class Attribute<ValueType> where ValueType : unmanaged
     {
-        public VertexAttributeDescriptor descriptor;
-
         public List<ValueType> attribute_data;
 
-        public uint SegmentCount { get; private set; }
+        private LAttributeDataType valueType;
+        private LDataCollectionType collType;
+
+        public uint SegmentCount { get; protected set; }
 
         protected Attribute(LAttributeDataType value_type, LDataCollectionType collection_type)
         {
-            descriptor = new VertexAttributeDescriptor
-            {
-                value_type = value_type,
-                collection_type = collection_type
-            };
-
-            switch (value_type)
-            {
-                case LAttributeDataType.INT:
-                case LAttributeDataType.UINT:
-                case LAttributeDataType.FLOAT:
-                    descriptor.value_byte_size = 4;
-                    break;
-                case LAttributeDataType.DOUBLE:
-                    descriptor.value_byte_size = 8;
-                    break;
-                default:
-                    throw new NotSupportedException($"AttributeDataType: {value_type} not yet supported!");
-            }
-            descriptor.segment_byte_size = ((int)collection_type) * descriptor.value_byte_size;
+            this.valueType = value_type;
+            this.collType = collection_type;
         }
 
 
@@ -69,6 +52,55 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
             //descriptor.segment_count += datapoints.Count();
         }
 
+        protected VertexAttributeDescriptor GenerateDescriptor()
+        {
+            VertexAttributeDescriptor descriptor = new VertexAttributeDescriptor
+            {
+                value_type = valueType,
+                collection_type = collType
+            };
+
+            switch (valueType)
+            {
+                case LAttributeDataType.INT:
+                case LAttributeDataType.UINT:
+                case LAttributeDataType.FLOAT:
+                    descriptor.value_byte_size = 4;
+                    break;
+                case LAttributeDataType.DOUBLE:
+                    descriptor.value_byte_size = 8;
+                    break;
+                default:
+                    throw new NotSupportedException($"AttributeDataType: {valueType} not yet supported!");
+            }
+            descriptor.segment_byte_size = ((int)collType) * descriptor.value_byte_size;
+
+            return descriptor;
+        }
+
+        protected void GenerateDescriptor(ref VertexAttributeDescriptor descriptor)
+        {
+            descriptor.value_type = valueType;
+            descriptor.collection_type = collType;
+
+            switch (valueType)
+            {
+                case LAttributeDataType.INT:
+                case LAttributeDataType.UINT:
+                case LAttributeDataType.FLOAT:
+                    descriptor.value_byte_size = 4;
+                    break;
+                case LAttributeDataType.DOUBLE:
+                    descriptor.value_byte_size = 8;
+                    break;
+                default:
+                    throw new NotSupportedException($"AttributeDataType: {valueType} not yet supported!");
+            }
+            descriptor.segment_byte_size = ((int)collType) * descriptor.value_byte_size;
+        }
+
         public abstract VertexAttribute CompileToVertexAttribute();
+
+        
     }
 }

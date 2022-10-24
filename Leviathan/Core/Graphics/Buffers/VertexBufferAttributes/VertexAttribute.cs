@@ -95,17 +95,24 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// Validates and reloads the VertexAttributeDescriptor to adjust to new data contained in the VertexAttribute
         /// </summary>
         /// <returns>True if revalidation was succesfull, False if the descriptor did not match contained data</returns>
-        public bool RevalidateDescriptor()
+        public void RevalidateDescriptor()
         {
             this.Descriptor.Reload();
             bool succes = (this.data.Length % this.Descriptor.segment_byte_size) == 0;
             if(succes)
             {
                 this.SegmentCount = this.data.Length / this.Descriptor.segment_byte_size;
+            } else
+            {
+                throw new Exception("Descriptor validation failed: incorrect buffer length for segment size");
             }
-            return succes;
         }
 
+        //public Attribute<T> ToAttribute<T>() where T : unmanaged
+        //{
+        //
+        //}
+ 
         public void Dispose()
         {
             //data.Clear();
@@ -115,12 +122,12 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
     /// <summary>
     /// Descriptor that provides information on what kind of data is contained in the VertexAttribute
     /// </summary>
-    public struct VertexAttributeDescriptor
+    public struct VertexAttributeDescriptor : IEquatable<VertexAttributeDescriptor>
     {
         /// <summary>
         /// The name of the VertexAttribute in the shader program
         /// </summary>
-        public String name;
+        //public String name;
 
         /// <summary>
         /// The value type stored inside a single segment
@@ -141,6 +148,12 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
         /// The amount of bytes stored in a single segment i.e(VEC2, VEC3, VEC4 etc)
         /// </summary>
         public int segment_byte_size;
+
+        public bool Equals(VertexAttributeDescriptor other)
+        {
+            return (value_type == other.value_type) && (value_byte_size == other.value_byte_size) &&
+                (collection_type == other.collection_type) && (segment_byte_size == other.segment_byte_size);
+        }
 
         public void Reload()
         {
