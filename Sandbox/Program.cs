@@ -36,10 +36,10 @@ namespace Sandbox
             //Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
             //Context.GLContext.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
 
-            Scene s = Scene.LoadSceneFromObj(".\\assets\\models\\sponza.obj");
+            //Scene s = Scene.LoadSceneFromObj(".\\assets\\models\\sponza.obj");
 
             World.Current.LoadScene(Scene.DefaultScene);
-            World.Current.AddScene(s);
+            //World.Current.AddScene(s);
             Window.Start(w);
             return;
         }

@@ -76,11 +76,11 @@ namespace Leviathan.Core.Graphics
 
                     if(!Context.TextureManager.HasResource(filename))
                     {
-                        Texture2D tex = Texture2D.ImportTexture($"./assets/{unit.FilePath}");
-                        Context.TextureManager.AddResource(filename, tex);
-                    } else
-                    {
-                        Console.WriteLine($"Texture loading collision {filename}");
+                        Texture2D tex = Texture2D.ImportTexture($".\\assets\\{unit.FilePath}");
+                        if (tex != null)
+                        {
+                            Context.TextureManager.AddResource(filename, tex);
+                        }
                     }
                     
                 }
@@ -212,7 +212,7 @@ namespace Leviathan.Core.Graphics
                     {
                         texcoord.X = mesh.TextureCoordinateChannels[j][i].X;
                         texcoord.Y = mesh.TextureCoordinateChannels[j][i].Y;
-                        texcoord.Z = mesh.TextureCoordinateChannels[j][i].Z;
+                        texcoord.Z = 0.0f;
                         textures_data[j].Add(texcoord);
                     }
                 }

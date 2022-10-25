@@ -403,7 +403,7 @@ namespace Leviathan.Core
             IEnumerable<string> eFiles = System.IO.Directory.EnumerateFiles(".\\assets\\default");
             foreach (string file in eFiles)
             {
-                if (file.EndsWith(".jpeg"))
+                if (file.EndsWith(".png") || file.EndsWith("jpg") || file.EndsWith(".tga"))
                 {
                     String[] tokens = file.Split("\\");
                     string full_name = tokens[tokens.Length - 1];

@@ -1,5 +1,6 @@
 ﻿using Leviathan.Core.Graphics.Buffers;
 using Leviathan.Math;
+using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -101,15 +102,22 @@ namespace Leviathan.Core.Graphics
             {
                 Context.GLContext.TexImage2D(
                     (Silk.NET.OpenGL.GLEnum)this.Type, 
-                    0, 
-                    (int)InternalPixelFormat, 
-                    im.width, 
-                    im.height, 
-                    0, 
-                    PixelFormat, 
-                    PixelType, 
+                    0,
+                    (int)InternalFormat.Rgba, 
+                    (uint)im.width, 
+                    (uint)im.height, 
+                    0,
+                    PixelFormat.Rgba,
+                    PixelType.UnsignedByte, 
                     data);
             }
+
+            /*
+             fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
+            {
+                NativeWindow.GL.TexImage2D(TextureTarget.Texture2D, 0, (int)InternalFormat.Rgba, im.width, im.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+            }
+             */
         }
 
         public void SetFilterMode(MinMagSetting filter)
@@ -146,6 +154,10 @@ namespace Leviathan.Core.Graphics
         public MultiTexture()
         {
             textures = new Texture[TextureBuffer.MAX_TEXTURES];
+            for(int i = 0; i < textures.Length; i++)
+            {
+                textures[i] = Texture2D.Zero;
+            }
         }
     }
 
@@ -174,7 +186,23 @@ namespace Leviathan.Core.Graphics
             Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)Wrap);
             Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)Filter);
             Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)Filter);
-            LoadImageIntoTexture(im);
+            //LoadImageIntoTexture(im);
+            unsafe
+            {
+                fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
+                {
+                    Context.GLContext.TexImage2D(
+                        (Silk.NET.OpenGL.GLEnum)this.Type,
+                        0,
+                        (int)InternalFormat.Rgba,
+                        (uint)im.width,
+                        (uint)im.height,
+                        0,
+                        PixelFormat.Rgba,
+                        PixelType.UnsignedByte,
+                        data);
+                }
+            }
 
             EndModification();
         }
@@ -212,11 +240,13 @@ namespace Leviathan.Core.Graphics
 
         public static Texture2D ImportTexture(String path)
         {
-            Console.WriteLine($"trying to load: {path}");
             ImageResource image = ImageResource.Load(path, true);
-            Texture2D output = new Texture2D(image);
-            Console.WriteLine($"load complete");
-            return output;
+            if(image != null)
+            {
+                Texture2D output = new Texture2D(image);
+                return output;
+            }
+            return null;
         }
     }
 

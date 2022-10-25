@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Silk.NET.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -73,19 +74,7 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             for(int i = 0; i < MAX_TEXTURES; i++)
             {
-                uint h1 = 0;
-                if (textures[i] != null)
-                {
-                    h1 = textures[i].Handle;
-                }
-
-                uint h2 = 0;
-                if(mtex.textures[i] != null)
-                {
-                    h2 = mtex.textures[i].Handle;
-                }
-
-                if(h1 != h2)
+                if (textures[i].Handle != mtex.textures[i].Handle)
                 {
                     textures[i] = mtex.textures[i];
                     changemap[i] = true;
@@ -97,12 +86,18 @@ namespace Leviathan.Core.Graphics.Buffers
         {
             for(int i = 0; i < MAX_TEXTURES; i++)
             {
-                if(changemap[i])
+                if (changemap[i])
                 {
                     Context.GLContext.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0 + i);
                     Context.GLContext.BindTexture((Silk.NET.OpenGL.GLEnum)textures[i].Type, textures[i].Handle);
                     changemap[i] = false;
                 }
+                //if (changemap[i])
+                //{
+                //    Context.GLContext.ActiveTexture(Silk.NET.OpenGL.TextureUnit.Texture0 + i);
+                //    Context.GLContext.BindTexture((Silk.NET.OpenGL.GLEnum)textures[i].Type, textures[i].Handle);
+                //    changemap[i] = false;
+                //}
             }
         }
 

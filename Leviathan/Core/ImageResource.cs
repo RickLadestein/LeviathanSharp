@@ -1,8 +1,10 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace Leviathan.Core
@@ -55,7 +57,7 @@ namespace Leviathan.Core
                 case 128:
                     return Silk.NET.OpenGL.PixelType.UnsignedInt;
                 default:
-                    return Silk.NET.OpenGL.PixelType.Byte;
+                    return Silk.NET.OpenGL.PixelType.UnsignedByte;
             }
         }
 
@@ -69,14 +71,13 @@ namespace Leviathan.Core
         {
             try
             {
-                SixLabors.ImageSharp.Image<Rgba32> im = (SixLabors.ImageSharp.Image<Rgba32>)SixLabors.ImageSharp.Image.Load(path);
+                SixLabors.ImageSharp.Image<Rgba32> im = SixLabors.ImageSharp.Image.Load<Rgba32>(path);
                 if (flip)
                 {
                     im.Mutate(x => x.Flip(FlipMode.Vertical));
                 }
                 return new ImageResource(im);
-            }
-            catch (Exception)
+            } catch(Exception ex)
             {
                 return null;
             }

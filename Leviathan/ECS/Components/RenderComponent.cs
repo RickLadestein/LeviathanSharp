@@ -5,6 +5,8 @@ using Leviathan.Math;
 using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace Leviathan.ECS
@@ -86,6 +88,22 @@ namespace Leviathan.ECS
             sh.Bind();
 
             MultiTexture tex = matcomp.Texture;
+
+            for(int i = 0; i < matcomp.Material.maps.Count; i++)
+            {
+                var m = matcomp.Material.maps[i];
+                
+                if (m == null || !Context.TextureManager.HasResource(Path.GetFileName(m.Item2.FilePath)))
+                {
+                    tex.textures[i] = Context.TextureManager.GetResource("default");
+                } else
+                {
+                    string id = Path.GetFileName(m.Item2.FilePath);
+                    Core.Graphics.Texture t = Context.TextureManager.GetResource(id);
+                    tex.textures[i] = t;
+                }
+            }
+
             TextureBuffer.Instance.UseMultitex(tex);
 
             for (int i = 0; i < TextureBuffer.MAX_TEXTURES; i++)
@@ -95,7 +113,7 @@ namespace Leviathan.ECS
 
             VertexBuffer vbuf = meshcomp.Mesh.Vbuffer;
             vbuf.Bind();
-
+            TextureBuffer.Instance.Bind();
             //sh.SetUniform("model", parent.Transform.ModelMat);
             sh.SetUniform("model", Parent.Transform.ModelMat);
             //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
@@ -106,6 +124,7 @@ namespace Leviathan.ECS
             Context.GLContext.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
             vbuf.Unbind();
             sh.Unbind();
+            TextureBuffer.UnbindAll();
         }
 
         //public void RenderInstanced(Camera target, uint instances)
