@@ -30,6 +30,30 @@ namespace Leviathan.Core.Graphics.Buffers
             DataHandle = Context.GLContext.GenBuffer();
         }
 
+        public void StartModification()
+        {
+            Bind();
+            foreach(VertexBufferObject obj in Vbuffers)
+            {
+                obj.RetrieveDataFromGPU();
+            }
+            Unbind();
+        }
+
+        public void EndModification(bool keepdata = false)
+        {
+            Bind();
+            foreach (VertexBufferObject obj in Vbuffers)
+            {
+                obj.WriteDataToGPU();
+                if(!keepdata)
+                {
+                    obj.PurgeLocalBuffer();
+                }
+            }
+            Unbind();
+        }
+
         public void Bind()
         {
             if(Bound_vbuffer != Handle)
@@ -76,6 +100,21 @@ namespace Leviathan.Core.Graphics.Buffers
                 Context.GLContext.DeleteBuffer(this.DataHandle);
             }
         }
+
+        public VertexBuffer CreateCopy()
+        {
+            VertexBufferFactory factory = new VertexBufferFactory();
+            factory.SetPrimitiveType(this.prim_type);
+            this.StartModification();
+            foreach(VertexBufferObject obj in Vbuffers)
+            {
+                factory.AddVertexAttribute(obj, obj.AttribType);
+            }
+            VertexBuffer output = factory.Build();
+            this.EndModification();
+
+            return output;
+        }
     }
 
     public class VertexBufferObject : VertexAttribute, IDisposable
@@ -84,16 +123,21 @@ namespace Leviathan.Core.Graphics.Buffers
 
         public uint Data_Offset { get; private set; }
 
-        private VertexBufferObject(VertexAttribute attrib, uint vao_index, uint byte_offset) : base(attrib.Descriptor, (uint)attrib.SegmentCount)
+        public LAttributeType AttribType { get; private set; }
+
+        public bool ChangedFlag { get; private set; }
+
+        private VertexBufferObject(VertexAttribute attrib, LAttributeType type ,uint vao_index, uint byte_offset) : base(attrib.Descriptor, (uint)attrib.SegmentCount)
         {
             VertexAttribute.CopyTo(attrib, this);
             Attribute_index = vao_index;
             Data_Offset = byte_offset;
+            AttribType = type;
         }
 
-        public static VertexBufferObject Create(VertexAttribute attrib, uint vao_index, uint byte_offset)
+        public static VertexBufferObject Create(VertexAttribute attrib, LAttributeType type, uint vao_index, uint byte_offset)
         {
-            VertexBufferObject tmp = new VertexBufferObject(attrib, vao_index, byte_offset);
+            VertexBufferObject tmp = new VertexBufferObject(attrib, type, vao_index, byte_offset);
             tmp.RevalidateDescriptor();
             return tmp;
         }
@@ -127,7 +171,7 @@ namespace Leviathan.Core.Graphics.Buffers
         /// <summary>
         /// Loads data from the GPU in the local DataBuffer
         /// </summary>
-        private void RetrieveDataFromGPU()
+        public void RetrieveDataFromGPU()
         {
             int total_buffer_size = (SegmentCount * Descriptor.segment_byte_size);
             if (this.data.Length != total_buffer_size)
@@ -233,7 +277,7 @@ namespace Leviathan.Core.Graphics.Buffers
                     outputbuffer.vertex_count = (uint)vcount;
                 }
 
-                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, current_attrib, byte_offsets[(int)current_attrib]);
+                VertexBufferObject vbo = VertexBufferObject.Create(kp.Value, kp.Key, current_attrib, byte_offsets[(int)current_attrib]);
                 unsafe
                 {
                     Context.GLContext.VertexAttribPointer(current_attrib, (int)vbo.Descriptor.collection_type, (GLEnum)vbo.Descriptor.value_type, false, 0, (void*)current_byte_offset);
@@ -298,11 +342,6 @@ namespace Leviathan.Core.Graphics.Buffers
             byte_offsets.Add(offset);
             buildlist.Add(new KeyValuePair<LAttributeType, VertexAttribute>(type, attrib));
             return this;
-        }
-
-        public VertexBufferFactory AddIndexBuffer()
-        {
-            throw new NotImplementedException();
         }
     }
 

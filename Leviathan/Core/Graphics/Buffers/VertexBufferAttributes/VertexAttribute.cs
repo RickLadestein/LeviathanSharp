@@ -107,11 +107,6 @@ namespace Leviathan.Core.Graphics.Buffers.VertexBufferAttributes
                 throw new Exception("Descriptor validation failed: incorrect buffer length for segment size");
             }
         }
-
-        //public Attribute<T> ToAttribute<T>() where T : unmanaged
-        //{
-        //
-        //}
  
         public void Dispose()
         {

@@ -205,7 +205,7 @@ namespace Leviathan.ECS
         public void Reset()
         {
             zMin = 0.1f;
-            zMax = 100.0f;
+            zMax = 1000000.0f;
         }
     }
 

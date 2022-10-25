@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Leviathan.Core.Graphics
 {
-    public enum TextureType
+    public enum LTextureType
     {
         TEXTURE_1D = Silk.NET.OpenGL.TextureTarget.Texture1D,
         TEXTURE_2D = Silk.NET.OpenGL.TextureTarget.Texture2D,
@@ -58,7 +58,7 @@ namespace Leviathan.Core.Graphics
     };
     public abstract class Texture : GraphicsResource
     {
-        public TextureType Type { get; private set; }
+        public LTextureType Type { get; private set; }
 
         public TextureWrapSetting Wrap { get; private set; }
 
@@ -70,10 +70,10 @@ namespace Leviathan.Core.Graphics
         public Vector3i Size { get; protected set; }
         public Silk.NET.OpenGL.InternalFormat InternalPixelFormat { get; protected set; }
 
-        public static readonly Texture Zero = new Texture2D() { Handle = 0, Type = TextureType.TEXTURE_2D };
+        public static readonly Texture Zero = new Texture2D() { Handle = 0, Type = LTextureType.TEXTURE_2D };
         private Texture oldtex;
 
-        public Texture(TextureType _type)
+        public Texture(LTextureType _type)
         {
             this.Handle = Context.GLContext.GenTexture();
             this.Type = _type;
@@ -151,12 +151,12 @@ namespace Leviathan.Core.Graphics
 
     public class Texture2D : Texture
     {
-        public Texture2D() : base(TextureType.TEXTURE_2D)
+        public Texture2D() : base(LTextureType.TEXTURE_2D)
         {
 
         }
 
-        public Texture2D(ImageResource im) : base(TextureType.TEXTURE_2D)
+        public Texture2D(ImageResource im) : base(LTextureType.TEXTURE_2D)
         {
             if(im == null)
             {
@@ -180,7 +180,7 @@ namespace Leviathan.Core.Graphics
         }
 
         public Texture2D(Vector2i size, Silk.NET.OpenGL.PixelFormat pformat, Silk.NET.OpenGL.InternalFormat iformat, Silk.NET.OpenGL.PixelType ptype) 
-            : base(TextureType.TEXTURE_2D)
+            : base(LTextureType.TEXTURE_2D)
         {
             this.PixelType = ptype;
             this.InternalPixelFormat = iformat;
@@ -212,8 +212,10 @@ namespace Leviathan.Core.Graphics
 
         public static Texture2D ImportTexture(String path)
         {
+            Console.WriteLine($"trying to load: {path}");
             ImageResource image = ImageResource.Load(path, true);
             Texture2D output = new Texture2D(image);
+            Console.WriteLine($"load complete");
             return output;
         }
     }
@@ -221,7 +223,7 @@ namespace Leviathan.Core.Graphics
     public class Texture3D : Texture
     {
         public Texture3D(Vector3i size, Silk.NET.OpenGL.PixelFormat pformat, Silk.NET.OpenGL.InternalFormat iformat, Silk.NET.OpenGL.PixelType ptype) 
-            : base(TextureType.TEXTURE_3D)
+            : base(LTextureType.TEXTURE_3D)
         {
             this.PixelType = ptype;
             this.InternalPixelFormat = iformat;

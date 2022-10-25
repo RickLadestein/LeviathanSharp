@@ -81,6 +81,26 @@ namespace Leviathan.Core
                 component_registry.OnComponentAdded(entity, comp);
             }
         }
+
+        public void LoadScene(Scene scene)
+        {
+            this.Clear();
+            AddScene(scene);
+        }
+
+        public void AddScene(Scene scene)
+        {
+            foreach (Entity en in scene.Entities)
+            {
+                AddEntity(en);
+            }
+        }
+
+        public void Clear()
+        {
+            this.all_entities.Clear();
+            this.scripted_entities.Clear();
+        }
         private void Parent_window_refresh()
         {
             scriptingSystem.Execute();

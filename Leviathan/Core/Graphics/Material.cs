@@ -13,20 +13,19 @@ using Assimp;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Globalization;
+using Newtonsoft.Json.Linq;
 
 namespace Leviathan.Core.Graphics
 {
     public class Material
     {
         [JsonProperty("newmtl")]
-        [MaterialAttribute("name")]
         public string Name;
 
         /// <summary>
         /// Specifies the specular reflectivity using RGB values
         /// </summary>
         [JsonProperty("Ka")]
-        [MaterialAttribute("ColorAmbient")]
         public Vector4f ColorAmbient;
 
         /// <summary>
@@ -41,12 +40,15 @@ namespace Leviathan.Core.Graphics
         [JsonProperty("Ks")]
         public Vector4f ColorSpecular;
 
+        [JsonProperty("Ke")]
+        public Vector4f ColorEmissive;
+
         /// <summary>
         /// Specifies the specular exponent for the current material.  This defines 
         /// the focus of the specular highlight (Roughness, Glossyness).
         /// </summary>
         [JsonProperty("Ns")]
-        public float SpecularExponent;
+        public float Shininess;
 
         /// <summary>
         /// Specifies the optical density for the surface.  This is also known as index of refraction.
@@ -69,26 +71,17 @@ namespace Leviathan.Core.Graphics
         [JsonProperty("sharpness")]
         public float Sharpness;
 
-        [JsonProperty("map_Ka")]
-        public string map_ambient_id;
-        
-        [JsonProperty("map_Kd")]
-        public string map_diffuse_id;
-        
-        [JsonProperty("map_Ks")]
-        public string map_specular_id;
-
-        [JsonProperty("map_Disp")]
-        public string map_displacement_id;
-
-        [JsonProperty("map_Ns")]
-        public string map_specular_exp_id;
-
-        [JsonProperty("map_d")]
-        public string map_transperency_id;
+        [JsonProperty("maps")]
+        public List<Tuple<Assimp.TextureType, TextureSlot>> maps;
 
 
-        public static readonly Material Default = new Material();
+        public static Material Default
+        {
+            get
+            {
+                return new Material();
+            }
+        }
         
         public Material()
         {
@@ -96,18 +89,96 @@ namespace Leviathan.Core.Graphics
             ColorAmbient = Vector4f.Zero;
             ColorDiffuse = Vector4f.Zero;
             ColorSpecular = Vector4f.Zero;
-            SpecularExponent = 1.0f;
+            ColorEmissive = Vector4f.Zero;
+            Shininess = 1.0f;
             RefractionIndex = 1.0f;
             Transperency = 0.0f;
             Sharpness = 1.0f;
-            map_ambient_id = "";
-            map_diffuse_id = "";
-            map_specular_id = "";
-            map_displacement_id = "";
-            map_specular_exp_id = "";
-            map_transperency_id = "";
+            maps = new List<Tuple<Assimp.TextureType, TextureSlot>>();
         }
 
+        public static Material FromAssimpMaterial(Assimp.Material a_material)
+        {
+            Material output = new()
+            {
+                Name = a_material.Name,
+                ColorAmbient = FromAssimpColor(a_material.ColorAmbient),
+                ColorDiffuse = FromAssimpColor(a_material.ColorDiffuse),
+                ColorSpecular = FromAssimpColor(a_material.ColorSpecular),
+                ColorEmissive = FromAssimpColor(a_material.ColorEmissive),
+                Shininess = a_material.ShininessStrength,
+                Sharpness = a_material.Reflectivity,
+                Transperency = a_material.Opacity
+            };
+
+            if (a_material.HasTextureAmbient)
+            {
+                output.maps.Add(new Tuple<Assimp.TextureType, TextureSlot>(Assimp.TextureType.Ambient, a_material.TextureAmbient));
+            } else
+            {
+                output.maps.Add(null);
+            }
+
+            if (a_material.HasTextureDiffuse)
+            {
+                output.maps.Add(new Tuple<Assimp.TextureType, TextureSlot>(Assimp.TextureType.Diffuse, a_material.TextureDiffuse));
+            }
+            else
+            {
+                output.maps.Add(null);
+            }
+
+            if (a_material.HasTextureSpecular)
+            {
+                output.maps.Add(new Tuple<Assimp.TextureType, TextureSlot>(Assimp.TextureType.Specular, a_material.TextureSpecular));
+            }
+            else
+            {
+                output.maps.Add(null);
+            }
+
+            if (a_material.HasTextureDisplacement)
+            {
+                output.maps.Add(new Tuple<Assimp.TextureType, TextureSlot>(Assimp.TextureType.Displacement, a_material.TextureDisplacement));
+            }
+            else
+            {
+                output.maps.Add(null);
+            }
+
+            if (a_material.HasTextureOpacity)
+            {
+                output.maps.Add(new Tuple<Assimp.TextureType, TextureSlot>(Assimp.TextureType.Opacity, a_material.TextureOpacity));
+            }
+            else
+            {
+                output.maps.Add(null);
+            }
+
+            if (a_material.HasTextureReflection)
+            {
+                output.maps.Add(new Tuple<Assimp.TextureType, TextureSlot>(Assimp.TextureType.Reflection, a_material.TextureReflection));
+            }
+            else
+            {
+                output.maps.Add(null);
+            }
+            return output;
+        }
+
+        public static void FromAssimpMaterials(List<Assimp.Material> a_materials, out List<Material> materials)
+        {
+            materials = new List<Material>();
+            foreach (Assimp.Material mat in a_materials)
+            {
+                materials.Add(Material.FromAssimpMaterial(mat));
+            }
+        }
+
+        private static Vector4f FromAssimpColor(Assimp.Color4D color)
+        {
+            return new Vector4f(color.R, color.G, color.B, color.A);
+        }
     }
 
     public class MaterialLoader
@@ -129,309 +200,6 @@ namespace Leviathan.Core.Graphics
                 Context.MaterialManager.AddResource(material.Name, material);
             }
         }
-
-        public void ParseMaterialFromFile(string file_path)
-        {
-            this.material_path = file_path;
-            if(!file_path.EndsWith(".mtl"))
-            {
-                throw new ArgumentException("File extension not supported: only mtl files are supported");
-            }
-
-            if(!File.Exists(file_path))
-            {
-                throw new FileLoadException($"Could not locate file at path: {file_path}");
-            }
-
-            Material current = new Material();
-            reader = new StreamReader(file_path);
-            string line = string.Empty;
-            bool first = false;
-            do
-            {
-                line = reader.ReadLine();
-                if(line.Length == 0)
-                {
-                    continue;
-                } else
-                {
-                    string[] tokens = line.Split(" ");
-                    switch (tokens[0])
-                    {
-                        case "newmtl":
-                            if(first)
-                            {
-                                materials.Add(current);
-                                current = new Material();
-                            } else
-                            {
-                                first = true;
-                            }
-                            ParseName(tokens, current);
-                            break;
-                        case "Ka":
-                            ParseColorAmbient(tokens, current);
-                            break;
-                        case "Kd":
-                            ParseColorDiffuse(tokens, current);
-                            break;
-                        case "Ks":
-                            ParseColorSpecular(tokens, current);
-                            break;
-                        case "Ns":
-                            ParseSpecularExponent(tokens, current);
-                            break;
-                        case "Ni":
-                            ParseRefractionIndex(tokens, current);
-                            break;
-                        case "d":
-                            ParseTransperency(tokens, current);
-                            break;
-                        case "sharpness":
-                            ParseSharpness(tokens, current);
-                            break;
-                        case "illum":
-                            ParseIllumMode(tokens, current);
-                            break;
-                        case "map_Ka":
-                            ParseAmbientMap(tokens, current);
-                            break;
-                        case "map_Kd":
-                            ParseDiffuseMap(tokens, current);
-                            break;
-                        case "map_Ks":
-                            ParseSpecularMap(tokens, current);
-                            break;
-                        case "map_Disp":
-                            ParseDisplacementMap(tokens, current);
-                            break;
-                        case "map_Ns":
-                            ParseSpecularExpMap(tokens, current);
-                            break;
-                        case "map_d":
-                            ParseTransperencyMap(tokens, current);
-                            break;
-                        case "#": // comments
-                            break;
-                        default:
-                            throw new Exception($"Unknown identifier {tokens[0]}");
-
-                    }
-                }
-                
-            } while (!reader.EndOfStream);
-        }
-
-        private void ParseName(string[] tokens, Material mat)
-        {
-            if(tokens.Length > 1)
-            {
-                mat.Name = tokens[1];
-            } else
-            {
-                throw new Exception("Error parsing material name: not enough tokens found to parse a name");
-            }
-        }
-
-        private void ParseColorAmbient(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                if (tokens[1] == "xyz" || tokens[1] == "spectral")
-                {
-                    throw new Exception("Spectral or XYZ coordinates are not supported for Ambient Color Yet");
-                } else
-                {
-                    mat.ColorAmbient = new Vector4f(Vector3f.Parse(tokens, 1, CultureInfo.InvariantCulture.NumberFormat), 0);
-                }
-            }
-            else
-            {
-                throw new Exception("Error parsing material Ambient Color: not enough tokens found to parse a Ambient Color");
-            }
-        }
-
-        private void ParseColorDiffuse(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                if (tokens[1] == "xyz" || tokens[1] == "spectral")
-                {
-                    throw new Exception("Spectral or XYZ coordinates are not supported for Diffuse Color Yet");
-                }
-                else
-                {
-                    mat.ColorDiffuse = new Vector4f(Vector3f.Parse(tokens, 1, CultureInfo.InvariantCulture.NumberFormat), 0);
-                }
-            }
-            else
-            {
-                throw new Exception("Error parsing material Diffuse Color: not enough tokens found to parse a Diffuse Color");
-            }
-        }
-
-        private void ParseColorSpecular(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                if (tokens[1] == "xyz" || tokens[1] == "spectral")
-                {
-                    throw new Exception("Spectral or XYZ coordinates are not supported for Specular Color Yet");
-                }
-                else
-                {
-                    mat.ColorSpecular = new Vector4f(Vector3f.Parse(tokens, 1, CultureInfo.InvariantCulture.NumberFormat), 0);
-                }
-            }
-            else
-            {
-                throw new Exception("Error parsing material Specular Color: not enough tokens found to parse a Specular Color");
-            }
-        }
-
-        private void ParseSpecularExponent(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.SpecularExponent = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Specular Exponent: not enough tokens found to parse a Specular Exponent");
-            }
-        }
-
-        private void ParseRefractionIndex(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.RefractionIndex = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Refraction Index: not enough tokens found to parse a Refraction Index");
-            }
-        }
-
-        private void ParseTransperency(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.Transperency = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Transperency: not enough tokens found to parse a Transperency");
-            }
-        }
-
-        private void ParseSharpness(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.Sharpness = float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Sharpness: not enough tokens found to parse a Sharpness");
-            }
-        }
-
-        private void ParseIllumMode(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.illumination_mode = uint.Parse(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Illum mode: not enough tokens found to parse a Illum mode");
-            }
-        }
-
-        private void ParseAmbientMap(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.map_ambient_id = Path.GetFileNameWithoutExtension(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Ambient Map: not enough tokens found to parse a Ambient Map");
-            }
-        }
-
-        private void ParseDiffuseMap(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.map_diffuse_id = Path.GetFileNameWithoutExtension(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Diffuse Map: not enough tokens found to parse a Diffuse Map");
-            }
-        }
-
-        private void ParseSpecularMap(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.map_specular_id = Path.GetFileNameWithoutExtension(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Specular Map: not enough tokens found to parse a Specular Map");
-            }
-        }
-
-        private void ParseDisplacementMap(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.map_displacement_id = Path.GetFileNameWithoutExtension(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Displacement Map: not enough tokens found to parse a Displacement Map");
-            }
-        }
-
-        private void ParseSpecularExpMap(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.map_specular_exp_id = Path.GetFileNameWithoutExtension(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material SpecularExp Map: not enough tokens found to parse a SpecularExp Map");
-            }
-        }
-
-        private void ParseTransperencyMap(string[] tokens, Material mat)
-        {
-            if (tokens.Length > 1)
-            {
-                mat.map_transperency_id = Path.GetFileNameWithoutExtension(tokens[1]);
-            }
-            else
-            {
-                throw new Exception("Error parsing material Transperency Map: not enough tokens found to parse a Transperency Map");
-            }
-        }
-
-
-    }
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class MaterialAttribute : Attribute
-    {
-        public string UniformName { get; private set; }
-
-        public MaterialAttribute(string nametag)
-        {
-            this.UniformName = nametag;
-        }
+        
     }
 }

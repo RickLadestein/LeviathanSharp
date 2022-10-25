@@ -28,10 +28,15 @@ namespace Leviathan.Core.Graphics
     public class MeshLoader
     {
         public List<Mesh> Meshes;
+        public List<Material> materials;
+        public List<Texture2D> textures;
+        public List<Tuple<Mesh, Material>> materialbindings;
 
         public MeshLoader()
         {
             Meshes = new List<Mesh>();
+            textures = new List<Texture2D>();
+            materialbindings = new List<Tuple<Mesh, Material>>();
         }
 
         public void PushToRenderContext()
@@ -39,6 +44,11 @@ namespace Leviathan.Core.Graphics
             foreach(Mesh mesh in Meshes)
             {
                 Context.MeshManager.AddResource(mesh.Name, mesh);
+            }
+
+            foreach(Material material in materials)
+            {
+                Context.MaterialManager.AddResource(material.Name, material);
             }
         }
 
@@ -49,7 +59,33 @@ namespace Leviathan.Core.Graphics
 
         public void Import(string path, LPrimitiveType prim_type)
         {
-            List<Assimp.Mesh> loadedMeshes = ImportAssimpMeshes(path);
+            ImportAssimpMeshes(path, out List<Assimp.Mesh> loadedMeshes, out List<Assimp.Material> loadedMaterials);
+
+            Material.FromAssimpMaterials(loadedMaterials, out materials);
+            foreach(Material m in materials)
+            {
+                Context.MaterialManager.AddResource(m.Name, m);
+
+                foreach(var tuple in m.maps)
+                {
+                    if (tuple == null)
+                        continue;
+                    TextureType type = tuple.Item1;
+                    TextureSlot unit = tuple.Item2;
+                    string filename = Path.GetFileName(unit.FilePath);
+
+                    if(!Context.TextureManager.HasResource(filename))
+                    {
+                        Texture2D tex = Texture2D.ImportTexture($"./assets/{unit.FilePath}");
+                        Context.TextureManager.AddResource(filename, tex);
+                    } else
+                    {
+                        Console.WriteLine($"Texture loading collision {filename}");
+                    }
+                    
+                }
+            }
+
 
             foreach (Assimp.Mesh a_mesh in loadedMeshes)
             {
@@ -64,6 +100,8 @@ namespace Leviathan.Core.Graphics
                     factory.AddVertexAttribute(kvp.Value, kvp.Key);
                 }
                 current.Vbuffer = factory.Build();
+                Material bound_material = materials[a_mesh.MaterialIndex];
+                materialbindings.Add(new Tuple<Mesh, Material>(current, bound_material));
                 Meshes.Add(current);
             }
         }
@@ -103,18 +141,17 @@ namespace Leviathan.Core.Graphics
             Context.MeshManager.AddResource(identifier, mesh);
         }
 
-        private List<Assimp.Mesh> ImportAssimpMeshes(string file_path)
+        private void ImportAssimpMeshes(string file_path, out List<Assimp.Mesh> meshes, out List<Assimp.Material> materials)
         {
-            List<Assimp.Mesh> output = new List<Assimp.Mesh>();
-            
+            meshes = new List<Assimp.Mesh>();
+            materials = new List<Assimp.Material>();
+
             Assimp.AssimpContext ac = new AssimpContext();
             ac.SetConfig(new NormalSmoothingAngleConfig(66.0f));
             Assimp.Scene scene = ac.ImportFile(file_path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals | PostProcessSteps.CalculateTangentSpace);
-
-            output.AddRange(scene.Meshes);
-            
+            meshes.AddRange(scene.Meshes);
+            materials.AddRange(scene.Materials);
             ac.Dispose();
-            return output;
         }
 
         private List<Assimp.Mesh> ImportAssimpMeshesFromStream(Stream filestream)
