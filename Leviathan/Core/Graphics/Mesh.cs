@@ -76,11 +76,17 @@ namespace Leviathan.Core.Graphics
 
                     if(!Context.TextureManager.HasResource(filename))
                     {
-                        Texture2D tex = Texture2D.ImportTexture($".\\assets\\{unit.FilePath}");
-                        if (tex != null)
+                        Texture2D tex = Texture2D.ImportTexture($"./assets/{unit.FilePath}");
+                        if(tex == null)
+                        {
+                            continue;
+                        } else
                         {
                             Context.TextureManager.AddResource(filename, tex);
                         }
+                    } else
+                    {
+                        Console.WriteLine($"Texture loading collision {filename}");
                     }
                     
                 }

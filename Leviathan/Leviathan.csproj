@@ -14,48 +14,48 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Math\**" />
-    <EmbeddedResource Remove="Math\**" />
-    <None Remove="Math\**" />
+  <ItemGroup>
+    <Compile Remove="Math\**" />
+    <EmbeddedResource Remove="Math\**" />
+    <None Remove="Math\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="DefaultAssets\Cube.mtl" />
-    <None Remove="DefaultAssets\Cube.obj" />
-    <None Remove="DefaultAssets\Cylinder.mtl" />
-    <None Remove="DefaultAssets\Cylinder.obj" />
-    <None Remove="DefaultAssets\default.glsl" />
-    <None Remove="DefaultAssets\default_instance.glsl" />
-    <None Remove="DefaultAssets\Monkey.mtl" />
-    <None Remove="DefaultAssets\Monkey.obj" />
-    <None Remove="DefaultAssets\Plane.mtl" />
-    <None Remove="DefaultAssets\Plane.obj" />
-    <None Remove="DefaultAssets\Sphere.mtl" />
-    <None Remove="DefaultAssets\Sphere.obj" />
+  <ItemGroup>
+    <None Remove="DefaultAssets\Cube.mtl" />
+    <None Remove="DefaultAssets\Cube.obj" />
+    <None Remove="DefaultAssets\Cylinder.mtl" />
+    <None Remove="DefaultAssets\Cylinder.obj" />
+    <None Remove="DefaultAssets\default.glsl" />
+    <None Remove="DefaultAssets\default_instance.glsl" />
+    <None Remove="DefaultAssets\Monkey.mtl" />
+    <None Remove="DefaultAssets\Monkey.obj" />
+    <None Remove="DefaultAssets\Plane.mtl" />
+    <None Remove="DefaultAssets\Plane.obj" />
+    <None Remove="DefaultAssets\Sphere.mtl" />
+    <None Remove="DefaultAssets\Sphere.obj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="DefaultAssets\Cube.mtl" />
-    <EmbeddedResource Include="DefaultAssets\Cube.obj" />
-    <EmbeddedResource Include="DefaultAssets\Cylinder.mtl" />
-    <EmbeddedResource Include="DefaultAssets\Cylinder.obj" />
-    <EmbeddedResource Include="DefaultAssets\default.glsl" />
-    <EmbeddedResource Include="DefaultAssets\default_instance.glsl" />
-    <EmbeddedResource Include="DefaultAssets\Monkey.mtl" />
-    <EmbeddedResource Include="DefaultAssets\Monkey.obj" />
-    <EmbeddedResource Include="DefaultAssets\Plane.mtl" />
-    <EmbeddedResource Include="DefaultAssets\Plane.obj" />
-    <EmbeddedResource Include="DefaultAssets\Sphere.mtl" />
-    <EmbeddedResource Include="DefaultAssets\Sphere.obj" />
+  <ItemGroup>
+    <EmbeddedResource Include="DefaultAssets\Cube.mtl" />
+    <EmbeddedResource Include="DefaultAssets\Cube.obj" />
+    <EmbeddedResource Include="DefaultAssets\Cylinder.mtl" />
+    <EmbeddedResource Include="DefaultAssets\Cylinder.obj" />
+    <EmbeddedResource Include="DefaultAssets\default.glsl" />
+    <EmbeddedResource Include="DefaultAssets\default_instance.glsl" />
+    <EmbeddedResource Include="DefaultAssets\Monkey.mtl" />
+    <EmbeddedResource Include="DefaultAssets\Monkey.obj" />
+    <EmbeddedResource Include="DefaultAssets\Plane.mtl" />
+    <EmbeddedResource Include="DefaultAssets\Plane.obj" />
+    <EmbeddedResource Include="DefaultAssets\Sphere.mtl" />
+    <EmbeddedResource Include="DefaultAssets\Sphere.obj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,15 +77,14 @@
     <PackageReference Include="Silk.NET.Vulkan" Version="2.16.0" />
     <PackageReference Include="Silk.NET.Windowing" Version="2.16.0" />
     <PackageReference Include="Silk.NET.Windowing.Common" Version="2.16.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.1" />
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Leviathan.Math\Leviathan.Math.csproj" />
-    <ProjectReference Include="..\Leviathan.Util\Leviathan.Util.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\Leviathan.Math\Leviathan.Math.csproj" />
+    <ProjectReference Include="..\Leviathan.Util\Leviathan.Util.csproj" />
   </ItemGroup>
 
 </Project>

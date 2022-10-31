@@ -1,11 +1,14 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.ColorSpaces;
+﻿using Leviathan.Math;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using Leviathan.Core.Graphics.Buffers.VertexBufferAttributes;
+using Leviathan.Util.util.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Leviathan.Core
 {
@@ -16,6 +19,8 @@ namespace Leviathan.Core
         /// </summary>
         public Image<Rgba32> image;
 
+        public byte[] image_data;
+
         /// <summary>
         /// The width and height of an image
         /// </summary>
@@ -25,7 +30,7 @@ namespace Leviathan.Core
         /// The constructor of an image
         /// </summary>
         /// <param name="im">The given image</param>
-        public ImageResource(SixLabors.ImageSharp.Image<Rgba32> im)
+        public ImageResource(Image<Rgba32> im)
         {
             if (im == null)
             {
@@ -71,16 +76,39 @@ namespace Leviathan.Core
         {
             try
             {
-                SixLabors.ImageSharp.Image<Rgba32> im = SixLabors.ImageSharp.Image.Load<Rgba32>(path);
-                if (flip)
-                {
-                    im.Mutate(x => x.Flip(FlipMode.Vertical));
-                }
-                return new ImageResource(im);
-            } catch(Exception ex)
+                var im = Image.Load<Rgba32>(path);
+                //if (flip)
+                //{
+                //    im.Mutate(x => x.Flip(FlipMode.Vertical));
+                //}
+                ImageResource output = new ImageResource(im);
+                output.image_data = ImportRows(im);
+                return output;
+            }
+            catch (Exception)
             {
                 return null;
             }
+        }
+
+        private static unsafe byte[] ImportRows(Image<Rgba32> img)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            ValueCollection<byte> image_data = new ValueCollection<byte>(img.Width * img.Height * 4);
+            img.ProcessPixelRows(accessor =>
+            {
+                //ImageSharp 2 does not store images in contiguous memory by default, so we must send the image row by row
+                for (int y = 0; y < accessor.Height; y++)
+                {
+                    Rgba32[] rowspan = accessor.GetRowSpan(y).ToArray();
+                    image_data.AddRangeFromTypedBuffer<Rgba32>(rowspan);
+                }
+            });
+            // the code that you want to measure comes here
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine($"Loading took: {elapsedMs} milliseconds");
+            return image_data.ToByteArray();
         }
 
         /// <summary>

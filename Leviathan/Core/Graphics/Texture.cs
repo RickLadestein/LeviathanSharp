@@ -98,26 +98,32 @@ namespace Leviathan.Core.Graphics
 
         protected unsafe void LoadImageIntoTexture(ImageResource im)
         {
-            fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
+            Context.GLContext.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint)im.width, (uint)im.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
+            im.image.ProcessPixelRows(accessor =>
             {
-                Context.GLContext.TexImage2D(
-                    (Silk.NET.OpenGL.GLEnum)this.Type, 
-                    0,
-                    (int)InternalFormat.Rgba, 
-                    (uint)im.width, 
-                    (uint)im.height, 
-                    0,
-                    PixelFormat.Rgba,
-                    PixelType.UnsignedByte, 
-                    data);
-            }
-
-            /*
-             fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
-            {
-                NativeWindow.GL.TexImage2D(TextureTarget.Texture2D, 0, (int)InternalFormat.Rgba, im.width, im.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
-            }
-             */
+                //ImageSharp 2 does not store images in contiguous memory by default, so we must send the image row by row
+                for (int y = 0; y < accessor.Height; y++)
+                {
+                    fixed (void* data = accessor.GetRowSpan(y))
+                    {
+                        //Loading the actual image.
+                        Context.GLContext.TexSubImage2D(TextureTarget.Texture2D, 0, 0, y, (uint)accessor.Width, 1, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+                    }
+                }
+            });
+            //fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
+            //{
+            //    Context.GLContext.TexImage2D(
+            //        (Silk.NET.OpenGL.GLEnum)this.Type, 
+            //        0, 
+            //        (int)InternalPixelFormat, 
+            //        im.width, 
+            //        im.height, 
+            //        0, 
+            //        PixelFormat, 
+            //        PixelType, 
+            //        data);
+            //}
         }
 
         public void SetFilterMode(MinMagSetting filter)
@@ -241,12 +247,16 @@ namespace Leviathan.Core.Graphics
         public static Texture2D ImportTexture(String path)
         {
             ImageResource image = ImageResource.Load(path, true);
-            if(image != null)
+            if(image == null)
+            {
+                Console.WriteLine($"Could not find: {path}");
+                return null;
+            } else
             {
                 Texture2D output = new Texture2D(image);
+                Console.WriteLine($"load complete");
                 return output;
             }
-            return null;
         }
     }
 
