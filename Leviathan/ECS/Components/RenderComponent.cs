@@ -37,43 +37,6 @@ namespace Leviathan.ECS
             AddDependencies();
         }
 
-        //public void Render(Camera target)
-        //{
-        //    if (!Parent.HasComponent<MeshComponent>())
-        //    {
-        //        throw new Exception("Tried to draw entity without a mesh on screen");
-        //    }
-        //
-        //    MeshComponent meshcomp = Parent.GetComponent<MeshComponent>();
-        //    MaterialComponent matcomp = Parent.GetComponent<MaterialComponent>();
-        //    
-        //    ShaderProgram sh = matcomp.Shader;
-        //    sh.Bind();
-        //
-        //    MultiTexture tex = matcomp.Texture;
-        //    TextureBuffer.Instance.UseMultitex(tex);
-        //
-        //    for(int i = 0; i < TextureBuffer.MAX_TEXTURES; i++)
-        //    {
-        //        sh.SetUniform($"texture_{i}", i);
-        //    }
-        //
-        //    VertexBuffer vbuf = meshcomp.Vbuffer;
-        //    vbuf.Bind();
-        //
-        //    //sh.SetUniform("model", parent.Transform.ModelMat);
-        //    sh.SetUniform("model", Parent.Transform.ModelMat);
-        //    //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
-        //    sh.SetUniform("projection", target.ProjectionMatrix);
-        //    sh.SetUniform("view", target.ViewMatrix);
-        //    sh.SetUniform("time", (float)Context.GLFWContext.GetTime());
-        //
-        //    Context.GLContext.DrawArrays((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count);
-        //    vbuf.Unbind();
-        //    sh.Unbind();
-        //    target.UpdateViewMatrix();
-        //}
-
         public void Render(CameraComponent target)
         {
             if (!Parent.HasComponent<MeshComponent>())
@@ -126,33 +89,6 @@ namespace Leviathan.ECS
             sh.Unbind();
             TextureBuffer.UnbindAll();
         }
-
-        //public void RenderInstanced(Camera target, uint instances)
-        //{
-        //    if (!Parent.HasComponent<MeshComponent>())
-        //    {
-        //        throw new Exception("Tried to draw entity without a mesh on screen");
-        //    }
-        //
-        //    MeshComponent meshcomp = Parent.GetComponent<MeshComponent>();
-        //    MaterialComponent matcomp = Parent.GetComponent<MaterialComponent>();
-        //
-        //    ShaderProgram sh = matcomp.Shader;
-        //    sh.Bind();
-        //
-        //    VertexBuffer vbuf = meshcomp.Vbuffer;
-        //    vbuf.Bind();
-        //    sh.SetUniform("model", Parent.Transform.LocalModelMat);
-        //    //sh.SetUniform("normal_mat", parent.Transform.NormalMat);
-        //    sh.SetUniform("projection", target.ProjectionMatrix);
-        //    sh.SetUniform("view", target.ViewMatrix);
-        //    sh.SetUniform("time", (float)Context.GLFWContext.GetTime());
-        //
-        //    Context.GLContext.DrawArraysInstanced((GLEnum)vbuf.prim_type, 0, vbuf.vertex_count, instances);
-        //    vbuf.Unbind();
-        //    sh.Unbind();
-        //    target.UpdateViewMatrix();
-        //}
 
         public override string ToString()
         {

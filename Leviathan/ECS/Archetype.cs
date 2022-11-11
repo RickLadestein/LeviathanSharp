@@ -31,9 +31,9 @@ namespace Leviathan.ECS
             archetypes.Clear();
         }
 
-        public List<Entity> FindAll(Predicate<Entity> predicate)
+        public Entity[] FindAll(Predicate<Entity> predicate)
         {
-            return this.all_entities.FindAll(predicate);
+            return this.all_entities.FindAll(predicate).ToArray();
         }
 
         public Entity Find(Predicate<Entity> predicate)
@@ -181,10 +181,10 @@ namespace Leviathan.ECS
             this.all_entities.Remove(entity);
             foreach(Component c in entity.Components)
             {
-                Archetype found = GetArchetypeMatchingType(c.GetType());
-                if(found != null)
+                Archetype[] found = GetAllArchetypesContainingType(c.GetType());
+                foreach(Archetype at in found)
                 {
-                    found.RemoveEntity(entity);
+                    at.RemoveEntity(entity);
                 }
             }
         }

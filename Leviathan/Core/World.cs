@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Assimp;
@@ -14,7 +15,7 @@ using Silk.NET.Assimp;
 
 namespace Leviathan.Core
 {
-    public class World : IWorldEntityProvider, IWorldEntityListener
+    public class World : IWorldEntityProvider, IEntityChangeListener
     {
         private static World _instance;
         public static World Current
@@ -50,7 +51,7 @@ namespace Leviathan.Core
             RenderSystem renderSystem = new RenderSystem();
             ScriptingSystem scriptingSystem = new ScriptingSystem();
             DelayedExecutionSystem dxsystem = new DelayedExecutionSystem();
-            system_registry.AddSystems(renderSystem, scriptingSystem, dxsystem);
+            AddSystem(renderSystem, scriptingSystem, dxsystem);
         }
 
 
@@ -58,6 +59,16 @@ namespace Leviathan.Core
         {
             entity_store.AddEntity(entity);
             entity.SetWorldEntityListener(this);
+        }
+
+        public void AddSystem(params ECSystem[] systems)
+        {
+            foreach(ECSystem system in systems)
+            {
+                system_registry.AddSystem(system);
+                if(system.Required_types.Count == 0) { continue; }
+                entity_store.CreateArchetype(system.Required_types.ToArray());
+            }
         }
 
         public void LoadScene(Scene scene)
@@ -100,9 +111,9 @@ namespace Leviathan.Core
             Context.ParentWindow.SetTitle($"{fps.ToString("0.##")} fps");
         }
         #region Interfaces
-        public List<Entity> QueryEntitiesByIds(IEnumerable<Guid> ids)
+        public Entity[] QueryEntitiesByIds(IEnumerable<Guid> ids)
         {
-            List<Entity> retval = entity_store.FindAll(new Predicate<Entity>((e) => 
+            Entity[] retval = entity_store.FindAll(new Predicate<Entity>((e) => 
             { 
                 foreach(Guid id in ids)
                 {
@@ -116,26 +127,6 @@ namespace Leviathan.Core
             return retval;
         }
 
-        public List<Entity> QueryEntitiesByIds(IEnumerable<string> ids)
-        {
-            List<Guid> tofind = new List<Guid>();
-            foreach(string id in ids)
-            {
-                tofind.Add(new Guid(id));
-            }
-            List<Entity> retval = entity_store.FindAll(new Predicate<Entity>((e) =>
-            {
-                foreach (Guid id in tofind)
-                {
-                    if (e.Id.Equals(ids))
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }));
-            return retval;
-        }
 
         public Entity QueryEntityById(Guid id)
         {
@@ -150,29 +141,15 @@ namespace Leviathan.Core
             return retval;
         }
 
-        public Entity QueryEntityById(string id)
-        {
-            Guid compare = new Guid(id);
-            Entity retval = entity_store.Find(new Predicate<Entity>((e) =>
-            {
-                if (e.Id.Equals(compare))
-                {
-                    return true;
-                }
-                return false;
-            }));
-            return retval;
-        }
-
         
-        public List<Entity> QueryEntityByPredicate(Predicate<Entity> predicate)
+        public Entity[] QueryEntityByPredicate(Predicate<Entity> predicate)
         {
-            throw new NotImplementedException();
+            return this.entity_store.FindAll(predicate);
         }
 
         public Entity QueryFirstEntityMatchByPredicate(Predicate<Entity> predicate)
         {
-            throw new NotImplementedException();
+            return this.entity_store.Find(predicate);
         }
 
         public Entity[] QueryEntityByComponent<T>() where T : Component
@@ -232,7 +209,6 @@ namespace Leviathan.Core
         public void OnEntityChildAdded(Entity caller, Entity child)
         {
             this.AddEntity(child);
-            entity_store.AddEntity(child);
         }
 
         public void OnEntityChildRemoved(Entity caller, Entity child)
@@ -248,18 +224,16 @@ namespace Leviathan.Core
 
     public interface IWorldEntityProvider
     {
-        public List<Entity> QueryEntitiesByIds(IEnumerable<Guid> ids);
-        public List<Entity> QueryEntitiesByIds(IEnumerable<string> ids);
+        public Entity[] QueryEntitiesByIds(IEnumerable<Guid> ids);
         public Entity QueryEntityById(Guid id);
-        public Entity QueryEntityById(string id);
 
         public Entity[] QueryEntityByComponent<T>() where T : Component;
 
-        public List<Entity> QueryEntityByPredicate(Predicate<Entity> predicate);
+        public Entity[] QueryEntityByPredicate(Predicate<Entity> predicate);
         public Entity QueryFirstEntityMatchByPredicate(Predicate<Entity> predicate);
     }
 
-    public interface IWorldEntityListener
+    public interface IEntityChangeListener
     {
         public void OnComponentAdded(Entity caller, Component comp);
         public void OnComponentRemoved(Entity caller, Component comp);

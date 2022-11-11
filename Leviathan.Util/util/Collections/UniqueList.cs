@@ -18,6 +18,14 @@ namespace Leviathan.Util.util.Collections
             data = new List<T>();
         }
 
+        public int Count
+        {
+            get
+            {
+                return data.Count;
+            }
+        }
+
         public T this[int index]
         {
             get

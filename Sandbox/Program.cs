@@ -27,9 +27,6 @@ namespace Sandbox
 
         static void Main(string[] args)
         {
-            RenderComponent rc = new RenderComponent();
-            RenderComponent rc2 = new RenderComponent();
-
             keys = new List<KeyboardKey>();
             w = new Window(1920, 1080, WindowMode.WINDOWED);
 

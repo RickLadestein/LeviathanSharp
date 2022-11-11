@@ -37,7 +37,7 @@ namespace Leviathan.ECS
 
         public Entity Parent { get; private set; }
 
-        public IWorldEntityListener WorldEntityListener { get; private set; }
+        public IEntityChangeListener WorldEntityListener { get; private set; }
 
         /// <summary>
         /// Creates a new instance of Entity with default parameters
@@ -296,7 +296,7 @@ namespace Leviathan.ECS
             return false;
         }
 
-        public void SetWorldEntityListener(IWorldEntityListener worldEntityListener)
+        public void SetWorldEntityListener(IEntityChangeListener worldEntityListener)
         {
             if(this.WorldEntityListener == null || this.WorldEntityListener != worldEntityListener)
             {

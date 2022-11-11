@@ -13,6 +13,11 @@ namespace Leviathan.ECS.Systems
 
         public override SystemPriority Priority => SystemPriority.PRE_RENDER;
 
+        public ListenerSystem() : base()
+        {
+            this.AddRequirementType(typeof(SoundListenerComponent));
+        }
+
         protected override void SystemFunc()
         {
             Entity[] found = Core.World.Current.QueryEntityByComponent<SoundListenerComponent>();
