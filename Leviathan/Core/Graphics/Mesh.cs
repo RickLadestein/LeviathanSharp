@@ -25,9 +25,11 @@ namespace Leviathan.Core.Graphics
         }
     }
 
-    public class MeshLoader
+    public class MeshLoader : IDisposable
     {
         public List<Mesh> Meshes;
+        public List<int> material_bindings;
+
         public List<Material> materials;
         public List<Texture2D> textures;
         public List<Tuple<Mesh, Material>> materialbindings;
@@ -37,6 +39,8 @@ namespace Leviathan.Core.Graphics
             Meshes = new List<Mesh>();
             textures = new List<Texture2D>();
             materialbindings = new List<Tuple<Mesh, Material>>();
+            material_bindings = new List<int>();
+            materials = new List<Material>();
         }
 
         public void PushToRenderContext()
@@ -52,9 +56,28 @@ namespace Leviathan.Core.Graphics
             }
         }
 
-        public void PushToWorld()
+        public void ImportMeshesFromScene(List<Assimp.Mesh> meshes)
         {
-            //World.Current.AddEntity()
+            foreach (Assimp.Mesh a_mesh in meshes)
+            {
+                ImportMesh(a_mesh);
+            }
+        }
+
+        public void ImportMesh(Assimp.Mesh mesh)
+        {
+            Mesh current = new Mesh(mesh.Name);
+            List<KeyValuePair<LAttributeType, VertexAttribute>> attrib_coll = new();
+            ParseMeshData(attrib_coll, mesh);
+
+            VertexBufferFactory factory = new VertexBufferFactory();
+            factory.SetPrimitiveType(LPrimitiveType.TRIANGLES);
+            foreach (KeyValuePair<LAttributeType, VertexAttribute> kvp in attrib_coll)
+            {
+                factory.AddVertexAttribute(kvp.Value, kvp.Key);
+            }
+            current.Vbuffer = factory.Build();
+            Meshes.Add(current);
         }
 
         public void Import(string path, LPrimitiveType prim_type)
@@ -62,34 +85,11 @@ namespace Leviathan.Core.Graphics
             ImportAssimpMeshes(path, out List<Assimp.Mesh> loadedMeshes, out List<Assimp.Material> loadedMaterials);
 
             Material.FromAssimpMaterials(loadedMaterials, out materials);
+
             foreach(Material m in materials)
             {
                 Context.MaterialManager.AddResource(m.Name, m);
-
-                foreach(var tuple in m.maps)
-                {
-                    if (tuple == null)
-                        continue;
-                    TextureType type = tuple.Item1;
-                    TextureSlot unit = tuple.Item2;
-                    string filename = Path.GetFileName(unit.FilePath);
-
-                    if(!Context.TextureManager.HasResource(filename))
-                    {
-                        Texture2D tex = Texture2D.ImportTexture($"./assets/{unit.FilePath}");
-                        if(tex == null)
-                        {
-                            continue;
-                        } else
-                        {
-                            Context.TextureManager.AddResource(filename, tex);
-                        }
-                    } else
-                    {
-                        Console.WriteLine($"Texture loading collision {filename}");
-                    }
-                    
-                }
+                Material.ImportTexturesSynchronous(m);
             }
 
 
@@ -170,6 +170,7 @@ namespace Leviathan.Core.Graphics
 
             output.AddRange(scene.Meshes);
 
+            scene.Clear();
             ac.Dispose();
             return output;
         }
@@ -255,10 +256,17 @@ namespace Leviathan.Core.Graphics
                 texture_attrib.AddData(tex_data.ToArray());
                 LAttributeType attrib_type = (LAttributeType)(((int)LAttributeType.TEXTURECOORD0) + index);
                 obj.Add(new KeyValuePair<LAttributeType, VertexAttribute>(attrib_type, texture_attrib.CompileToVertexAttribute()));
-
                 index += 1;
             }
             
+        }
+
+        public void Dispose()
+        {
+            Meshes.Clear();
+            textures.Clear();
+            this.materials.Clear();
+            this.materialbindings.Clear();
         }
     }
 

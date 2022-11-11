@@ -18,7 +18,7 @@ namespace Leviathan.ECS.Systems
         }
         protected override void SystemFunc()
         {
-            List<Entity> found = Core.World.Current.QueryEntityByComponent<RenderComponent>();
+            Entity[] found = Core.World.Current.QueryEntityByComponent<RenderComponent>();
             foreach(Entity en in found)
             {
                 en.GetComponent<RenderComponent>().Render(Core.World.Current.PrimaryCam);

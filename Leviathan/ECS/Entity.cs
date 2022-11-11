@@ -1,4 +1,5 @@
-﻿using Leviathan.Math;
+﻿using Leviathan.Core;
+using Leviathan.Math;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -35,6 +36,8 @@ namespace Leviathan.ECS
         public List<Entity> Children { get; private set; }
 
         public Entity Parent { get; private set; }
+
+        public IWorldEntityListener WorldEntityListener { get; private set; }
 
         /// <summary>
         /// Creates a new instance of Entity with default parameters
@@ -83,6 +86,10 @@ namespace Leviathan.ECS
         {
             child.Parent = this;
             Children.Add(child);
+            if(WorldEntityListener != null)
+            {
+                WorldEntityListener.OnEntityChildAdded(this, child);
+            }
         }
 
         /// <summary>
@@ -132,7 +139,10 @@ namespace Leviathan.ECS
                 c.Parent = this;
                 c.Initialise();
                 Components.Add(c);
-                Core.World.Current.OnComponentAdded(this, c);
+                if (WorldEntityListener != null)
+                {
+                    WorldEntityListener.OnComponentAdded(this, c);
+                }
             }
         }
 
@@ -201,6 +211,18 @@ namespace Leviathan.ECS
             return false;
         }
 
+        public bool HasComponentType(Type comp_type)
+        {
+            foreach(Component c in Components)
+            {
+                if(c.GetType() == comp_type)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         /// <summary>
         /// Adds a script to this Entity
@@ -217,6 +239,10 @@ namespace Leviathan.ECS
             {
                 c.entity = this;
                 Scripts.Add(c);
+                if(WorldEntityListener != null)
+                {
+                    WorldEntityListener.OnScriptAdded(this, c);
+                }
             }
         }
 
@@ -268,6 +294,29 @@ namespace Leviathan.ECS
                 }
             }
             return false;
+        }
+
+        public void SetWorldEntityListener(IWorldEntityListener worldEntityListener)
+        {
+            if(this.WorldEntityListener == null || this.WorldEntityListener != worldEntityListener)
+            {
+                this.WorldEntityListener = worldEntityListener;
+                foreach (Component c in Components)
+                {
+                    this.WorldEntityListener.OnComponentAdded(this, c);
+                }
+
+                foreach (MonoScript s in Scripts)
+                {
+                    this.WorldEntityListener.OnScriptAdded(this, s);
+                }
+            }
+
+            foreach(Entity child in Children)
+            {
+                WorldEntityListener.OnEntityChildAdded(this, child);
+                child.SetWorldEntityListener(worldEntityListener);
+            }
         }
     }
 

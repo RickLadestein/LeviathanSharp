@@ -79,6 +79,8 @@ namespace Leviathan.Core.Windowing
 
                 this.ShutdownRequested = Context.GLFWContext.WindowShouldClose(w_handle);
             }
+            Context.GLFWContext.DestroyWindow(this.w_handle);
+            Context.DisposeCurrentContext();
         }
 
 

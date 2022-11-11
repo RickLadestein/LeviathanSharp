@@ -42,6 +42,11 @@ namespace Leviathan.Core
             height = (uint)im.Height;
         }
 
+        ~ImageResource()
+        {
+            this.Dispose();
+        }
+
         public Silk.NET.OpenGL.PixelFormat GetPixelFormat()
         {
             return Silk.NET.OpenGL.PixelFormat.Rgba;
@@ -77,12 +82,12 @@ namespace Leviathan.Core
             try
             {
                 var im = Image.Load<Rgba32>(path);
-                //if (flip)
-                //{
-                //    im.Mutate(x => x.Flip(FlipMode.Vertical));
-                //}
+                if (flip)
+                {
+                    im.Mutate(x => x.Flip(FlipMode.Vertical));
+                }
                 ImageResource output = new ImageResource(im);
-                output.image_data = ImportRows(im);
+                //output.image_data = ImportRows(im);
                 return output;
             }
             catch (Exception)
@@ -90,6 +95,26 @@ namespace Leviathan.Core
                 return null;
             }
         }
+
+        //public static async ImageResource LoadAsync(string path, bool flip)
+        //{
+        //    try
+        //    {
+        //        var im = await Image.LoadAsync<Rgba32>(path);
+        //        if (flip)
+        //        {
+        //            im.Mutate(x => x.Flip(FlipMode.Vertical));
+        //        }
+        //        
+        //        ImageResource output = new ImageResource(im);
+        //        //output.image_data = ImportRows(im);
+        //        return output;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return null;
+        //    }
+        //}
 
         private static unsafe byte[] ImportRows(Image<Rgba32> img)
         {

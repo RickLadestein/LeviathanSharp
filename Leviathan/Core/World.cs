@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Assimp;
 using Leviathan.Core;
 using Leviathan.Core.Graphics;
 
@@ -9,6 +10,7 @@ using Leviathan.Core.Input;
 using Leviathan.Core.Windowing;
 using Leviathan.ECS;
 using Leviathan.ECS.Systems;
+using Silk.NET.Assimp;
 
 namespace Leviathan.Core
 {
@@ -27,59 +29,35 @@ namespace Leviathan.Core
             }
         }
 
-        private List<Entity> all_entities;
         private List<Entity> scripted_entities;
-        private ComponentRegistry component_registry;
+        private SystemRegistry system_registry;
+        private EntityStore entity_store;
 
-        RenderSystem renderSystem;
-        ScriptingSystem scriptingSystem;
+
         public CameraComponent PrimaryCam { get; set; }
 
         private World()
         {
-            renderSystem = new RenderSystem();
-            scriptingSystem = new ScriptingSystem();
-            all_entities = new List<Entity>();
             ConstructRegistries();
             Context.ParentWindow.refresh += Parent_window_refresh;
         }
 
         private void ConstructRegistries()
         {
-
             scripted_entities = new List<Entity>();
-            component_registry = new ComponentRegistry();
-
-            if(all_entities.Count != 0)
-            {
-                foreach(Entity entity in all_entities)
-                {
-                    if(entity.Scripts.Count != 0)
-                    {
-                        scripted_entities.Add(entity);
-                    }
-
-                    foreach(Component comp in entity.Components)
-                    {
-                        component_registry.OnComponentAdded(entity, comp);
-                    }
-                }
-            }
+            system_registry = new SystemRegistry();
+            entity_store = new EntityStore();
+            RenderSystem renderSystem = new RenderSystem();
+            ScriptingSystem scriptingSystem = new ScriptingSystem();
+            DelayedExecutionSystem dxsystem = new DelayedExecutionSystem();
+            system_registry.AddSystems(renderSystem, scriptingSystem, dxsystem);
         }
 
 
         public void AddEntity(Entity entity)
         {
-            all_entities.Add(entity);
-            if (entity.Scripts.Count != 0)
-            {
-                scripted_entities.Add(entity);
-            }
-
-            foreach (Component comp in entity.Components)
-            {
-                component_registry.OnComponentAdded(entity, comp);
-            }
+            entity_store.AddEntity(entity);
+            entity.SetWorldEntityListener(this);
         }
 
         public void LoadScene(Scene scene)
@@ -92,25 +70,39 @@ namespace Leviathan.Core
         {
             foreach (Entity en in scene.Entities)
             {
+                //en.SetWorldEntityListener(this);
                 AddEntity(en);
             }
         }
 
         public void Clear()
         {
-            this.all_entities.Clear();
             this.scripted_entities.Clear();
+            this.entity_store.Clear();
         }
         private void Parent_window_refresh()
         {
-            scriptingSystem.Execute();
-            renderSystem.Execute();
-            
+            double start = Context.GLFWContext.GetTime();
+            foreach (SystemPriority prio in (SystemPriority[])Enum.GetValues(typeof(SystemPriority)))
+            {
+                List<ECSystem> syslist = system_registry.GetSystemByPriority(prio);
+                foreach (ECSystem s in syslist)
+                {
+                    if (s.Enabled)
+                    {
+                        s.Execute();
+                    }
+                }
+            }
+            double end = Context.GLFWContext.GetTime();
+            double delta = end - start;
+            double fps = 1.0d / delta;
+            Context.ParentWindow.SetTitle($"{fps.ToString("0.##")} fps");
         }
         #region Interfaces
         public List<Entity> QueryEntitiesByIds(IEnumerable<Guid> ids)
         {
-            List<Entity> retval = all_entities.FindAll(new Predicate<Entity>((e) => 
+            List<Entity> retval = entity_store.FindAll(new Predicate<Entity>((e) => 
             { 
                 foreach(Guid id in ids)
                 {
@@ -131,7 +123,7 @@ namespace Leviathan.Core
             {
                 tofind.Add(new Guid(id));
             }
-            List<Entity> retval = all_entities.FindAll(new Predicate<Entity>((e) =>
+            List<Entity> retval = entity_store.FindAll(new Predicate<Entity>((e) =>
             {
                 foreach (Guid id in tofind)
                 {
@@ -147,7 +139,7 @@ namespace Leviathan.Core
 
         public Entity QueryEntityById(Guid id)
         {
-            Entity retval = all_entities.Find(new Predicate<Entity>((e) =>
+            Entity retval = entity_store.Find(new Predicate<Entity>((e) =>
             {
                 if (e.Id.Equals(id))
                 {
@@ -161,7 +153,7 @@ namespace Leviathan.Core
         public Entity QueryEntityById(string id)
         {
             Guid compare = new Guid(id);
-            Entity retval = all_entities.Find(new Predicate<Entity>((e) =>
+            Entity retval = entity_store.Find(new Predicate<Entity>((e) =>
             {
                 if (e.Id.Equals(compare))
                 {
@@ -183,22 +175,16 @@ namespace Leviathan.Core
             throw new NotImplementedException();
         }
 
-        public List<Entity> QueryEntityByComponent<T>() where T : Component
+        public Entity[] QueryEntityByComponent<T>() where T : Component
         {
             string component_name = typeof(T).Name;
-            if(component_registry.componenthashes.Contains(component_name))
-            {
-                return new List<Entity>(component_registry.collected_entities[component_name].Values);
-            } else
-            {
-                return new List<Entity>();
-            }
-
+            Archetype found = entity_store.GetArchetypeMatchingType(typeof(T));
+            return found.entities.ToArray();
         }
 
         public IEnumerator<Entity> GetEntityEnumerator()
         {
-            return this.all_entities.GetEnumerator();
+            return this.entity_store.GetEntityEnumerator();
         }
 
         public IEnumerator<Entity> GetScriptableEntityEnumerator()
@@ -206,20 +192,25 @@ namespace Leviathan.Core
             return this.scripted_entities.GetEnumerator();
         }
 
+        public bool HasSystem<T>() where T : ECSystem
+        {
+            return system_registry.HasSystem<T>();
+        }
+
+        public ECSystem GetSystem<T>() where T : ECSystem
+        {
+            return system_registry.GetSystem<T>();
+        }
+
         public void OnComponentAdded(Entity caller, Component comp)
         {
-            if(all_entities.Contains(caller))
-            {
-                component_registry.OnComponentAdded(caller, comp);
-            }
+            entity_store.OnEntitycomponentAdded(caller, comp);
+
         }
 
         public void OnComponentRemoved(Entity caller, Component comp)
         {
-            if (all_entities.Contains(caller))
-            {
-                component_registry.OnComponentRemoved(caller, comp);
-            }
+            entity_store.OnEntityComponentRemoved(caller, comp);
         }
 
         public void OnScriptAdded(Entity caller, MonoScript script)
@@ -237,6 +228,21 @@ namespace Leviathan.Core
                 scripted_entities.Remove(caller);
             }
         }
+
+        public void OnEntityChildAdded(Entity caller, Entity child)
+        {
+            this.AddEntity(child);
+            entity_store.AddEntity(child);
+        }
+
+        public void OnEntityChildRemoved(Entity caller, Entity child)
+        {
+            if(child.Scripts.Count != 0)
+            {
+                this.scripted_entities.Remove(child);
+            }
+            entity_store.RemoveEntity(child);
+        }
         #endregion
     }
 
@@ -247,7 +253,7 @@ namespace Leviathan.Core
         public Entity QueryEntityById(Guid id);
         public Entity QueryEntityById(string id);
 
-        public List<Entity> QueryEntityByComponent<T>() where T : Component;
+        public Entity[] QueryEntityByComponent<T>() where T : Component;
 
         public List<Entity> QueryEntityByPredicate(Predicate<Entity> predicate);
         public Entity QueryFirstEntityMatchByPredicate(Predicate<Entity> predicate);
@@ -261,61 +267,89 @@ namespace Leviathan.Core
         public void OnScriptAdded(Entity caller, MonoScript script);
 
         public void OnScriptRemoved(Entity caller, MonoScript script);
-    }
 
-    public class ComponentRegistry
-    {
-        public HashSet<string> componenthashes;
-        public Dictionary<string, Dictionary<Guid, Entity>> collected_entities;
+        public void OnEntityChildAdded(Entity caller, Entity child);
 
-        public ComponentRegistry()
-        {
-            componenthashes = new HashSet<string>();
-            collected_entities = new Dictionary<string, Dictionary<Guid, Entity>>();
-        }
-
-        public void OnComponentAdded(Entity caller, Component comp)
-        {
-            if(!componenthashes.Contains(comp.FriendlyName))
-            {
-                componenthashes.Add(comp.FriendlyName);
-
-                Dictionary<Guid, Entity> toadd = new Dictionary<Guid, Entity>();
-                toadd.Add(caller.Id, caller);
-                collected_entities.Add(comp.FriendlyName, toadd);
-            }
-            else
-            {
-                collected_entities[comp.FriendlyName].Add(caller.Id, caller);
-            }
-        }
-
-        public void OnComponentRemoved(Entity caller, Component comp)
-        {
-            if (componenthashes.Contains(comp.FriendlyName))
-            {
-                collected_entities[comp.FriendlyName].Remove(caller.Id);
-            }
-        }
+        public void OnEntityChildRemoved(Entity caller, Entity child);
     }
 
     public class SystemRegistry
     {
-        public Dictionary<SystemPriority, List<ECSystem>> Systems;
+        public HashSet<string> systemhashes;
+        public Dictionary<SystemPriority, List<ECSystem>> systems;
 
-        public void AddSystem()
+        public SystemRegistry()
         {
+            systemhashes = new HashSet<string>();
+            systems = new Dictionary<SystemPriority, List<ECSystem>>();
+        }
 
+        public bool HasSystem<T>() where T : ECSystem
+        {
+            return systemhashes.Contains(typeof(T).Name);
+        }
+
+        public void AddSystems(params ECSystem[] systems)
+        {
+            foreach(ECSystem s in systems)
+            {
+                this.AddSystem(s);
+            }
+        }
+
+        public void AddSystem(ECSystem system)
+        {
+            if(!systemhashes.Contains(system.GetType().Name))
+            {
+                systemhashes.Add(system.FriendlyName);
+            } else
+            {
+                throw new Exception("System collision: cannot have more than 2 of the same systems");
+            }
+
+            if (!systems.ContainsKey(system.Priority)) {
+                systems.Add(system.Priority, new List<ECSystem>());
+            }
+            systems[system.Priority].Add(system);
         }
 
         public ECSystem GetSystem<T>() where T : ECSystem
         {
-            return default(ECSystem);
+            if(systemhashes.Contains(typeof(T).Name))
+            {
+                foreach(KeyValuePair<SystemPriority, List<ECSystem>> syslist in systems)
+                {
+
+                    ECSystem found = syslist.Value.Find(new Predicate<ECSystem>((e) => { return e is T; }));
+                    if(found != null)
+                    {
+                        return found;
+                    }
+                }
+            }
+            return null;
         }
 
-        public void RemoveSystem()
+        public List<ECSystem> GetSystemByPriority(SystemPriority priority)
         {
+            if(systems.ContainsKey(priority))
+            {
+                return systems[priority];
+            } else
+            {
+                return new List<ECSystem>();
+            }
+        }
 
+        public void RemoveSystem<T>() where T : ECSystem
+        {
+            if (systemhashes.Contains(typeof(T).Name))
+            {
+                foreach (KeyValuePair<SystemPriority, List<ECSystem>> syslist in systems)
+                {
+                    syslist.Value.RemoveAll(new Predicate<ECSystem>((e) => { return e is T; }));
+                }
+            }
         }
     }
 }

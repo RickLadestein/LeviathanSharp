@@ -15,7 +15,7 @@ namespace Leviathan.ECS.Systems
 
         protected override void SystemFunc()
         {
-            List<Entity> found = Core.World.Current.QueryEntityByComponent<SoundListenerComponent>();
+            Entity[] found = Core.World.Current.QueryEntityByComponent<SoundListenerComponent>();
             Entity parent_entity = found[0];
             SoundListenerComponent sound_listener_component = parent_entity.GetComponent<SoundListenerComponent>();
 

@@ -192,24 +192,7 @@ namespace Leviathan.Core.Graphics
             Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureWrapT, (uint)Wrap);
             Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMinFilter, (uint)Filter);
             Context.GLContext.TextureParameterI(this.Handle, Silk.NET.OpenGL.GLEnum.TextureMagFilter, (uint)Filter);
-            //LoadImageIntoTexture(im);
-            unsafe
-            {
-                fixed (void* data = &MemoryMarshal.GetReference(im.image.GetPixelRowSpan(0)))
-                {
-                    Context.GLContext.TexImage2D(
-                        (Silk.NET.OpenGL.GLEnum)this.Type,
-                        0,
-                        (int)InternalFormat.Rgba,
-                        (uint)im.width,
-                        (uint)im.height,
-                        0,
-                        PixelFormat.Rgba,
-                        PixelType.UnsignedByte,
-                        data);
-                }
-            }
-
+            LoadImageIntoTexture(im);
             EndModification();
         }
 
@@ -254,7 +237,6 @@ namespace Leviathan.Core.Graphics
             } else
             {
                 Texture2D output = new Texture2D(image);
-                Console.WriteLine($"load complete");
                 return output;
             }
         }

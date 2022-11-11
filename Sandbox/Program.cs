@@ -27,14 +27,18 @@ namespace Sandbox
 
         static void Main(string[] args)
         {
+            RenderComponent rc = new RenderComponent();
+            RenderComponent rc2 = new RenderComponent();
+
             keys = new List<KeyboardKey>();
             w = new Window(1920, 1080, WindowMode.WINDOWED);
 
             Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.Blend);
             Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
             Context.GLContext.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
-            //Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
-            //Context.GLContext.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
+            
+            Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
+            Context.GLContext.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
 
             //Scene s = Scene.LoadSceneFromObj(".\\assets\\models\\sponza.obj");
 

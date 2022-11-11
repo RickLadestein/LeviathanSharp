@@ -187,6 +187,11 @@ namespace Leviathan.Core.Windowing
             throw new Exception($"GLFW encountered error code {error}:{description}");
         }
 
+        public static unsafe void OnGLDebug(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
+        {
+            throw new NotImplementedException();
+        }
+
 
 
         #region Setters

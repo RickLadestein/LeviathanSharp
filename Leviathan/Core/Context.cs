@@ -9,6 +9,8 @@ using Leviathan.Util;
 using Leviathan.Core.Sound;
 using Leviathan.Core.Graphics;
 using Leviathan.Core.Windowing;
+using Leviathan.Util.util;
+using System.Runtime.CompilerServices;
 
 namespace Leviathan.Core
 {
@@ -26,6 +28,9 @@ namespace Leviathan.Core
         private AudioResourceManager a_manager;
         private MaterialResourceManager material_manager;
 
+        private JobSystem j_manager;
+        private Queue<Job> render_job_queue;
+
         private static Context current;
 
         public unsafe Context(LGraphicsContext g_context, LAudioContext a_context)
@@ -38,7 +43,7 @@ namespace Leviathan.Core
                 throw new Exception("Supplied graphics context was invalid or null");
             }
 
-            if(a_context != null && a_context.IsValid())
+            if (a_context != null && a_context.IsValid())
             {
                 audio_context = a_context;
             }
@@ -46,6 +51,7 @@ namespace Leviathan.Core
             {
                 throw new Exception("Supplied audio context was invalid or null");
             }
+            j_manager = new JobSystem(4);
         }
 
         public void SetParentForFirstTimeWindow(Window w_parent)
@@ -82,6 +88,28 @@ namespace Leviathan.Core
             if(audio_context != null)
             {
                 audio_context.Destroy();
+            }
+
+            if(JobManager != null)
+            {
+                JobManager.Dispose();
+            }
+        }
+
+        public static void DisposeCurrentContext()
+        {
+            if(current != null)
+            {
+                current.Dispose();
+                current = null;
+            }
+        }
+
+        public static JobSystem JobManager
+        {
+            get
+            {
+                return current.j_manager;
             }
         }
 
@@ -318,7 +346,7 @@ namespace Leviathan.Core
         }
     }
 
-
+    
 
     #region ResourceManagers
 
@@ -351,6 +379,7 @@ namespace Leviathan.Core
                 }
             }
             loader.PushToRenderContext();
+            loader.Dispose();
         }
 
     }

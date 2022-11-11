@@ -1,4 +1,6 @@
-﻿using Leviathan.Core.Graphics;
+﻿using Assimp.Configs;
+using Assimp;
+using Leviathan.Core.Graphics;
 using Leviathan.ECS;
 using Leviathan.ECS.BasicScripts;
 using Leviathan.Math;
@@ -28,23 +30,37 @@ namespace Leviathan.Core
         public static Scene LoadSceneFromObj(string path)
         {
             Scene output = new Scene();
-            
-            MeshLoader loader = new MeshLoader();
-            loader.Import(path, LPrimitiveType.TRIANGLES);
-            loader.PushToRenderContext();
 
-            foreach(Tuple<Mesh, Material> m in loader.materialbindings)
+            ImportAssimpMeshes(path, out List<Assimp.Mesh> loadedMeshes, out List<Assimp.Material> loadedMaterials);
+
+            MaterialLoader matloader = new MaterialLoader();
+            matloader.ImportMaterialsFromAssimpMaterial(loadedMaterials);
+            matloader.PushToRenderContext();
+
+            foreach(Graphics.Material material in matloader.materials)
             {
-                Entity entity = new Entity();
-                entity.Name = m.Item1.Name;
+                Graphics.Material.ImportTexturesSynchronous(material);
+            }
 
+            MeshLoader meshloader = new MeshLoader();
+            meshloader.ImportMeshesFromScene(loadedMeshes);
+            meshloader.PushToRenderContext();
+
+
+            for(int i = 0; i < meshloader.Meshes.Count; i++)
+            {
+                Graphics.Mesh m = meshloader.Meshes[i];
+                Entity entity = new Entity();
+                entity.Name = m.Name;
+
+                int mat_index = meshloader.material_bindings[i];
                 MaterialComponent matcomp = new MaterialComponent();
                 matcomp.SetShader("default");
-                matcomp.SetMaterial(m.Item2.Name);
+                matcomp.SetMaterial(matloader.materials[mat_index].Name);
                 entity.AddComponent(matcomp);
 
                 MeshComponent mcomp = new MeshComponent();
-                mcomp.SetMesh(m.Item1.Name);
+                mcomp.SetMesh(m.Name);
                 entity.AddComponent(mcomp);
                 
                 RenderComponent rcomp = new RenderComponent();
@@ -52,8 +68,21 @@ namespace Leviathan.Core
                 
                 output.Entities.Add(entity);
             }
-
+            meshloader.Dispose();
             return output;
+        }
+
+        private static void ImportAssimpMeshes(string file_path, out List<Assimp.Mesh> meshes, out List<Assimp.Material> materials)
+        {
+            meshes = new List<Assimp.Mesh>();
+            materials = new List<Assimp.Material>();
+
+            Assimp.AssimpContext ac = new AssimpContext();
+            ac.SetConfig(new NormalSmoothingAngleConfig(66.0f));
+            Assimp.Scene scene = ac.ImportFile(file_path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals | PostProcessSteps.CalculateTangentSpace);
+            meshes.AddRange(scene.Meshes);
+            materials.AddRange(scene.Materials);
+            ac.Dispose();
         }
 
         public static Scene DefaultScene

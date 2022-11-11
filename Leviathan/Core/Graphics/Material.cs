@@ -14,6 +14,8 @@ using System.Runtime.CompilerServices;
 using System.IO;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
+using Leviathan.Util.util;
+using Leviathan.ECS.Systems;
 
 namespace Leviathan.Core.Graphics
 {
@@ -175,6 +177,76 @@ namespace Leviathan.Core.Graphics
             }
         }
 
+        public static void ImportTexturesSynchronous(Material mat)
+        {
+            foreach (var tuple in mat.maps)
+            {
+                if (tuple == null)
+                    continue;
+                TextureType type = tuple.Item1;
+                TextureSlot unit = tuple.Item2;
+                string filename = Path.GetFileName(unit.FilePath);
+
+                if (!Context.TextureManager.HasResource(filename))
+                {
+                    Texture2D tex = Texture2D.ImportTexture($"./assets/{unit.FilePath}");
+                    if (tex == null)
+                    {
+                        Console.WriteLine($"Could not find texture resource at: ./assets/{unit.FilePath}");
+                    }
+                    else
+                    {
+                        Context.TextureManager.AddResource(filename, tex);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Texture loading collision {filename}");
+                }
+
+            }
+        }
+        public static void ImportTexturesAsync(Material mat)
+        {
+            foreach (var tuple in mat.maps)
+            {
+                if (tuple == null)
+                    continue;
+                TextureType type = tuple.Item1;
+                TextureSlot unit = tuple.Item2;
+                string filename = Path.GetFileName(unit.FilePath);
+
+                if (!Context.TextureManager.HasResource(filename))
+                {
+                    Job job = new Job(new Action<JobResultHandler>(
+                        (e) =>
+                        {
+                            Texture2D tex = Texture2D.ImportTexture($"./assets/{unit.FilePath}");
+                            if (tex == null)
+                            {
+                                e.JobFailed.Invoke($"Could not import file: ./assets/{unit.FilePath}");
+                            }
+                            else
+                            {
+                                Context.TextureManager.AddResource(filename, tex);
+                            }
+                        }),
+                        new JobResultHandler(
+                            new Action(() => { }),
+                            new Action<string>((e) => { Console.WriteLine(e); }))
+                    );
+                    DelayedExecutionSystem system = (DelayedExecutionSystem) World.Current.GetSystem<DelayedExecutionSystem>();
+                    system.AddJob(job);
+                    
+                }
+                else
+                {
+                    Console.WriteLine($"Texture loading collision {filename}");
+                }
+
+            }
+            
+        }
         private static Vector4f FromAssimpColor(Assimp.Color4D color)
         {
             return new Vector4f(color.R, color.G, color.B, color.A);
@@ -184,13 +256,19 @@ namespace Leviathan.Core.Graphics
     public class MaterialLoader
     {
         public List<Material> materials;
-        public string material_path;
-
-        private StreamReader reader;
 
         public MaterialLoader()
         {
             this.materials = new List<Material>();
+        }
+
+        public void ImportMaterialsFromAssimpMaterial(List<Assimp.Material> _materials)
+        {
+            foreach(Assimp.Material m in _materials)
+            {
+                Material mat = Material.FromAssimpMaterial(m);
+                this.materials.Add(mat);
+            }
         }
 
         public void PushToRenderContext()
