@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Util", "Leviathan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeviathanEditor", "LeviathanEditor\LeviathanEditor.csproj", "{FABF725E-EDA6-40D2-877B-00DE017B8B70}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leviathan.Editor", "Leviathan.Editor\Leviathan.Editor.csproj", "{2D46CCE9-2387-4E79-B973-5F969C836F13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leviathan.Util.UnitTest", "Leviathan.Util.UnitTest\Leviathan.Util.UnitTest.csproj", "{050021F4-2F36-40D5-BB41-1BB2E932F04D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FABF725E-EDA6-40D2-877B-00DE017B8B70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D46CCE9-2387-4E79-B973-5F969C836F13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D46CCE9-2387-4E79-B973-5F969C836F13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D46CCE9-2387-4E79-B973-5F969C836F13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D46CCE9-2387-4E79-B973-5F969C836F13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{050021F4-2F36-40D5-BB41-1BB2E932F04D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{050021F4-2F36-40D5-BB41-1BB2E932F04D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{050021F4-2F36-40D5-BB41-1BB2E932F04D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{050021F4-2F36-40D5-BB41-1BB2E932F04D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -27,6 +27,21 @@ namespace Sandbox
 
         static void Main(string[] args)
         {
+            Leviathan.Util.Collections.LinkedList<int> list = new Leviathan.Util.Collections.LinkedList<int>();
+            list.Add(1);
+            list.Add(2);
+            list.Add(3);
+            list.Add(4);
+            list.Contains(3);
+            foreach(int entry in list)
+            {
+                Console.WriteLine(entry);
+            }
+            list[1] = 20;
+            foreach (int entry in list)
+            {
+                Console.WriteLine(entry);
+            }
             keys = new List<KeyboardKey>();
             w = new Window(1920, 1080, WindowMode.WINDOWED);
 
@@ -37,10 +52,10 @@ namespace Sandbox
             Context.GLContext.Enable(Silk.NET.OpenGL.EnableCap.CullFace);
             Context.GLContext.CullFace(Silk.NET.OpenGL.CullFaceMode.Back);
 
-            //Scene s = Scene.LoadSceneFromObj(".\\assets\\models\\sponza.obj");
+            Scene s = Scene.LoadSceneFromObj(".\\assets\\models\\nanosuit.obj");
 
             World.Current.LoadScene(Scene.DefaultScene);
-            //World.Current.AddScene(s);
+            World.Current.AddScene(s);
             Window.Start(w);
             return;
         }

@@ -39,6 +39,11 @@ namespace Leviathan.Util.util.Collections
 
         }
 
+        public T Find(Predicate<T> predicate)
+        {
+            return data.Find(predicate);
+        } 
+
         public bool Contains(T value)
         {
             return values.Contains(value);
